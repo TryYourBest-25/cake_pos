@@ -1,52 +1,34 @@
 -- Trigger kiểm tra thời hạn membership
-DELIMITER //
 
-/**
- * Trigger kiểm tra thời hạn khi cập nhật membership_type
- *
- * Chức năng: Đảm bảo rằng thời hạn membership được cập nhật phải là ngày trong tương lai
- * Thực thi: Trước khi cập nhật bảng membership_type
- * Tham số:
- *   - NEW: Dữ liệu mới sẽ được cập nhật
- *   - OLD: Dữ liệu hiện tại của bản ghi
- * Xử lý: Nếu ngày hết hạn không phải là ngày tương lai, sẽ báo lỗi và ngăn cập nhật
- */
-CREATE TRIGGER before_membership_update_check_expiration
-    BEFORE UPDATE
-    ON membership_type
-    FOR EACH ROW
+CREATE OR REPLACE FUNCTION before_membership_update_check_expiration_func()
+RETURNS TRIGGER AS $$
 BEGIN
     -- Nếu cập nhật valid_until, đảm bảo phải là ngày trong tương lai
     IF NEW.valid_until IS NOT NULL AND NEW.valid_until <= CURRENT_DATE THEN
-        SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'Thời hạn membership phải là ngày trong tương lai';
+        RAISE EXCEPTION 'Thời hạn membership phải là ngày trong tương lai' USING ERRCODE = '45000';
     END IF;
-END //
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
-/**
- * Trigger kiểm tra thời hạn khi thêm mới membership_type
- *
- * Chức năng: Đảm bảo rằng thời hạn membership khi tạo mới phải là ngày trong tương lai
- * Thực thi: Trước khi thêm bản ghi vào bảng membership_type
- * Tham số:
- *   - NEW: Dữ liệu mới sẽ được thêm vào
- * Xử lý: Nếu ngày hết hạn không phải là ngày tương lai, sẽ báo lỗi và ngăn thêm mới
- */
-CREATE TRIGGER before_membership_insert_check_expiration
-    BEFORE INSERT
-    ON membership_type
-    FOR EACH ROW
+CREATE TRIGGER before_membership_update_check_expiration_trigger
+    BEFORE UPDATE ON membership_type
+    FOR EACH ROW EXECUTE FUNCTION before_membership_update_check_expiration_func();
+
+CREATE OR REPLACE FUNCTION before_membership_insert_check_expiration_func()
+RETURNS TRIGGER AS $$
 BEGIN
     -- Nếu cập nhật valid_until, đảm bảo phải là ngày trong tương lai
     IF NEW.valid_until IS NOT NULL AND NEW.valid_until <= CURRENT_DATE THEN
-        SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'Thời hạn membership phải là ngày trong tương lai';
+        RAISE EXCEPTION 'Thời hạn membership phải là ngày trong tương lai' USING ERRCODE = '45000';
     END IF;
-END //
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
-DELIMITER ;
-
-DELIMITER //
+CREATE TRIGGER before_membership_insert_check_expiration_trigger
+    BEFORE INSERT ON membership_type
+    FOR EACH ROW EXECUTE FUNCTION before_membership_insert_check_expiration_func();
 
 /**
  * Thủ tục reset membership về NEWMEM khi hết hạn
@@ -62,52 +44,62 @@ DELIMITER //
  *   - Thông báo số lượng khách hàng đã được đặt lại thành viên
  *   - Thông báo số lượng loại thành viên đã được gia hạn
  */
-CREATE PROCEDURE sp_reset_expired_memberships()
+CREATE OR REPLACE PROCEDURE sp_reset_expired_memberships()
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    newmem_id SMALLINT;
+    updated_customers_count INT;
+    updated_membership_types_count INT;
 BEGIN
-    DECLARE newmem_id TINYINT UNSIGNED;
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-        BEGIN
-            ROLLBACK;
-            SELECT 'Error occurred - transaction rolled back' AS result;
-        END;
-
-    START TRANSACTION;
-
-
     -- Lấy ID của loại thành viên NEWMEM
-    SELECT membership_type_id
+    SELECT mt.membership_type_id
     INTO newmem_id
-    FROM membership_type
-    WHERE type = 'NEWMEM';
+    FROM membership_type mt
+    WHERE mt.type = 'NEWMEM'
+    LIMIT 1; -- Đảm bảo chỉ lấy 1 nếu có trùng (dù 'type' là unique)
+
+    IF newmem_id IS NULL THEN
+        RAISE NOTICE 'Không tìm thấy loại thành viên NEWMEM.';
+        RETURN;
+    END IF;
 
     -- Tìm và cập nhật các khách hàng có loại thành viên đã hết hạn
     UPDATE customer c
-        JOIN membership_type mt ON c.membership_type_id = mt.membership_type_id
-    SET c.membership_type_id = newmem_id,
-        c.current_points     = 0,
-        c.updated_at         = CURRENT_TIMESTAMP
-    WHERE mt.valid_until IS NOT NULL
+    SET membership_type_id = newmem_id,
+        current_points     = 0,
+        updated_at         = CURRENT_TIMESTAMP
+    FROM membership_type mt
+    WHERE c.membership_type_id = mt.membership_type_id
+      AND mt.valid_until IS NOT NULL
       AND mt.valid_until < CURRENT_DATE
-      AND mt.type != 'NEWMEM';
-    -- Log kết quả
-    SELECT CONCAT('Đã reset ', ROW_COUNT(), ' khách hàng về loại thành viên NEWMEM do hết hạn') AS result;
+      AND mt.type != 'NEWMEM'; -- Không reset nếu đã là NEWMEM
+    GET DIAGNOSTICS updated_customers_count = ROW_COUNT;
 
-    -- Tự động cập nhật valid_until về sau 1 năm cho các membership đã hết hạn
+    -- Log kết quả
+    RAISE NOTICE 'Đã reset % khách hàng về loại thành viên NEWMEM do hết hạn', updated_customers_count;
+
+    -- Tự động cập nhật valid_until về sau 1 năm cho các membership type (ngoại trừ NEWMEM) đã hết hạn
+    -- Logic này có vẻ lạ: gia hạn cho *loại* thành viên, không phải cho từng khách hàng.
+    -- Nếu ý là gia hạn cho các khách hàng vừa bị reset thì cần logic khác.
+    -- Giả sử là gia hạn cho các membership_type definitions.
     UPDATE membership_type mt
-    SET mt.valid_until = DATE_ADD(CURRENT_DATE, INTERVAL 1 YEAR)
+    SET valid_until = CURRENT_DATE + INTERVAL '1 year'
     WHERE mt.valid_until IS NOT NULL
       AND mt.valid_until < CURRENT_DATE
-      AND mt.type != 'NEWMEM';
+      AND mt.type != 'NEWMEM'; -- NEWMEM thường không có valid_until hoặc không nên tự động gia hạn theo cách này
+    GET DIAGNOSTICS updated_membership_types_count = ROW_COUNT;
 
     -- Log kết quả cập nhật thời hạn
-    SELECT CONCAT('Đã cập nhật thời hạn cho ', ROW_COUNT(), ' loại thành viên thêm 1 năm') AS update_result;
+    RAISE NOTICE 'Đã cập nhật thời hạn cho % loại thành viên thêm 1 năm', updated_membership_types_count;
 
-    COMMIT;
-END //
-
-DELIMITER ;
-
-DELIMITER //
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE NOTICE 'Lỗi xảy ra trong sp_reset_expired_memberships: % - %', SQLSTATE, SQLERRM;
+        -- Không có ROLLBACK rõ ràng ở đây vì PL/pgSQL procedure chạy trong một transaction
+        -- Nếu có lỗi, toàn bộ procedure sẽ rollback trừ khi có sub-transaction.
+END;
+$$;
 
 /**
  * Thủ tục tái cấp lại thành viên dựa trên điểm hiện tại
@@ -121,35 +113,40 @@ DELIMITER //
  * Kết quả trả về:
  *   - Thông báo số lượng khách hàng đã được cập nhật loại thành viên
  */
-CREATE PROCEDURE sp_recalculate_customer_memberships()
+CREATE OR REPLACE PROCEDURE sp_recalculate_customer_memberships()
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    updated_customers_count INT;
 BEGIN
-    DECLARE EXIT HANDLER FOR SQLEXCEPTION
-        BEGIN
-            ROLLBACK;
-            SELECT 'Error occurred - transaction rolled back' AS result;
-        END;
-
-    START TRANSACTION;
-
     -- Cập nhật loại thành viên dựa trên điểm hiện tại
     UPDATE customer c
-    SET c.membership_type_id = (SELECT mt.membership_type_id
-                                FROM membership_type mt
-                                WHERE c.current_points >= mt.required_point
-                                  AND (mt.valid_until IS NULL OR mt.valid_until > CURRENT_DATE)
-                                ORDER BY mt.required_point DESC
-                                LIMIT 1),
-        c.updated_at         = CURRENT_TIMESTAMP
-    WHERE c.current_points > 0;
+    SET membership_type_id = sub.new_membership_type_id,
+        updated_at         = CURRENT_TIMESTAMP
+    FROM (
+        SELECT 
+            c_inner.customer_id,
+            (SELECT mt.membership_type_id
+             FROM membership_type mt
+             WHERE c_inner.current_points >= mt.required_point
+               AND (mt.valid_until IS NULL OR mt.valid_until > CURRENT_DATE)
+               AND mt.is_active = TRUE -- Chỉ xét các loại thành viên đang active
+             ORDER BY mt.required_point DESC
+             LIMIT 1) as new_membership_type_id
+        FROM customer c_inner
+        WHERE c_inner.current_points > 0
+    ) AS sub
+    WHERE c.customer_id = sub.customer_id AND c.membership_type_id IS DISTINCT FROM sub.new_membership_type_id;
 
+    GET DIAGNOSTICS updated_customers_count = ROW_COUNT;
     -- Log kết quả
-    SELECT CONCAT('Đã tái cấp loại thành viên cho ', ROW_COUNT(), ' khách hàng dựa trên điểm hiện tại') AS result;
+    RAISE NOTICE 'Đã tái cấp loại thành viên cho % khách hàng dựa trên điểm hiện tại', updated_customers_count;
 
-    COMMIT;
-END //
-
-DELIMITER ;
-DELIMITER //
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE NOTICE 'Lỗi xảy ra trong sp_recalculate_customer_memberships: % - %', SQLSTATE, SQLERRM;
+END;
+$$;
 
 /**
  * Event tự động kiểm tra và cập nhật membership hàng ngày
@@ -159,22 +156,29 @@ DELIMITER //
  * Các thủ tục được gọi:
  *   - sp_reset_expired_memberships: Đặt lại membership hết hạn
  *   - sp_recalculate_customer_memberships: Cập nhật lại loại thành viên theo điểm
+ *
+ * LƯU Ý QUAN TRỌNG: PostgreSQL không hỗ trợ CREATE EVENT trực tiếp như MySQL.
+ * Bạn cần sử dụng một công cụ lập lịch bên ngoài (ví dụ: cron trên Linux/macOS, Task Scheduler trên Windows)
+ * để gọi các Stored Procedure này, hoặc sử dụng một extension như pg_cron.
+ *
+ * Ví dụ với pg_cron (sau khi cài đặt extension):
+ * SELECT cron.schedule('membership-daily-check', '0 1 * * *', $$CALL sp_reset_expired_memberships(); CALL sp_recalculate_customer_memberships();$$);
+ * Lệnh trên sẽ chạy vào 1:00 AM mỗi ngày.
  */
+/*
 CREATE EVENT IF NOT EXISTS event_check_expired_memberships
     ON SCHEDULE EVERY 1 DAY
-        STARTS CURRENT_DATE + INTERVAL 1 DAY
+        STARTS CURRENT_DATE + INTERVAL 1 DAY -- PostgreSQL: CURRENT_DATE + INTERVAL '1 day'
     DO
     BEGIN
         CALL sp_reset_expired_memberships();
         -- Thêm thủ tục tái cấp lại thành viên dựa trên điểm hiện tại
         CALL sp_recalculate_customer_memberships();
     END //
+*/
+-- DELIMITER ; -- Removed
 
-DELIMITER ;
 
-
--- Kiểm tra trạng thái hiện tại của Event Scheduler
-SHOW VARIABLES LIKE 'event_scheduler';
-
--- Bật Event Scheduler nếu chưa được bật
-SET GLOBAL event_scheduler = ON;
+-- Các lệnh sau đây là đặc thù của MySQL và không áp dụng cho PostgreSQL:
+-- SHOW VARIABLES LIKE 'event_scheduler';
+-- SET GLOBAL event_scheduler = ON;

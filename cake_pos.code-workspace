@@ -1,0 +1,29 @@
+{
+	"folders": [
+		{
+			"path": ".",
+		},{
+			"path" : "backend"
+		},{
+			"path" : "frontend"
+		}
+	],
+	"settings": {
+		"files.exclude": {
+			"**/.git": true,
+			"**/.svn": true,
+			"**/.hg": true,
+			"**/CVS": true,
+			"**/.DS_Store": true,
+			"**/*.log": true,
+			"**/node_modules": true,
+			"**/dist": true,
+			"**/build": true,
+			"**/out": true,
+			"**/target": true,
+			"**/bin": true,
+			"**/obj": true,
+			"**/temp": true,
+		}
+	}
+}

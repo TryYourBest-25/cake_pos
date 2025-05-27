@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="SqlDialectMappings">
-    <file url="file://$PROJECT_DIR$/backend/database/B1.0.0__base_line.sql" dialect="MySQL" />
-    <file url="file://$PROJECT_DIR$/backend/database/V1.0.1__init_default_data.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/backend/database/B1.0.0__base_line.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/backend/database/V1.0.1__init_default_data.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/backend/database/V1.0.4__membership_trigger_event.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/backend/database/V1.0.5__scheduled_events.sql" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/backend/database/V1.0.8__init_optional_data.sql" dialect="PostgreSQL" />
+    <file url="PROJECT" dialect="PostgreSQL" />
   </component>
 </project>

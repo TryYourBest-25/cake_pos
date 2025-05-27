@@ -8,17 +8,17 @@ VALUES ('cái', 'S', 1, 'Đơn vị (cái/phần)'),
        ('cái', 'NA', 1, 'Đơn vị (cái/phần)');
 
 -- Dữ liệu cho bảng category
-INSERT INTO category (category_id, name, description)
-VALUES (1,'BÁNH NGỌT', 'Các loại bánh ngọt'),   
-       (2,'BÁNH TRUNG THU', 'Các loại bánh trung thu');
+INSERT INTO category (name, description)
+VALUES ('BÁNH NGỌT', 'Các loại bánh ngọt'),   
+       ('BÁNH TRUNG THU', 'Các loại bánh trung thu');
 
 -- Dữ liệu cho bảng membership_type
-INSERT INTO membership_type (type, discount_value, discount_unit, required_point, description, is_active, valid_until)
-VALUES ('NEWMEM', 0.000, 'FIXED', 0, 'Thành viên mới', 1, null),
-       ('BRONZE', 1000, 'FIXED', 20, 'Thành viên hạng đồng', 1, TIME(DATE_ADD(NOW(), INTERVAL 365 DAY))),
-       ('SILVER', 2000, 'FIXED', 50, 'Thành viên hạng bạc', 1, TIME(DATE_ADD(NOW(), INTERVAL 365 DAY))),
-       ('GOLD', 1, 'PERCENTAGE', 100, 'Thành viên hạng vàng', 1, TIME(DATE_ADD(NOW(), INTERVAL 365 DAY))),
-       ('PLATINUM', 2, 'PERCENTAGE', 200, 'Thành viên hạng bạch kim', 1, TIME(DATE_ADD(NOW(), INTERVAL 365 DAY)));
+INSERT INTO membership_type (type, discount_value, required_point, description, is_active, valid_until)
+VALUES ('NEWMEM', 0, 0, 'Thành viên mới', true, null),
+       ('BRONZE', 1, 20, 'Thành viên hạng đồng', true, NOW() + INTERVAL '365 days'),
+       ('SILVER', 2,  50, 'Thành viên hạng bạc', true, NOW() + INTERVAL '365 days'),
+       ('GOLD', 3,  100, 'Thành viên hạng vàng', true, NOW() + INTERVAL '365 days'),
+       ('PLATINUM', 3.5,  200, 'Thành viên hạng bạch kim', true, NOW() + INTERVAL '365 days');
 
 -- Dữ liệu cho bảng role
 INSERT INTO role (name, description)
@@ -28,16 +28,12 @@ VALUES ('MANAGER', 'Quản trị viên - có toàn quyền quản lý hệ thố
        ('GUEST', 'Khách vãng lai - người dùng chưa đăng ký');
 
 -- Dữ liệu cho bảng payment_method
-INSERT INTO payment_method (payment_name, payment_description)
+INSERT INTO payment_method (name, description)
 VALUES ('CASH', 'Thanh toán bằng tiền mặt'),
-       ('VISA', 'Thanh toán bằng thẻ Visa'),
-       ('BANKCARD', 'Thanh toán bằng thẻ ngân hàng'),
-       ('CREDIT_CARD', 'Thanh toán bằng thẻ tín dụng'),
-       ('E-WALLET', 'Thanh toán bằng ví điện tử');
-
+       ('VNPAY', 'Thanh toán bằng VNPAY');
 -- Dữ liệu cho bảng store
 INSERT INTO store (name, address, phone, opening_time, closing_time, email, opening_date, tax_code)
-    VALUE ('Bánh Ngọt Nhà Làm',
+    VALUES ('Bánh Ngọt Nhà Làm',
            '123 Nguyễn Huệ, Quận 1, TP. Hồ Chí Minh',
            '0987654321',
            '11:00:00',
@@ -46,181 +42,142 @@ INSERT INTO store (name, address, phone, opening_time, closing_time, email, open
            '2023-01-01',
            '0123456789');
 
-/**
- * Trigger bảo vệ loại thành viên mặc định khỏi việc thay đổi tên
- *
- * Chức năng: Ngăn chặn việc thay đổi tên của các loại thành viên cơ bản
- * Thực thi: Trước khi cập nhật bảng membership_type
- */
-CREATE TRIGGER protect_default_membership_update
-    BEFORE UPDATE
-    ON membership_type
-    FOR EACH ROW
+-- PostgreSQL Trigger Functions and Triggers
+
+CREATE OR REPLACE FUNCTION protect_default_membership_on_update()
+RETURNS TRIGGER AS $$
 BEGIN
     IF OLD.type IN ('NEWMEM', 'BRONZE', 'SILVER', 'GOLD', 'PLATINUM') THEN
-        IF NEW.type != OLD.type THEN
-            SIGNAL SQLSTATE '45000'
-                SET MESSAGE_TEXT = 'Không thể thay đổi tên loại thành viên mặc định';
+        IF NEW.type IS DISTINCT FROM OLD.type THEN
+            RAISE EXCEPTION 'Không thể thay đổi tên loại thành viên mặc định' USING ERRCODE = '45000';
         END IF;
     END IF;
-END //
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
-/**
- * Trigger ngăn chặn việc xóa các loại thành viên mặc định
- *
- * Chức năng: Kiểm tra và ngăn chặn việc xóa các loại thành viên cơ bản
- * Thực thi: Trước khi xóa bản ghi từ bảng membership_type
- */
-CREATE TRIGGER protect_default_membership_delete
-    BEFORE DELETE
-    ON membership_type
-    FOR EACH ROW
+CREATE TRIGGER protect_default_membership_update_trigger
+    BEFORE UPDATE ON membership_type
+    FOR EACH ROW EXECUTE FUNCTION protect_default_membership_on_update();
+
+CREATE OR REPLACE FUNCTION protect_default_membership_on_delete()
+RETURNS TRIGGER AS $$
 BEGIN
     IF OLD.type IN ('NEWMEM', 'BRONZE', 'SILVER', 'GOLD', 'PLATINUM') THEN
-        SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'Không thể xóa loại thành viên mặc định';
+        RAISE EXCEPTION 'Không thể xóa loại thành viên mặc định' USING ERRCODE = '45000';
     END IF;
-END //
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
 
-/**
- * Trigger bảo vệ vai trò mặc định khỏi việc thay đổi tên
- *
- * Chức năng: Ngăn chặn việc thay đổi tên của các vai trò cơ bản trong hệ thống
- * Thực thi: Trước khi cập nhật bảng role
- */
-CREATE TRIGGER protect_default_role_update
-    BEFORE UPDATE
-    ON role
-    FOR EACH ROW
+CREATE TRIGGER protect_default_membership_delete_trigger
+    BEFORE DELETE ON membership_type
+    FOR EACH ROW EXECUTE FUNCTION protect_default_membership_on_delete();
+
+CREATE OR REPLACE FUNCTION protect_default_role_on_update()
+RETURNS TRIGGER AS $$
 BEGIN
     IF OLD.name IN ('MANAGER', 'STAFF', 'CUSTOMER', 'GUEST') THEN
-        IF NEW.name != OLD.name THEN
-            SIGNAL SQLSTATE '45000'
-                SET MESSAGE_TEXT = 'Không thể thay đổi tên vai trò mặc định';
+        IF NEW.name IS DISTINCT FROM OLD.name THEN
+            RAISE EXCEPTION 'Không thể thay đổi tên vai trò mặc định' USING ERRCODE = '45000';
         END IF;
     END IF;
-END //
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
-/**
- * Trigger ngăn chặn việc xóa các vai trò mặc định
- *
- * Chức năng: Kiểm tra và ngăn chặn việc xóa các vai trò cơ bản trong hệ thống
- * Thực thi: Trước khi xóa bản ghi từ bảng role
- */
-CREATE TRIGGER protect_default_role_delete
-    BEFORE DELETE
-    ON role
-    FOR EACH ROW
+CREATE TRIGGER protect_default_role_update_trigger
+    BEFORE UPDATE ON role
+    FOR EACH ROW EXECUTE FUNCTION protect_default_role_on_update();
+
+CREATE OR REPLACE FUNCTION protect_default_role_on_delete()
+RETURNS TRIGGER AS $$
 BEGIN
     IF OLD.name IN ('MANAGER', 'STAFF', 'CUSTOMER', 'GUEST') THEN
-        SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'Không thể xóa vai trò mặc định';
+        RAISE EXCEPTION 'Không thể xóa vai trò mặc định' USING ERRCODE = '45000';
     END IF;
-END //
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
 
-/**
- * Trigger bảo vệ phương thức thanh toán mặc định khỏi việc thay đổi tên
- *
- * Chức năng: Ngăn chặn việc thay đổi tên của các phương thức thanh toán cơ bản
- * Thực thi: Trước khi cập nhật bảng payment_method
- */
-CREATE TRIGGER protect_default_payment_method_update
-    BEFORE UPDATE
-    ON payment_method
-    FOR EACH ROW
+CREATE TRIGGER protect_default_role_delete_trigger
+    BEFORE DELETE ON role
+    FOR EACH ROW EXECUTE FUNCTION protect_default_role_on_delete();
+
+CREATE OR REPLACE FUNCTION protect_default_payment_method_on_update()
+RETURNS TRIGGER AS $$
 BEGIN
-    IF OLD.payment_name IN ('CASH', 'VISA', 'BANKCARD', 'CREDIT_CARD', 'E-WALLET') THEN
-        IF NEW.payment_name != OLD.payment_name THEN
-            SIGNAL SQLSTATE '45000'
-                SET MESSAGE_TEXT = 'Không thể thay đổi tên phương thức thanh toán mặc định';
+    IF OLD.payment_name IN ('CASH', 'VNPAY') THEN
+        IF NEW.payment_name IS DISTINCT FROM OLD.payment_name THEN
+            RAISE EXCEPTION 'Không thể thay đổi tên phương thức thanh toán mặc định' USING ERRCODE = '45000';
         END IF;
     END IF;
-END //
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
-/**
- * Trigger ngăn chặn việc xóa các phương thức thanh toán mặc định
- *
- * Chức năng: Kiểm tra và ngăn chặn việc xóa các phương thức thanh toán cơ bản
- * Thực thi: Trước khi xóa bản ghi từ bảng payment_method
- */
-CREATE TRIGGER protect_default_payment_method_delete
-    BEFORE DELETE
-    ON payment_method
-    FOR EACH ROW
+CREATE TRIGGER protect_default_payment_method_update_trigger
+    BEFORE UPDATE ON payment_method
+    FOR EACH ROW EXECUTE FUNCTION protect_default_payment_method_on_update();
+
+CREATE OR REPLACE FUNCTION protect_default_payment_method_on_delete()
+RETURNS TRIGGER AS $$
 BEGIN
-    IF OLD.payment_name IN ('CASH', 'VISA', 'BANKCARD', 'CREDIT_CARD', 'E-WALLET') THEN
-        SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'Không thể xóa phương thức thanh toán mặc định';
+    IF OLD.payment_name IN ('CASH', 'VNPAY') THEN
+        RAISE EXCEPTION 'Không thể xóa phương thức thanh toán mặc định' USING ERRCODE = '45000';
     END IF;
-END //
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
 
-DELIMITER ;
+CREATE TRIGGER protect_default_payment_method_delete_trigger
+    BEFORE DELETE ON payment_method
+    FOR EACH ROW EXECUTE FUNCTION protect_default_payment_method_on_delete();
 
-DELIMITER //
-
-/**
- * Trigger ngăn chặn việc thêm mới thông tin cửa hàng nếu đã tồn tại
- * 
- * Chức năng: Đảm bảo trong hệ thống chỉ có một bản ghi thông tin cửa hàng duy nhất
- * Thực thi: Trước khi thêm bản ghi vào bảng store
- */
-CREATE TRIGGER before_store_insert
-    BEFORE INSERT ON store
-    FOR EACH ROW
+CREATE OR REPLACE FUNCTION before_store_insert_func()
+RETURNS TRIGGER AS $$
+DECLARE
+    store_count INT;
 BEGIN
-    DECLARE store_count INT;
-
-    -- Đếm số lượng bản ghi hiện có
     SELECT COUNT(*) INTO store_count FROM store;
-
-    -- Nếu đã có bản ghi, từ chối thêm mới
     IF store_count > 0 THEN
-        SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'Không thể tạo thêm thông tin cửa hàng mới. Chỉ được phép có một bản ghi thông tin cửa hàng.';
+        RAISE EXCEPTION 'Không thể tạo thêm thông tin cửa hàng mới. Chỉ được phép có một bản ghi thông tin cửa hàng.' USING ERRCODE = '45000';
     END IF;
-END //
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
-/**
- * Trigger ngăn chặn việc xóa thông tin cửa hàng duy nhất
- * 
- * Chức năng: Đảm bảo luôn có thông tin cửa hàng trong hệ thống
- * Thực thi: Trước khi xóa bản ghi từ bảng store
- */
-CREATE TRIGGER before_store_delete
-    BEFORE DELETE ON store
-    FOR EACH ROW
+CREATE TRIGGER before_store_insert_trigger
+    BEFORE INSERT ON store
+    FOR EACH ROW EXECUTE FUNCTION before_store_insert_func();
+
+CREATE OR REPLACE FUNCTION before_store_delete_func()
+RETURNS TRIGGER AS $$
+DECLARE
+    store_count INT;
 BEGIN
-    DECLARE store_count INT;
-
-    -- Đếm số lượng bản ghi hiện có
     SELECT COUNT(*) INTO store_count FROM store;
-
-    -- Nếu chỉ có một bản ghi, từ chối xóa
     IF store_count = 1 THEN
-        SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'Không thể xóa thông tin cửa hàng duy nhất. Cửa hàng phải luôn có thông tin.';
+        RAISE EXCEPTION 'Không thể xóa thông tin cửa hàng duy nhất. Cửa hàng phải luôn có thông tin.' USING ERRCODE = '45000';
     END IF;
-END //
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
 
-DELIMITER ;
+CREATE TRIGGER before_store_delete_trigger
+    BEFORE DELETE ON store
+    FOR EACH ROW EXECUTE FUNCTION before_store_delete_func();
 
-DELIMITER //
-
-/**
- * Trigger chỉ cho phép cập nhật thông tin cửa hàng, không đổi ID
- * 
- * Chức năng: Đảm bảo không thay đổi ID của cửa hàng khi cập nhật thông tin
- * Thực thi: Trước khi cập nhật bảng store
- */
-CREATE TRIGGER before_store_update
-    BEFORE UPDATE ON store
-    FOR EACH ROW
+CREATE OR REPLACE FUNCTION before_store_update_func()
+RETURNS TRIGGER AS $$
 BEGIN
-    -- Đảm bảo không thay đổi ID
-    IF NEW.store_id != OLD.store_id THEN
-        SIGNAL SQLSTATE '45000'
-            SET MESSAGE_TEXT = 'Không thể thay đổi ID của cửa hàng. Chỉ được phép cập nhật thông tin.';
+    IF NEW.store_id IS DISTINCT FROM OLD.store_id THEN
+        RAISE EXCEPTION 'Không thể thay đổi ID của cửa hàng. Chỉ được phép cập nhật thông tin.' USING ERRCODE = '45000';
     END IF;
-END //
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
-DELIMITER ;
+CREATE TRIGGER before_store_update_trigger
+    BEFORE UPDATE ON store
+    FOR EACH ROW EXECUTE FUNCTION before_store_update_func();

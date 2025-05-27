@@ -1,0 +1,308 @@
+generator client {
+  provider        = "prisma-client"
+  output          = "../src/generated/prisma"
+  previewFeatures = ["driverAdapters"]
+  binaryTargets = ["native"]
+}
+
+datasource cake_pos_db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model account {
+  account_id    Int        @id @default(autoincrement())
+  role_id       Int        @cake_pos_db.SmallInt
+  username      String     @unique(map: "uk_account_username") @cake_pos_db.VarChar(50)
+  password_hash String     @cake_pos_db.VarChar(255)
+  is_active     Boolean?   @default(false)
+  is_locked     Boolean    @default(false)
+  last_login    DateTime?  @cake_pos_db.Timestamp(6)
+  refresh_token String?    @cake_pos_db.VarChar(255)
+  created_at    DateTime?  @default(now()) @cake_pos_db.Timestamp(6)
+  updated_at    DateTime?  @default(now()) @cake_pos_db.Timestamp(6)
+  role          role       @relation(fields: [role_id], references: [role_id], map: "fk_account_role")
+  customer      customer[]
+  employee      employee?
+  manager       manager?
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model category {
+  category_id Int       @id @default(autoincrement()) @cake_pos_db.SmallInt
+  name        String    @unique(map: "uk_category_name") @cake_pos_db.VarChar(100)
+  description String?   @cake_pos_db.VarChar(1000)
+  created_at  DateTime? @default(now()) @cake_pos_db.Timestamp(6)
+  updated_at  DateTime? @default(now()) @cake_pos_db.Timestamp(6)
+  product     product[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model coupon {
+  coupon_id   Int       @id @default(autoincrement())
+  coupon      String    @unique(map: "uk_coupon_coupon") @cake_pos_db.VarChar(15)
+  description String?   @cake_pos_db.VarChar(1000)
+  created_at  DateTime? @default(now()) @cake_pos_db.Timestamp(6)
+  updated_at  DateTime? @default(now()) @cake_pos_db.Timestamp(6)
+  discount    discount?
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model customer {
+  customer_id        Int             @id @default(autoincrement())
+  membership_type_id Int             @cake_pos_db.SmallInt
+  account_id         Int?
+  last_name          String?         @cake_pos_db.VarChar(70)
+  first_name         String?         @cake_pos_db.VarChar(70)
+  phone              String          @unique(map: "uk_customer_phone") @cake_pos_db.VarChar(15)
+  current_points     Int?            @default(0)
+  gender             gender_enum?
+  created_at         DateTime?       @default(now()) @cake_pos_db.Timestamp(6)
+  updated_at         DateTime?       @default(now()) @cake_pos_db.Timestamp(6)
+  account            account?        @relation(fields: [account_id], references: [account_id], map: "fk_customer_account")
+  membership_type    membership_type @relation(fields: [membership_type_id], references: [membership_type_id], map: "fk_customer_membership_type")
+  order              order[]
+
+  @@index([account_id], map: "idx_customer_account_id")
+  @@index([membership_type_id], map: "idx_customer_membership_type_id")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model discount {
+  discount_id              Int              @id @default(autoincrement())
+  name                     String           @unique(map: "uk_discount_name") @cake_pos_db.VarChar(500)
+  description              String?          @cake_pos_db.VarChar(1000)
+  coupon_id                Int              @unique(map: "uk_discount_coupon_id")
+  discount_value           Decimal          @cake_pos_db.Decimal(4, 1)
+  min_required_order_value Int
+  max_discount_amount      Int
+  min_required_product     Int?             @cake_pos_db.SmallInt
+  valid_from               DateTime?        @cake_pos_db.Timestamp(6)
+  valid_until              DateTime         @cake_pos_db.Timestamp(6)
+  current_uses             Int?
+  max_uses                 Int?
+  max_uses_per_customer    Int?             @cake_pos_db.SmallInt
+  is_active                Boolean          @default(true)
+  created_at               DateTime?        @default(now()) @cake_pos_db.Timestamp(6)
+  updated_at               DateTime?        @default(now()) @cake_pos_db.Timestamp(6)
+  coupon                   coupon           @relation(fields: [coupon_id], references: [coupon_id], map: "fk_discount_coupon")
+  order_discount           order_discount[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model employee {
+  employee_id Int          @id @default(autoincrement())
+  account_id  Int          @unique(map: "uk_employee_account_id")
+  position    String       @cake_pos_db.VarChar(50)
+  last_name   String       @cake_pos_db.VarChar(70)
+  first_name  String       @cake_pos_db.VarChar(70)
+  gender      gender_enum?
+  phone       String       @unique(map: "uk_employee_phone") @cake_pos_db.VarChar(15)
+  email       String       @unique(map: "uk_employee_email") @cake_pos_db.VarChar(100)
+  created_at  DateTime?    @default(now()) @cake_pos_db.Timestamp(6)
+  updated_at  DateTime?    @default(now()) @cake_pos_db.Timestamp(6)
+  account     account      @relation(fields: [account_id], references: [account_id], map: "fk_employee_account")
+  order       order[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model manager {
+  manager_id Int          @id @default(autoincrement())
+  account_id Int          @unique(map: "uk_manager_account_id")
+  last_name  String       @cake_pos_db.VarChar(70)
+  first_name String       @cake_pos_db.VarChar(70)
+  gender     gender_enum?
+  phone      String       @unique(map: "uk_manager_phone") @cake_pos_db.VarChar(15)
+  email      String       @unique(map: "uk_manager_email") @cake_pos_db.VarChar(100)
+  created_at DateTime?    @default(now()) @cake_pos_db.Timestamp(6)
+  updated_at DateTime?    @default(now()) @cake_pos_db.Timestamp(6)
+  account    account      @relation(fields: [account_id], references: [account_id], map: "fk_manager_account")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model membership_type {
+  membership_type_id Int        @id @default(autoincrement()) @cake_pos_db.SmallInt
+  type               String     @unique(map: "uk_membership_type_type") @cake_pos_db.VarChar(50)
+  discount_value     Decimal    @cake_pos_db.Decimal(4, 1)
+  required_point     Int        @unique(map: "uk_membership_type_required_point")
+  description        String?    @cake_pos_db.VarChar(255)
+  valid_until        DateTime?  @cake_pos_db.Timestamp(6)
+  is_active          Boolean?   @default(true)
+  created_at         DateTime?  @default(now()) @cake_pos_db.Timestamp(6)
+  updated_at         DateTime?  @default(now()) @cake_pos_db.Timestamp(6)
+  customer           customer[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model order {
+  order_id       Int                @id @default(autoincrement())
+  customer_id    Int?
+  employee_id    Int
+  order_time     DateTime?          @default(now()) @cake_pos_db.Timestamp(6)
+  total_amount   Int?
+  final_amount   Int?
+  status         order_status_enum?
+  customize_note String?            @cake_pos_db.VarChar(1000)
+  created_at     DateTime?          @default(now()) @cake_pos_db.Timestamp(6)
+  updated_at     DateTime?          @default(now()) @cake_pos_db.Timestamp(6)
+  customer       customer?          @relation(fields: [customer_id], references: [customer_id], map: "fk_order_customer")
+  employee       employee           @relation(fields: [employee_id], references: [employee_id], onDelete: Cascade, map: "fk_order_employee")
+  order_discount order_discount[]
+  order_product  order_product[]
+  payment        payment[]
+
+  @@index([customer_id], map: "idx_order_customer_id")
+  @@index([employee_id], map: "idx_order_employee_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model order_discount {
+  order_discount_id Int       @id @default(autoincrement())
+  order_id          Int
+  discount_id       Int
+  discount_amount   Int
+  created_at        DateTime? @default(now()) @cake_pos_db.Timestamp(6)
+  updated_at        DateTime? @default(now()) @cake_pos_db.Timestamp(6)
+  discount          discount  @relation(fields: [discount_id], references: [discount_id], onDelete: Cascade, map: "fk_order_discount_discount")
+  order             order     @relation(fields: [order_id], references: [order_id], onDelete: Cascade, map: "fk_order_discount_order")
+
+  @@unique([order_id, discount_id], map: "uk_order_discount_order_discount")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model order_product {
+  order_product_id Int           @id @default(autoincrement())
+  order_id         Int
+  product_price_id Int
+  quantity         Int           @cake_pos_db.SmallInt
+  option           String?       @cake_pos_db.VarChar(500)
+  created_at       DateTime?     @default(now()) @cake_pos_db.Timestamp(6)
+  updated_at       DateTime?     @default(now()) @cake_pos_db.Timestamp(6)
+  order            order         @relation(fields: [order_id], references: [order_id], onDelete: Cascade, map: "fk_order_product_order")
+  product_price    product_price @relation(fields: [product_price_id], references: [product_price_id], onDelete: Cascade, map: "fk_order_product_product_price")
+
+  @@unique([order_id, product_price_id], map: "uk_order_product_order_product_price")
+  @@index([order_id], map: "idx_order_product_order_id")
+  @@index([product_price_id], map: "idx_order_product_product_price_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model payment {
+  payment_id        Int                  @id @default(autoincrement())
+  order_id          Int
+  payment_method_id Int                  @cake_pos_db.SmallInt
+  status            payment_status_enum?
+  amount_paid       Decimal?             @cake_pos_db.Decimal(11, 3)
+  change_amount     Decimal?             @default(0.000) @cake_pos_db.Decimal(11, 3)
+  payment_time      DateTime?            @default(now()) @cake_pos_db.Timestamp(6)
+  created_at        DateTime?            @default(now()) @cake_pos_db.Timestamp(6)
+  updated_at        DateTime?            @default(now()) @cake_pos_db.Timestamp(6)
+  order             order                @relation(fields: [order_id], references: [order_id], onDelete: Cascade, map: "fk_payment_order")
+  payment_method    payment_method       @relation(fields: [payment_method_id], references: [payment_method_id], map: "fk_payment_payment_method")
+
+  @@index([order_id], map: "idx_payment_order_id")
+  @@index([payment_method_id], map: "idx_payment_payment_method_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model payment_method {
+  payment_method_id Int       @id @default(autoincrement()) @cake_pos_db.SmallInt
+  name              String    @unique(map: "uk_payment_method_name") @cake_pos_db.VarChar(50)
+  description       String?   @cake_pos_db.VarChar(255)
+  created_at        DateTime? @default(now()) @cake_pos_db.Timestamp(6)
+  updated_at        DateTime? @default(now()) @cake_pos_db.Timestamp(6)
+  payment           payment[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model product {
+  product_id    Int             @id @default(autoincrement())
+  category_id   Int?            @cake_pos_db.SmallInt
+  name          String          @unique(map: "uk_product_name") @cake_pos_db.VarChar(100)
+  description   String?         @cake_pos_db.VarChar(1000)
+  is_signature  Boolean?        @default(false)
+  image_path    String?         @cake_pos_db.VarChar(1000)
+  created_at    DateTime?       @default(now()) @cake_pos_db.Timestamp(6)
+  updated_at    DateTime?       @default(now()) @cake_pos_db.Timestamp(6)
+  category      category?       @relation(fields: [category_id], references: [category_id], map: "fk_product_category")
+  product_price product_price[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model product_price {
+  product_price_id Int             @id @default(autoincrement())
+  product_id       Int
+  size_id          Int             @cake_pos_db.SmallInt
+  price            Int
+  is_active        Boolean         @default(true)
+  created_at       DateTime?       @default(now()) @cake_pos_db.Timestamp(6)
+  updated_at       DateTime?       @default(now()) @cake_pos_db.Timestamp(6)
+  order_product    order_product[]
+  product          product         @relation(fields: [product_id], references: [product_id], onDelete: Cascade, map: "fk_product_price_product")
+  product_size     product_size    @relation(fields: [size_id], references: [size_id], onDelete: Cascade, map: "fk_product_price_product_size")
+
+  @@unique([product_id, size_id], map: "uk_product_price_product_size")
+  @@index([product_id], map: "idx_product_price_product_id")
+  @@index([size_id], map: "idx_product_price_size_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model product_size {
+  size_id       Int             @id @default(autoincrement()) @cake_pos_db.SmallInt
+  name          String          @cake_pos_db.VarChar(5)
+  unit          String          @cake_pos_db.VarChar(15)
+  quantity      Int             @cake_pos_db.SmallInt
+  description   String?         @cake_pos_db.VarChar(1000)
+  created_at    DateTime?       @default(now()) @cake_pos_db.Timestamp(6)
+  updated_at    DateTime?       @default(now()) @cake_pos_db.Timestamp(6)
+  product_price product_price[]
+
+  @@unique([unit, name], map: "uk_product_size_unit_name")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model role {
+  role_id     Int       @id @default(autoincrement()) @cake_pos_db.SmallInt
+  name        String    @unique(map: "uk_role_name") @cake_pos_db.VarChar(50)
+  description String?   @cake_pos_db.VarChar(1000)
+  created_at  DateTime? @default(now()) @cake_pos_db.Timestamp(6)
+  updated_at  DateTime? @default(now()) @cake_pos_db.Timestamp(6)
+  account     account[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model store {
+  store_id     Int       @id @default(autoincrement()) @cake_pos_db.SmallInt
+  name         String    @cake_pos_db.VarChar(100)
+  address      String    @cake_pos_db.VarChar(255)
+  phone        String    @cake_pos_db.VarChar(15)
+  opening_time DateTime  @cake_pos_db.Time(6)
+  closing_time DateTime  @cake_pos_db.Time(6)
+  email        String    @cake_pos_db.VarChar(100)
+  opening_date DateTime  @cake_pos_db.Date
+  tax_code     String    @cake_pos_db.VarChar(20)
+  created_at   DateTime? @default(now()) @cake_pos_db.Timestamp(6)
+  updated_at   DateTime? @default(now()) @cake_pos_db.Timestamp(6)
+}
+
+enum gender_enum {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum order_status_enum {
+  PROCESSING
+  CANCELLED
+  COMPLETED
+}
+
+enum payment_status_enum {
+  PROCESSING
+  CANCELLED
+  PAID
+}

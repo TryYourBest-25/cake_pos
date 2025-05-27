@@ -4,40 +4,34 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ef5dec76-6049-4938-8b0f-72cdaa7b5451" name="Changes" comment="Remove all project files and configurations&#10;&#10;This commit deletes all source code, dependencies, configurations, and project assets. It effectively cleans up the repository, leaving no traces of the previous Next.js project or related files.">
-      <change afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/sqldialects.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/.idea/frontend.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/eslint.config.mjs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/next.config.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/postcss.config.mjs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/public/file.svg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/public/globe.svg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/public/next.svg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/public/vercel.svg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/public/window.svg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/app/favicon.ico" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/app/globals.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/app/layout.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/app/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/tsconfig.json" afterDir="false" />
+    <list default="true" id="ef5dec76-6049-4938-8b0f-72cdaa7b5451" name="Changes" comment="Add .gitignore and package-lock.json for frontend&#10;&#10;Introduced a .gitignore file to exclude unnecessary files such as node_modules, build artifacts, and environment files. Added a package-lock.json file to lock dependencies for consistent builds. These changes set up the basic project structure for the frontend.">
+      <change afterPath="$PROJECT_DIR$/backend/prisma/schema.prisma" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/database/B1.0.0__base_line.sql" beforeDir="false" afterPath="$PROJECT_DIR$/backend/database/B1.0.0__base_line.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/database/V1.0.1__init_default_data.sql" beforeDir="false" afterPath="$PROJECT_DIR$/backend/database/V1.0.1__init_default_data.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/database/V1.0.2__init_triggers.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/database/V1.0.4__membership_trigger_event.sql" beforeDir="false" afterPath="$PROJECT_DIR$/backend/database/V1.0.4__membership_trigger_event.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/database/V1.0.5__scheduled_events.sql" beforeDir="false" afterPath="$PROJECT_DIR$/backend/database/V1.0.5__scheduled_events.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/database/V1.0.6__reporting_procedures_views.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/database/V1.0.7__user_grant.sql" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/database/V1.0.8__init_optional_data.sql" beforeDir="false" afterPath="$PROJECT_DIR$/backend/database/V1.0.8__init_optional_data.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/backend/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/backend/package.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FormatOnSaveOptions">
+    <option name="myRunOnSave" value="false" />
+    <option name="myAllFileTypesSelected" value="true" />
+    <option name="mySelectedFileTypes">
+      <set />
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -50,9 +44,11 @@
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
+    <option name="showMembers" value="true" />
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
+    &quot;Docker.compose-dev.yml: Compose Deployment.executor&quot;: &quot;Run&quot;,
     &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
@@ -64,7 +60,8 @@
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_interpreter_path&quot;: &quot;/home/PNguyen/development/nvm/current/bin/node&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;/home/PNguyen/Workspace/MyProject/cake_pos/frontend/node_modules/typescript/lib&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/home/PNguyen/development/ides/webstorm/plugins/javascript-plugin/jsLanguageServicesImpl/external&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
   &quot;keyToStringList&quot;: {
@@ -78,13 +75,37 @@
 }</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/backend/prisma" />
       <recent name="$PROJECT_DIR$/frontend" />
     </key>
+  </component>
+  <component name="RunManager">
+    <configuration default="true" type="docker-deploy" factoryName="docker-compose.yml" temporary="true">
+      <deployment type="docker-compose.yml">
+        <settings />
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <configuration name="compose-dev.yml: Compose Deployment" type="docker-deploy" factoryName="docker-compose.yml" temporary="true" server-name="Docker">
+      <deployment type="docker-compose.yml">
+        <settings>
+          <option name="envFilePath" value="$PROJECT_DIR$/.dev.env" />
+          <option name="removeVolumesOnComposeDown" value="true" />
+          <option name="sourceFilePath" value="compose-dev.yml" />
+        </settings>
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Docker.compose-dev.yml: Compose Deployment" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-f27c65a3e318-JavaScript-WS-251.23774.424" />
+        <option value="bundled-js-predefined-d6986cc7102b-6a121458b545-JavaScript-WS-251.25410.117" />
       </set>
     </attachedChunks>
   </component>
@@ -100,6 +121,12 @@
       <workItem from="1746858422066" duration="1498000" />
       <workItem from="1747026028609" duration="884000" />
       <workItem from="1747114660243" duration="398000" />
+      <workItem from="1747115076802" duration="199000" />
+      <workItem from="1747441664590" duration="109000" />
+      <workItem from="1747447432267" duration="3785000" />
+      <workItem from="1747459847256" duration="5063000" />
+      <workItem from="1747476528978" duration="11948000" />
+      <workItem from="1747537900274" duration="6000" />
     </task>
     <task id="LOCAL-00001" summary="Remove all project files and configurations&#10;&#10;This commit deletes all source code, dependencies, configurations, and project assets. It effectively cleans up the repository, leaving no traces of the previous Next.js project or related files.">
       <option name="closed" value="true" />
@@ -109,7 +136,15 @@
       <option name="project" value="LOCAL" />
       <updated>1747115006075</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Add .gitignore and package-lock.json for frontend&#10;&#10;Introduced a .gitignore file to exclude unnecessary files such as node_modules, build artifacts, and environment files. Added a package-lock.json file to lock dependencies for consistent builds. These changes set up the basic project structure for the frontend.">
+      <option name="closed" value="true" />
+      <created>1747115174554</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1747115174554</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -145,6 +180,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Initial commit from Create Next App" />
     <MESSAGE value="Remove all project files and configurations&#10;&#10;This commit deletes all source code, dependencies, configurations, and project assets. It effectively cleans up the repository, leaving no traces of the previous Next.js project or related files." />
-    <option name="LAST_COMMIT_MESSAGE" value="Remove all project files and configurations&#10;&#10;This commit deletes all source code, dependencies, configurations, and project assets. It effectively cleans up the repository, leaving no traces of the previous Next.js project or related files." />
+    <MESSAGE value="Add .gitignore and package-lock.json for frontend&#10;&#10;Introduced a .gitignore file to exclude unnecessary files such as node_modules, build artifacts, and environment files. Added a package-lock.json file to lock dependencies for consistent builds. These changes set up the basic project structure for the frontend." />
+    <option name="LAST_COMMIT_MESSAGE" value="Add .gitignore and package-lock.json for frontend&#10;&#10;Introduced a .gitignore file to exclude unnecessary files such as node_modules, build artifacts, and environment files. Added a package-lock.json file to lock dependencies for consistent builds. These changes set up the basic project structure for the frontend." />
   </component>
 </project>
