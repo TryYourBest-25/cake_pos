@@ -27,7 +27,7 @@ export class MembershipTypeService {
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
         if ((error.meta?.target as string[])?.includes('type')) {
-          throw new ConflictException(`Membership type '${type}' already exists.`);
+          throw new ConflictException(`Loại thành viên '${type}' đã tồn tại.`);
         }
         throw new ConflictException('A unique constraint violation occurred.');
       }
@@ -47,7 +47,7 @@ export class MembershipTypeService {
       include: { customer: includeCustomers },
     });
     if (!membershipType) {
-      throw new NotFoundException(`Membership type with ID ${id} not found.`);
+      throw new NotFoundException(`Loại thành viên với ID ${id} không tồn tại.`);
     }
     return membershipType;
   }
@@ -58,7 +58,7 @@ export class MembershipTypeService {
       include: { customer: includeCustomers },
     });
     if (!membershipType) {
-      throw new NotFoundException(`Membership type with type '${type}' not found.`);
+      throw new NotFoundException(`Loại thành viên với loại '${type}' không tồn tại.`);
     }
     return membershipType;
   }
@@ -85,7 +85,7 @@ export class MembershipTypeService {
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
         if ((error.meta?.target as string[])?.includes('type') && type) {
-          throw new ConflictException(`Membership type '${type}' already exists.`);
+          throw new ConflictException(`Loại thành viên '${type}' đã tồn tại.`);
         }
         throw new ConflictException('A unique constraint violation occurred during update.');
       }

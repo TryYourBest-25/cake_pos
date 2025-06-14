@@ -15,7 +15,7 @@ export class ManagerService {
       where: { email },
     });
     if (existingManagerByEmail) {
-      throw new ConflictException(`Manager with email '${email}' already exists.`);
+      throw new ConflictException(`Quản lý với email '${email}' đã tồn tại.`);
     }
 
     const data: Prisma.managerCreateInput = {
@@ -39,10 +39,10 @@ export class ManagerService {
             const target = error.meta.target as string[];
             if (target.includes('email')) fieldDescription = `email '${email}'`;
           }
-          throw new ConflictException(`Manager already exists with the ${fieldDescription}.`);
+          throw new ConflictException(`Quản lý đã tồn tại với ${fieldDescription}.`);
         }
         if (error.code === 'P2025') {
-          throw new BadRequestException(`Account with ID ${account_id} not found or other related record is missing.`);
+          throw new BadRequestException(`Tài khoản với ID ${account_id} không tồn tại hoặc bản ghi liên quan khác bị thiếu.`);
         }
       }
       throw error;
@@ -61,7 +61,7 @@ export class ManagerService {
       include: { account: true },
     });
     if (!mgr) {
-      throw new NotFoundException(`Manager with ID ${manager_id} not found`);
+      throw new NotFoundException(`Quản lý với ID ${manager_id} không tồn tại`);
     }
     return mgr;
   }
@@ -100,7 +100,7 @@ export class ManagerService {
           throw new NotFoundException(message);
         }
         if (error.code === 'P2002') {
-          throw new ConflictException('Cannot update manager, unique constraint violation (e.g., email already exists).');
+          throw new ConflictException('Không thể cập nhật quản lý, vi phạm ràng buộc duy nhất (ví dụ: email đã tồn tại).');
         }
       }
       throw error;
@@ -115,7 +115,7 @@ export class ManagerService {
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
-          throw new NotFoundException(`Manager with ID ${manager_id} not found`);
+          throw new NotFoundException(`Quản lý với ID ${manager_id} không tồn tại`);
         }
         if (error.code === 'P2003') { 
             throw new ConflictException(`Manager with ID ${manager_id} cannot be deleted due to existing relations.`);

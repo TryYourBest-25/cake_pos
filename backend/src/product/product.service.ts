@@ -19,7 +19,7 @@ export class ProductService {
         where: { category_id },
       });
       if (!categoryExists) {
-        throw new NotFoundException(`Category with ID ${category_id} not found.`);
+        throw new NotFoundException(`Danh mục với ID ${category_id} không tồn tại.`);
       }
     }
 
@@ -59,22 +59,22 @@ export class ProductService {
                     where: { unit_name: { unit: sizeUnit, name: sizeName } }
                 });
                 if (!existingSize) {
-                    throw new InternalServerErrorException(`Failed to create or find product size: ${sizeName} (${sizeUnit}) after upsert attempt.`);
+                    throw new InternalServerErrorException(`Thất bại khi tạo hoặc tìm kích thước sản phẩm: ${sizeName} (${sizeUnit}) sau khi thử upsert.`);
                 }
                 productSizeId = existingSize.size_id;
             } else {
                 console.error("Error upserting product size:", e);
-                throw new InternalServerErrorException('Error processing product size data.');
+                throw new InternalServerErrorException('Lỗi khi xử lý dữ liệu kích thước sản phẩm.');
             }
         }
       } else if (size_id) {
         const existingSize = await this.prisma.product_size.findUnique({ where: { size_id } });
         if (!existingSize) {
-          throw new NotFoundException(`ProductSize with ID ${size_id} not found.`);
+          throw new NotFoundException(`Kích thước sản phẩm với ID ${size_id} không tồn tại.`);
         }
         productSizeId = existingSize.size_id;
       } else {
-        throw new BadRequestException('Missing size_id or size_data for a price entry.'); // Should not happen due to earlier checks
+        throw new BadRequestException('Thiếu size_id hoặc size_data cho mục giá.'); // Should not happen due to earlier checks
       }
 
       (productData.product_price!.create as Prisma.product_priceCreateWithoutProductInput[]).push({
@@ -97,7 +97,7 @@ export class ProductService {
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2002' && (error.meta?.target as string[])?.includes('name')) {
-          throw new ConflictException(`Product with name '${name}' already exists.`);
+          throw new ConflictException(`Sản phẩm với tên '${name}' đã tồn tại.`);
         }
         // Xử lý các lỗi P2002 khác từ product_price (product_id_size_id_key)
         if (error.code === 'P2002' && (error.meta?.target as string[])?.includes('product_id') && (error.meta?.target as string[])?.includes('size_id')) {
@@ -143,7 +143,7 @@ export class ProductService {
       },
     });
     if (!product) {
-      throw new NotFoundException(`Product with ID ${product_id} not found`);
+      throw new NotFoundException(`Sản phẩm với ID ${product_id} không tồn tại`);
     }
     return product;
   }
@@ -153,13 +153,13 @@ export class ProductService {
 
     const existingProduct = await this.prisma.product.findUnique({ where: { product_id } });
     if (!existingProduct) {
-      throw new NotFoundException(`Product with ID ${product_id} not found.`);
+      throw new NotFoundException(`Sản phẩm với ID ${product_id} không tồn tại.`);
     }
 
     if (category_id) {
       const categoryExists = await this.prisma.category.findUnique({ where: { category_id } });
       if (!categoryExists) {
-        throw new NotFoundException(`Category with ID ${category_id} not found.`);
+        throw new NotFoundException(`Danh mục với ID ${category_id} không tồn tại.`);
       }
     }
 
@@ -200,7 +200,7 @@ export class ProductService {
                             where: { unit_name: { unit: sizeUnit, name: sizeName } }
                         });
                         if (!existingSize) {
-                            throw new InternalServerErrorException(`Failed to create or find product size: ${sizeName} (${sizeUnit}) after upsert attempt.`);
+                            throw new InternalServerErrorException(`Thất bại khi tạo hoặc tìm kích thước sản phẩm: ${sizeName} (${sizeUnit}) sau khi thử upsert.`);
                         }
                         productSizeId = existingSize.size_id;
                     } else {
@@ -211,7 +211,7 @@ export class ProductService {
             } else if (size_id) {
                 const existingSize = await this.prisma.product_size.findUnique({ where: { size_id } });
                 if (!existingSize) {
-                    throw new NotFoundException(`ProductSize with ID ${size_id} not found.`);
+                    throw new NotFoundException(`Kích thước sản phẩm với ID ${size_id} không tồn tại.`);
                 }
                 productSizeId = existingSize.size_id;
             } else {
@@ -249,7 +249,7 @@ export class ProductService {
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2002' && (error.meta?.target as string[])?.includes('name')) {
-          throw new ConflictException(`Product with name '${name}' already exists.`);
+          throw new ConflictException(`Sản phẩm với tên '${name}' đã tồn tại.`);
         }
         if (error.code === 'P2025') {
             throw new NotFoundException(`Product with ID ${product_id} not found during update operation.`);
@@ -266,7 +266,7 @@ export class ProductService {
   async remove(product_id: number): Promise<product> {
     const product = await this.prisma.product.findUnique({ where: { product_id } });
     if (!product) {
-      throw new NotFoundException(`Product with ID ${product_id} not found.`);
+      throw new NotFoundException(`Sản phẩm với ID ${product_id} không tồn tại.`);
     }
 
     // Xóa các product_price liên quan trước, sau đó xóa product

@@ -2,7 +2,7 @@ generator client {
   provider        = "prisma-client"
   output          = "../src/generated/prisma"
   previewFeatures = ["driverAdapters"]
-  binaryTargets = ["native"]
+  binaryTargets   = ["native"]
 }
 
 datasource cake_pos_db {

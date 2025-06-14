@@ -35,10 +35,10 @@ export class StoreService {
           // Kiểm tra xem trường nào gây ra lỗi unique constraint
           const target = error.meta?.target as string[];
           if (target?.includes('email')) {
-            throw new ConflictException(`Store with email '${email}' already exists.`);
+            throw new ConflictException(`Cửa hàng với email '${email}' đã tồn tại.`);
           }
           if (target?.includes('name')) { // Giả sử name cũng có thể là unique
-            throw new ConflictException(`Store with name '${name}' already exists.`);
+            throw new ConflictException(`Cửa hàng với tên '${name}' đã tồn tại.`);
           }
           // Thêm các kiểm tra khác nếu cần (vd: phone, tax_code nếu chúng unique)
           throw new ConflictException('A unique constraint violation occurred.');
@@ -57,7 +57,7 @@ export class StoreService {
       where: { store_id: id },
     });
     if (!store) {
-      throw new NotFoundException(`Store with ID ${id} not found.`);
+      throw new NotFoundException(`Cửa hàng với ID ${id} không tồn tại.`);
     }
     return store;
   }
@@ -85,10 +85,10 @@ export class StoreService {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
         const target = error.meta?.target as string[];
         if (target?.includes('email') && email) {
-          throw new ConflictException(`Store with email '${email}' already exists.`);
+          throw new ConflictException(`Cửa hàng với email '${email}' đã tồn tại.`);
         }
         if (target?.includes('name') && name) {
-          throw new ConflictException(`Store with name '${name}' already exists.`);
+          throw new ConflictException(`Cửa hàng với tên '${name}' đã tồn tại.`);
         }
         throw new ConflictException('A unique constraint violation occurred during update.');
       }

@@ -24,14 +24,14 @@ export class PaymentService {
       where: { order_id },
     });
     if (!order) {
-      throw new NotFoundException(`Order with ID ${order_id} not found.`);
+      throw new NotFoundException(`Đơn hàng với ID ${order_id} không tồn tại.`);
     }
 
     const paymentMethod = await this.prisma.payment_method.findUnique({
       where: { payment_method_id },
     });
     if (!paymentMethod) {
-      throw new NotFoundException(`PaymentMethod with ID ${payment_method_id} not found.`);
+      throw new NotFoundException(`Phương thức thanh toán với ID ${payment_method_id} không tồn tại.`);
     }
 
     const orderFinalAmount = new Decimal(order.final_amount || order.total_amount || 0);
@@ -64,7 +64,7 @@ export class PaymentService {
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2025') { 
-            throw new NotFoundException(`Failed to create payment. Related order or payment method not found.`);
+            throw new NotFoundException(`Thất bại khi tạo thanh toán. Đơn hàng hoặc phương thức thanh toán liên quan không tồn tại.`);
         }
       }
       console.error("Error creating payment:", error);
@@ -86,7 +86,7 @@ export class PaymentService {
       include: { order: true, payment_method: true },
     });
     if (!payment) {
-      throw new NotFoundException(`Payment with ID ${id} not found.`);
+      throw new NotFoundException(`Thanh toán với ID ${id} không tồn tại.`);
     }
     return payment;
   }

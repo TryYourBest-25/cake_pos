@@ -39,7 +39,7 @@ export class CustomerService {
             }
           }
           if (field.includes('phone')) {
-            throw new ConflictException(`Customer with phone number '${phone}' already exists.`);
+            throw new ConflictException(`Khách hàng với số điện thoại '${phone}' đã tồn tại.`);
           }
           throw new ConflictException(`A unique constraint violation occurred on: ${field}.`);
         }
@@ -51,7 +51,7 @@ export class CustomerService {
               throw new BadRequestException(`Account with ID ${account_id} not found.`);
             }
             if (cause.includes('MembershipType')) { // Check for relation name
-              throw new BadRequestException(`Membership type with ID ${membership_type_id} not found.`);
+              throw new BadRequestException(`Loại thành viên với ID ${membership_type_id} không tồn tại.`);
             }
             causeMessage = cause; // Use the Prisma cause if more specific and not caught above
           }
@@ -78,7 +78,7 @@ export class CustomerService {
       include: { account: true, membership_type: true, order: false }, 
     });
     if (!customerDetails) {
-      throw new NotFoundException(`Customer with ID ${id} not found`);
+      throw new NotFoundException(`Khách hàng với ID ${id} không tồn tại`);
     }
     return customerDetails;
   }
@@ -137,7 +137,7 @@ export class CustomerService {
             }
           }
           if (updateCustomerDto.phone && field.includes('phone')) {
-            throw new ConflictException(`Customer with phone number '${updateCustomerDto.phone}' already exists.`);
+            throw new ConflictException(`Khách hàng với số điện thoại '${updateCustomerDto.phone}' đã tồn tại.`);
           }
           throw new ConflictException(`A unique constraint violation occurred on: ${field}.`);
         }
@@ -154,7 +154,7 @@ export class CustomerService {
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
-          throw new NotFoundException(`Customer with ID ${id} not found`);
+          throw new NotFoundException(`Khách hàng với ID ${id} không tồn tại`);
         }
          if (error.code === 'P2003') { 
             throw new ConflictException(`Customer with ID ${id} cannot be deleted as they have existing orders or other dependencies.`);

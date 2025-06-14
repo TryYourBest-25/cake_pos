@@ -117,3 +117,9 @@ You are a senior TypeScript programmer with experience in the NestJS framework a
 - Write end to end tests for each api module.
 - Add a admin/test method to each controller as a smoke test.
 
+### Package Manager
+
+- Use pnpm as the package manager.
+- Use the pnpm-workspace.yaml file to manage the workspace.
+- Use the pnpm-lock.yaml file to manage the dependencies.
+- Use the pnpm-workspace.yaml file to manage the workspace.

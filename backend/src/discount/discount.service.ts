@@ -50,7 +50,7 @@ export class DiscountService {
         if (error.code === 'P2002' && error.meta?.target) {
           const targetFields = error.meta.target as string[];
           if (targetFields.includes('name') && createDiscountDto.name) {
-            throw new ConflictException(`Discount with name '${createDiscountDto.name}' already exists.`);
+            throw new ConflictException(`Giảm giá với tên '${createDiscountDto.name}' đã tồn tại.`);
           }
           throw new ConflictException(`A unique constraint violation occurred on: ${targetFields.join(', ')}.`);
         }
@@ -79,7 +79,7 @@ export class DiscountService {
       include: include || { coupon: true },
     });
     if (!discountDetails) {
-      throw new NotFoundException(`Discount with ID ${discount_id} not found`);
+      throw new NotFoundException(`Giảm giá với ID ${discount_id} không tồn tại`);
     }
     return discountDetails;
   }
@@ -95,7 +95,7 @@ export class DiscountService {
     });
 
     if (!couponRecord || !couponRecord.discount) {
-      throw new NotFoundException(`Discount associated with coupon code '${couponCode}' not found.`);
+      throw new NotFoundException(`Giảm giá liên kết với mã coupon '${couponCode}' không tồn tại.`);
     }
     return couponRecord.discount as (discount & { coupon?: CouponModel | null }) ;
   }
@@ -109,7 +109,7 @@ export class DiscountService {
     });
 
     if (!existingDiscount) {
-        throw new NotFoundException(`Discount with ID ${discount_id} not found.`);
+        throw new NotFoundException(`Giảm giá với ID ${discount_id} không tồn tại.`);
     }
 
     let couponData: Prisma.couponUpdateOneRequiredWithoutDiscountNestedInput | undefined = undefined;
@@ -149,7 +149,7 @@ export class DiscountService {
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
-          throw new NotFoundException(`Discount with ID ${discount_id} not found.`);
+          throw new NotFoundException(`Giảm giá với ID ${discount_id} không tồn tại.`);
         }
         if (error.code === 'P2002' && error.meta?.target) {
             const targetFields = error.meta.target as string[];
@@ -172,7 +172,7 @@ export class DiscountService {
     });
 
     if (!discountToDelete) {
-        throw new NotFoundException(`Discount with ID ${discount_id} not found`);
+        throw new NotFoundException(`Giảm giá với ID ${discount_id} không tồn tại`);
     }
 
     try {
@@ -199,7 +199,7 @@ export class DiscountService {
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
-          throw new NotFoundException(`Discount with ID ${discount_id} not found`);
+          throw new NotFoundException(`Giảm giá với ID ${discount_id} không tồn tại`);
         }
         if (error.code === 'P2003') { 
             throw new ConflictException(`Discount with ID ${discount_id} cannot be deleted as it is currently associated with other records (e.g., orders).`);

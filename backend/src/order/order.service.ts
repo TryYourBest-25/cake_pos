@@ -17,12 +17,12 @@ export class OrderService {
 
     // 1. Validate Employee
     const employee = await this.prisma.employee.findUnique({ where: { employee_id } });
-    if (!employee) throw new NotFoundException(`Employee with ID ${employee_id} not found.`);
+    if (!employee) throw new NotFoundException(`Nhân viên với ID ${employee_id} không tồn tại.`);
 
     // 2. Validate Customer (if provided)
     if (customer_id) {
       const customer = await this.prisma.customer.findUnique({ where: { customer_id } });
-      if (!customer) throw new NotFoundException(`Customer with ID ${customer_id} not found.`);
+      if (!customer) throw new NotFoundException(`Khách hàng với ID ${customer_id} không tồn tại.`);
     }
 
     // 3. Process Products and Calculate total_amount
@@ -38,7 +38,7 @@ export class OrderService {
         where: { product_price_id: productDto.product_price_id },
       });
       if (!productPriceInfo) {
-        throw new NotFoundException(`ProductPrice with ID ${productDto.product_price_id} not found.`);
+        throw new NotFoundException(`Giá sản phẩm với ID ${productDto.product_price_id} không tồn tại.`);
       }
       if (!productPriceInfo.is_active) {
         throw new UnprocessableEntityException(`ProductPrice with ID ${productDto.product_price_id} is not active.`);
@@ -64,7 +64,7 @@ export class OrderService {
           where: { discount_id: discountDto.discount_id },
         });
         if (!discountInfo) {
-          throw new NotFoundException(`Discount with ID ${discountDto.discount_id} not found.`);
+          throw new NotFoundException(`Giảm giá với ID ${discountDto.discount_id} không tồn tại.`);
         }
         if (!discountInfo.is_active || new Date() > new Date(discountInfo.valid_until) || (discountInfo.valid_from && new Date() < new Date(discountInfo.valid_from))){
             throw new UnprocessableEntityException(`Discount ID ${discountInfo.discount_id} ('${discountInfo.name}') is not valid or active at this time.`);
@@ -168,7 +168,7 @@ export class OrderService {
       },
     });
     if (!order) {
-      throw new NotFoundException(`Order with ID ${id} not found.`);
+      throw new NotFoundException(`Đơn hàng với ID ${id} không tồn tại.`);
     }
     return order;
   }
@@ -206,7 +206,7 @@ export class OrderService {
                     const productPriceInfo = await tx.product_price.findUnique({ 
                         where: { product_price_id: productDto.product_price_id }
                     });
-                    if (!productPriceInfo) throw new NotFoundException(`ProductPrice with ID ${productDto.product_price_id} not found.`);
+                    if (!productPriceInfo) throw new NotFoundException(`Giá sản phẩm với ID ${productDto.product_price_id} không tồn tại.`);
                     if (!productPriceInfo.is_active) throw new UnprocessableEntityException(`ProductPrice ID ${productDto.product_price_id} is not active.`);
                     newTotalAmount = newTotalAmount.plus(new Decimal(productPriceInfo.price).times(productDto.quantity));
                     newOrderProductCreateInputs.push({
@@ -237,7 +237,7 @@ export class OrderService {
                     const discountInfo = await tx.discount.findUnique({ 
                         where: { discount_id: discountDto.discount_id }
                     });
-                    if (!discountInfo) throw new NotFoundException(`Discount with ID ${discountDto.discount_id} not found.`);
+                    if (!discountInfo) throw new NotFoundException(`Giảm giá với ID ${discountDto.discount_id} không tồn tại.`);
                     if (!discountInfo.is_active || new Date() > new Date(discountInfo.valid_until) || (discountInfo.valid_from && new Date() < new Date(discountInfo.valid_from))){
                         throw new UnprocessableEntityException(`Discount ID ${discountInfo.discount_id} ('${discountInfo.name}') is not valid or active at this time.`);
                     }

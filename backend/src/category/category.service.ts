@@ -17,7 +17,7 @@ export class CategoryService {
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) { // Use Prisma.PrismaClientKnownRequestError
         if (error.code === 'P2002') { // Unique constraint violation
-          throw new ConflictException(`Category with name '${createCategoryDto.name}' already exists.`);
+          throw new ConflictException(`Danh mục với tên '${createCategoryDto.name}' đã tồn tại.`);
         }
       }
       throw error;
@@ -33,7 +33,7 @@ export class CategoryService {
       where: { category_id: id },
     });
     if (!category) {
-      throw new NotFoundException(`Category with ID ${id} not found`);
+      throw new NotFoundException(`Danh mục với ID ${id} không tồn tại`);
     }
     return category;
   }
@@ -47,10 +47,10 @@ export class CategoryService {
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) { // Use Prisma.PrismaClientKnownRequestError
         if (error.code === 'P2025') { // Record to update not found
-          throw new NotFoundException(`Category with ID ${id} not found`);
+          throw new NotFoundException(`Danh mục với ID ${id} không tồn tại`);
         }
         if (error.code === 'P2002' && updateCategoryDto.name) { // Unique constraint violation for name
-          throw new ConflictException(`Category with name '${updateCategoryDto.name}' already exists.`);
+          throw new ConflictException(`Danh mục với tên '${updateCategoryDto.name}' đã tồn tại.`);
         }
       }
       throw error;
@@ -65,7 +65,7 @@ export class CategoryService {
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) { // Use Prisma.PrismaClientKnownRequestError
         if (error.code === 'P2025') { // Record to delete not found
-          throw new NotFoundException(`Category with ID ${id} not found`);
+          throw new NotFoundException(`Danh mục với ID ${id} không tồn tại`);
         }
         // P2003 for foreign key constraints if category is in use by products
         if (error.code === 'P2003') {

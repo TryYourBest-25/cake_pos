@@ -5,21 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ef5dec76-6049-4938-8b0f-72cdaa7b5451" name="Changes" comment="Add .gitignore and package-lock.json for frontend&#10;&#10;Introduced a .gitignore file to exclude unnecessary files such as node_modules, build artifacts, and environment files. Added a package-lock.json file to lock dependencies for consistent builds. These changes set up the basic project structure for the frontend.">
-      <change afterPath="$PROJECT_DIR$/backend/prisma/schema.prisma" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/database/B1.0.0__base_line.sql" beforeDir="false" afterPath="$PROJECT_DIR$/backend/database/B1.0.0__base_line.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/database/V1.0.1__init_default_data.sql" beforeDir="false" afterPath="$PROJECT_DIR$/backend/database/V1.0.1__init_default_data.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/database/V1.0.2__init_triggers.sql" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/database/V1.0.4__membership_trigger_event.sql" beforeDir="false" afterPath="$PROJECT_DIR$/backend/database/V1.0.4__membership_trigger_event.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/database/V1.0.5__scheduled_events.sql" beforeDir="false" afterPath="$PROJECT_DIR$/backend/database/V1.0.5__scheduled_events.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/database/V1.0.6__reporting_procedures_views.sql" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/database/V1.0.7__user_grant.sql" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/database/V1.0.8__init_optional_data.sql" beforeDir="false" afterPath="$PROJECT_DIR$/backend/database/V1.0.8__init_optional_data.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/backend/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.dev.env" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/.cursor/cursorrules" beforeDir="false" afterPath="$PROJECT_DIR$/backend/.cursor/cursorrules" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/backend/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/pnpm-lock.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/app.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/app.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -105,7 +96,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-6a121458b545-JavaScript-WS-251.25410.117" />
+        <option value="bundled-js-predefined-d6986cc7102b-b26f3e71634d-JavaScript-WS-251.26094.131" />
       </set>
     </attachedChunks>
   </component>
@@ -127,6 +118,7 @@
       <workItem from="1747459847256" duration="5063000" />
       <workItem from="1747476528978" duration="11948000" />
       <workItem from="1747537900274" duration="6000" />
+      <workItem from="1749738446092" duration="17000" />
     </task>
     <task id="LOCAL-00001" summary="Remove all project files and configurations&#10;&#10;This commit deletes all source code, dependencies, configurations, and project assets. It effectively cleans up the repository, leaving no traces of the previous Next.js project or related files.">
       <option name="closed" value="true" />

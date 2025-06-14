@@ -15,7 +15,7 @@ export class EmployeeService {
       where: { email },
     });
     if (existingEmployeeByEmail) {
-      throw new ConflictException(`Employee with email '${email}' already exists.`);
+      throw new ConflictException(`Nhân viên với email '${email}' đã tồn tại.`);
     }
 
     const data: Prisma.employeeCreateInput = {
@@ -41,11 +41,11 @@ export class EmployeeService {
             if (target.includes('email')) fieldDescription = `email '${email}'`;
             // Thêm các kiểm tra khác cho các trường unique nếu cần
           }
-          throw new ConflictException(`Employee already exists with the ${fieldDescription}.`);
+          throw new ConflictException(`Nhân viên đã tồn tại với ${fieldDescription}.`);
         }
         if (error.code === 'P2025') {
           // Lỗi này thường xảy ra khi account_id không tồn tại
-          throw new BadRequestException(`Account with ID ${account_id} not found or other related record is missing.`);
+          throw new BadRequestException(`Tài khoản với ID ${account_id} không tồn tại hoặc bản ghi liên quan khác bị thiếu.`);
         }
       }
       throw error;
@@ -64,7 +64,7 @@ export class EmployeeService {
       include: { account: true },
     });
     if (!emp) {
-      throw new NotFoundException(`Employee with ID ${employee_id} not found`);
+      throw new NotFoundException(`Nhân viên với ID ${employee_id} không tồn tại`);
     }
     return emp;
   }
@@ -109,7 +109,7 @@ export class EmployeeService {
           throw new NotFoundException(message);
         }
         if (error.code === 'P2002') {
-          throw new ConflictException('Cannot update employee, unique constraint violation (e.g., email already exists).');
+          throw new ConflictException('Không thể cập nhật nhân viên, vi phạm ràng buộc duy nhất (ví dụ: email đã tồn tại).');
         }
       }
       throw error;
@@ -126,7 +126,7 @@ export class EmployeeService {
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
-          throw new NotFoundException(`Employee with ID ${employee_id} not found`);
+          throw new NotFoundException(`Nhân viên với ID ${employee_id} không tồn tại`);
         }
         if (error.code === 'P2003') { 
             throw new ConflictException(`Employee with ID ${employee_id} cannot be deleted due to existing relations (e.g., assigned to tasks, orders, etc.).`);

@@ -5,7 +5,10 @@
 		},{
 			"path" : "backend"
 		},{
-			"path" : "frontend"
+			"path" : "frontend/manager"
+		},
+		{
+			"path" : "frontend/pos"
 		}
 	],
 	"settings": {

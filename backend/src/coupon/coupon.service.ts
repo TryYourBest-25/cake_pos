@@ -16,7 +16,7 @@ export class CouponService {
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2002') { // Unique constraint violation (field: coupon)
-          throw new ConflictException(`Coupon code '${createCouponDto.coupon}' already exists.`);
+          throw new ConflictException(`Mã coupon '${createCouponDto.coupon}' đã tồn tại.`);
         }
       }
       throw error;
@@ -32,7 +32,7 @@ export class CouponService {
       where: { coupon_id: id },
     });
     if (!coupon) {
-      throw new NotFoundException(`Coupon with ID ${id} not found`);
+      throw new NotFoundException(`Coupon với ID ${id} không tồn tại`);
     }
     return coupon;
   }
@@ -46,10 +46,10 @@ export class CouponService {
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2025') { // Record to update not found
-          throw new NotFoundException(`Coupon with ID ${id} not found`);
+          throw new NotFoundException(`Coupon với ID ${id} không tồn tại`);
         }
         if (error.code === 'P2002' && updateCouponDto.coupon) { // Unique constraint violation for coupon code
-          throw new ConflictException(`Coupon code '${updateCouponDto.coupon}' already exists.`);
+          throw new ConflictException(`Mã coupon '${updateCouponDto.coupon}' đã tồn tại.`);
         }
       }
       throw error;
@@ -64,7 +64,7 @@ export class CouponService {
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2025') { // Record to delete not found
-          throw new NotFoundException(`Coupon with ID ${id} not found`);
+          throw new NotFoundException(`Coupon với ID ${id} không tồn tại`);
         }
         // P2003: Foreign key constraint failed. This coupon might be linked to a discount.
         if (error.code === 'P2003') {

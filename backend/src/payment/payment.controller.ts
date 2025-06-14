@@ -28,7 +28,7 @@ export class PaymentController {
   async findAll(@Query('orderId') orderId?: string): Promise<payment[]> {
     const orderIdNum = orderId ? parseInt(orderId, 10) : undefined;
     if (orderId && isNaN(orderIdNum)) {
-        throw new BadRequestException('Invalid orderId. Must be a number.');
+        throw new BadRequestException('ID đơn hàng không hợp lệ. Phải là số.');
     }
     return this.paymentService.findAll(orderIdNum);
   }

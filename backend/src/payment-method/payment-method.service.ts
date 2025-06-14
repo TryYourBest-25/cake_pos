@@ -20,7 +20,7 @@ export class PaymentMethodService {
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
         if ((error.meta?.target as string[])?.includes('name')) {
-          throw new ConflictException(`Payment method with name '${name}' already exists.`);
+          throw new ConflictException(`Phương thức thanh toán với tên '${name}' đã tồn tại.`);
         }
         throw new ConflictException('A unique constraint violation occurred.');
       }
@@ -38,7 +38,7 @@ export class PaymentMethodService {
       where: { payment_method_id: id },
     });
     if (!method) {
-      throw new NotFoundException(`Payment method with ID ${id} not found.`);
+      throw new NotFoundException(`Phương thức thanh toán với ID ${id} không tồn tại.`);
     }
     return method;
   }
@@ -63,12 +63,12 @@ export class PaymentMethodService {
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
         if ((error.meta?.target as string[])?.includes('name') && name) {
-          throw new ConflictException(`Payment method with name '${name}' already exists.`);
+          throw new ConflictException(`Phương thức thanh toán với tên '${name}' đã tồn tại.`);
         }
         throw new ConflictException('A unique constraint violation occurred during update.');
       }
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
-        throw new NotFoundException(`Payment method with ID ${id} not found for update.`);
+        throw new NotFoundException(`Phương thức thanh toán với ID ${id} không tồn tại để cập nhật.`);
       }
       console.error(`Error updating payment method ${id}:`, error);
       throw new InternalServerErrorException('Could not update payment method.');
@@ -94,7 +94,7 @@ export class PaymentMethodService {
     } catch (error) {
       if (error instanceof ConflictException) throw error; // Re-throw conflict exception
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
-        throw new NotFoundException(`Payment method with ID ${id} not found for deletion.`);
+        throw new NotFoundException(`Phương thức thanh toán với ID ${id} không tồn tại để xóa.`);
       }
       console.error(`Error deleting payment method ${id}:`, error);
       throw new InternalServerErrorException('Could not delete payment method.');
