@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, MaxLength, IsOptional, IsInt, IsEmail, IsPhoneNumber } from 'class-validator';
+import { IsString, IsNotEmpty, MaxLength, IsEmail, IsPhoneNumber, MinLength } from 'class-validator';
 
 export class CreateEmployeeDto {
   @IsString()
@@ -21,19 +21,19 @@ export class CreateEmployeeDto {
   @MaxLength(15)
   phone: string;
 
-  @IsInt()
-  @IsNotEmpty() // Đảm bảo account_id là bắt buộc
-  account_id: number; // Bỏ dấu ?
-
   @IsString()
   @IsNotEmpty()
   @MaxLength(100)
   position: string;
 
-  // Thêm các trường khác ở đây dựa trên schema.prisma của bạn
-  // Ví dụ:
-  // @IsString()
-  // @IsOptional()
-  // @MaxLength(100)
-  // position?: string;
+  // Thông tin tài khoản (bắt buộc cho employee)
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(3)
+  username: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(8)
+  password: string;
 } 

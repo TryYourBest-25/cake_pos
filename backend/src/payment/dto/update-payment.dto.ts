@@ -15,10 +15,7 @@ export class UpdatePaymentDto extends PartialType(CreatePaymentDto) {
   @Type(() => Number)
   amount_paid?: number;
 
-  @ApiProperty({ description: 'Trạng thái thanh toán cập nhật', enum: PaymentStatusEnum, example: PaymentStatusEnum.COMPLETED, required: false })
-  @IsOptional()
-  @IsEnum(PaymentStatusEnum)
-  status?: PaymentStatusEnum;
+  // status sẽ được service quản lý, không cho phép client cập nhật
 
   @ApiProperty({ description: 'Thời gian thanh toán cập nhật (ISO 8601 string)', example: '2024-07-26T10:35:00.000Z', required: false })
   @IsOptional()

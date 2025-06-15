@@ -7,11 +7,11 @@
       </database-info>
       <case-sensitivity plain-identifiers="lower" quoted-identifiers="exact" />
       <secret-storage>master_key</secret-storage>
-      <user-name>cake_user</user-name>
+      <user-name>user</user-name>
       <schema-mapping>
         <introspection-scope>
-          <node kind="database" qname="@">
-            <node kind="schema" qname="@" />
+          <node kind="database" qname="cake_pos_db">
+            <node kind="schema" qname="public" />
           </node>
         </introspection-scope>
       </schema-mapping>

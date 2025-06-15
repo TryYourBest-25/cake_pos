@@ -20,6 +20,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { ROLES } from '../auth/constants/roles.constant';
 import { UploadImageDto } from './dto/upload-image.dto';
 import { DeleteImageDto } from './dto/delete-image.dto';
 import { UpdateImageDto } from './dto/update-image.dto';
@@ -71,7 +72,7 @@ export class FirebaseStorageController {
   @ApiResponse({ status: 400, description: 'File không hợp lệ hoặc quá lớn' })
   @ApiResponse({ status: 401, description: 'Chưa xác thực' })
   @ApiResponse({ status: 403, description: 'Không có quyền truy cập' })
-  @Roles('admin', 'manager', 'employee')
+  @Roles(ROLES.MANAGER, ROLES.STAFF)
   async uploadImage(
     @UploadedFile() file: Express.Multer.File,
     @Body('fileName') fileName?: string,
@@ -125,7 +126,7 @@ export class FirebaseStorageController {
   @ApiResponse({ status: 400, description: 'URL ảnh không hợp lệ hoặc file không tồn tại' })
   @ApiResponse({ status: 401, description: 'Chưa xác thực' })
   @ApiResponse({ status: 403, description: 'Không có quyền truy cập' })
-  @Roles('admin', 'manager', 'employee')
+  @Roles(ROLES.MANAGER, ROLES.STAFF)
   async deleteImage(
     @Body('imageUrl') imageUrl: string,
     @CurrentUser() user?: any,
@@ -162,7 +163,7 @@ export class FirebaseStorageController {
   })
   @ApiResponse({ status: 401, description: 'Chưa xác thực' })
   @ApiResponse({ status: 403, description: 'Không có quyền truy cập' })
-  @Roles('admin', 'manager', 'employee')
+  @Roles(ROLES.MANAGER, ROLES.STAFF)
   async listImages(
     @Query('folder') folder: string = 'products',
     @CurrentUser() user?: any,
@@ -221,7 +222,7 @@ export class FirebaseStorageController {
   @ApiResponse({ status: 400, description: 'File không hợp lệ hoặc thiếu thông tin' })
   @ApiResponse({ status: 401, description: 'Chưa xác thực' })
   @ApiResponse({ status: 403, description: 'Không có quyền truy cập' })
-  @Roles('admin', 'manager', 'employee')
+  @Roles(ROLES.MANAGER, ROLES.STAFF)
   async updateImage(
     @UploadedFile() file: Express.Multer.File,
     @Body('oldImageUrl') oldImageUrl: string,

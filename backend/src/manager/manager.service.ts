@@ -1,16 +1,22 @@
 import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { AccountService } from '../account/account.service';
 import { manager, Prisma } from '../generated/prisma/client';
 import { CreateManagerDto } from './dto/create-manager.dto';
 import { UpdateManagerDto } from './dto/update-manager.dto';
+import { ROLES } from '../auth/constants/roles.constant';
 
 @Injectable()
 export class ManagerService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private accountService: AccountService,
+  ) {}
 
   async create(createManagerDto: CreateManagerDto): Promise<manager> {
-    const { email, account_id, ...restOfDto } = createManagerDto;
+    const { email, username, password, ...managerData } = createManagerDto;
 
+    // Kiểm tra email manager đã tồn tại chưa
     const existingManagerByEmail = await this.prisma.manager.findUnique({
       where: { email },
     });
@@ -18,18 +24,27 @@ export class ManagerService {
       throw new ConflictException(`Quản lý với email '${email}' đã tồn tại.`);
     }
 
-    const data: Prisma.managerCreateInput = {
-      ...restOfDto,
-      email,
-      account: { // Giả định account là quan hệ bắt buộc
-        connect: { account_id },
-      },
-    };
-
     try {
+      // Bước 1: Tạo account với role MANAGER
+      const account = await this.accountService.create({
+        username,
+        password,
+        role_id: await this.getManagerRoleId(),
+        is_active: true,
+      });
+
+      // Bước 2: Tạo manager record với account_id
+      const data: Prisma.managerCreateInput = {
+        ...managerData,
+        email,
+        account: {
+          connect: { account_id: account.account_id },
+        },
+      };
+
       return await this.prisma.manager.create({
         data,
-        include: { account: true }, 
+        include: { account: true },
       });
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -41,12 +56,22 @@ export class ManagerService {
           }
           throw new ConflictException(`Quản lý đã tồn tại với ${fieldDescription}.`);
         }
-        if (error.code === 'P2025') {
-          throw new BadRequestException(`Tài khoản với ID ${account_id} không tồn tại hoặc bản ghi liên quan khác bị thiếu.`);
-        }
       }
       throw error;
     }
+  }
+
+  /**
+   * Lấy role_id cho MANAGER
+   */
+  private async getManagerRoleId(): Promise<number> {
+    const managerRole = await this.prisma.role.findFirst({
+      where: { name: ROLES.MANAGER },
+    });
+    if (!managerRole) {
+      throw new BadRequestException('Vai trò MANAGER không tồn tại trong hệ thống');
+    }
+    return managerRole.role_id;
   }
 
   async findAll(): Promise<manager[]> {
@@ -74,30 +99,21 @@ export class ManagerService {
   }
 
   async update(manager_id: number, updateManagerDto: UpdateManagerDto): Promise<manager> {
-    const { account_id, ...restOfData } = updateManagerDto;
+    // Chỉ cập nhật thông tin manager, không cập nhật account
+    const { ...managerData } = updateManagerDto;
     
-    const data: Prisma.managerUpdateInput = { ...restOfData };
-
-    if (account_id !== undefined) {
-        data.account = { connect: { account_id } }; 
-    }
+    const data: Prisma.managerUpdateInput = { ...managerData };
 
     try {
       return await this.prisma.manager.update({
-        where: { manager_id }, // Giả sử khóa chính là manager_id
+        where: { manager_id },
         data,
         include: { account: true },
       });
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
-          let message = `Update failed: Manager with ID ${manager_id} not found.`;
-          if (error.meta && typeof error.meta.cause === 'string' && error.meta.cause.startsWith('Record to update not found')){
-            // Mặc định
-          } else if (account_id) {
-             message = `Update failed: Account with ID ${account_id} not found, or other related record is missing.`
-          }
-          throw new NotFoundException(message);
+          throw new NotFoundException(`Quản lý với ID ${manager_id} không tồn tại`);
         }
         if (error.code === 'P2002') {
           throw new ConflictException('Không thể cập nhật quản lý, vi phạm ràng buộc duy nhất (ví dụ: email đã tồn tại).');
@@ -109,9 +125,26 @@ export class ManagerService {
 
   async remove(manager_id: number): Promise<manager> {
     try {
-      return await this.prisma.manager.delete({
-        where: { manager_id }, // Giả sử khóa chính là manager_id
+      const managerWithAccount = await this.prisma.manager.findUnique({
+        where: { manager_id },
+        include: { account: true },
       });
+
+      if (!managerWithAccount) {
+        throw new NotFoundException(`Quản lý với ID ${manager_id} không tồn tại`);
+      }
+      
+      // Xóa manager trước
+      const deletedManager = await this.prisma.manager.delete({
+        where: { manager_id },
+      });
+
+      // Xóa account liên quan
+      if (managerWithAccount.account) {
+        await this.accountService.remove(managerWithAccount.account.account_id);
+      }
+
+      return deletedManager;
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
@@ -124,4 +157,4 @@ export class ManagerService {
       throw error;
     }
   }
-} 
+}

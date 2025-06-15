@@ -1,35 +1,84 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
 import { ManagerService } from './manager.service';
 import { CreateManagerDto } from './dto/create-manager.dto';
 import { UpdateManagerDto } from './dto/update-manager.dto';
 import { manager } from '../generated/prisma/client';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { ROLES } from '../auth/constants/roles.constant';
 
+@ApiTags('managers')
 @Controller('managers')
+@ApiBearerAuth()
 export class ManagerController {
   constructor(private readonly managerService: ManagerService) {}
 
   @Post()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ROLES.MANAGER)
   @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Create a new manager - Chỉ MANAGER' })
+  @ApiBody({ type: CreateManagerDto })
+  @ApiResponse({ status: 201, description: 'Manager created successfully' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({ status: 409, description: 'Conflict (email already exists)' })
   async create(@Body() createManagerDto: CreateManagerDto): Promise<manager> {
     return this.managerService.create(createManagerDto);
   }
 
   @Get()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ROLES.MANAGER)
+  @ApiOperation({ summary: 'Get all managers - Chỉ MANAGER' })
+  @ApiResponse({ status: 200, description: 'List of managers' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
   async findAll(): Promise<manager[]> {
     return this.managerService.findAll();
   }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ROLES.MANAGER)
+  @ApiOperation({ summary: 'Get manager by ID - Chỉ MANAGER' })
+  @ApiParam({ name: 'id', description: 'Manager ID', type: Number })
+  @ApiResponse({ status: 200, description: 'Manager details' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({ status: 404, description: 'Manager not found' })
   async findOne(@Param('id', ParseIntPipe) id: number): Promise<manager | null> {
     return this.managerService.findOne(id);
   }
 
   @Get('email/:email')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ROLES.MANAGER)
+  @ApiOperation({ summary: 'Find manager by email - Chỉ MANAGER' })
+  @ApiParam({ name: 'email', description: 'Manager email', type: String })
+  @ApiResponse({ status: 200, description: 'Manager details' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({ status: 404, description: 'Manager not found' })
   async findByEmail(@Param('email') email: string): Promise<manager | null> {
     return this.managerService.findByEmail(email);
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ROLES.MANAGER)
+  @ApiOperation({ summary: 'Update manager - Chỉ MANAGER' })
+  @ApiParam({ name: 'id', description: 'Manager ID', type: Number })
+  @ApiBody({ type: UpdateManagerDto })
+  @ApiResponse({ status: 200, description: 'Manager updated successfully' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({ status: 404, description: 'Manager not found' })
+  @ApiResponse({ status: 409, description: 'Conflict (email already exists)' })
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateManagerDto: UpdateManagerDto,
@@ -38,13 +87,27 @@ export class ManagerController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ROLES.MANAGER)
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete manager - Chỉ MANAGER' })
+  @ApiParam({ name: 'id', description: 'Manager ID', type: Number })
+  @ApiResponse({ status: 204, description: 'Manager deleted successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({ status: 404, description: 'Manager not found' })
   async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     await this.managerService.remove(id);
   }
 
   @Get('test/ping')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ROLES.MANAGER)
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Test manager controller - Chỉ MANAGER' })
+  @ApiResponse({ status: 200, description: 'Test successful' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
   async test(): Promise<{ message: string }> {
     return { message: 'Manager controller is working!' };
   }

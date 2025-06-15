@@ -3,6 +3,8 @@ import { PrismaService } from '../prisma/prisma.service';
 import { payment, Prisma, order as OrderModel, payment_method as PaymentMethodModel, payment_status_enum } from '../generated/prisma/client';
 import { CreatePaymentDto, PaymentStatusEnum as PaymentStatusDtoEnum } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
+import { VNPayService, VNPayPaymentRequest } from './vnpay.service';
+import { InvoiceService } from '../invoice/invoice.service';
 import { Decimal } from '@prisma/client/runtime/library';
 
 // Định nghĩa kiểu cho Payment bao gồm các relations cần thiết
@@ -13,12 +15,22 @@ type PaymentWithRelations = Prisma.paymentGetPayload<{
   }
 }>;
 
+// Constants cho payment method IDs
+export const PAYMENT_METHOD = {
+  CASH: 1,
+  VNPAY: 2,
+} as const;
+
 @Injectable()
 export class PaymentService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private vnpayService: VNPayService,
+    private invoiceService: InvoiceService,
+  ) {}
 
   async create(createPaymentDto: CreatePaymentDto): Promise<PaymentWithRelations> {
-    const { order_id, payment_method_id, amount_paid, status, payment_time } = createPaymentDto;
+    const { order_id, payment_method_id, amount_paid, payment_time } = createPaymentDto;
 
     const order = await this.prisma.order.findUnique({
       where: { order_id },
@@ -42,8 +54,16 @@ export class PaymentService {
       changeAmount = paidAmount.minus(orderFinalAmount);
     }
 
+    // Xác định status dựa trên payment method
+    let paymentStatus: payment_status_enum = payment_status_enum.PROCESSING;
+    if (payment_method_id === PAYMENT_METHOD.CASH) {
+      // Thanh toán tiền mặt được coi là hoàn thành ngay lập tức
+      paymentStatus = payment_status_enum.PAID;
+    }
+    // VNPay sẽ được cập nhật status thông qua callback
+
     const paymentData: Prisma.paymentCreateInput = {
-      status: (status as payment_status_enum) || payment_status_enum.PROCESSING,
+      status: paymentStatus,
       amount_paid: paidAmount,
       change_amount: changeAmount,
       payment_time: payment_time ? new Date(payment_time) : new Date(),
@@ -60,6 +80,21 @@ export class PaymentService {
         data: paymentData,
         include: { order: true, payment_method: true }
       });
+
+      // Tự động tạo hóa đơn khi thanh toán thành công
+      if (newPayment.status === payment_status_enum.PAID) {
+        try {
+          // Tạo HTML hóa đơn và log để kiểm tra
+          const invoiceData = await this.invoiceService.getInvoiceData(order_id);
+          const invoiceHTML = this.invoiceService.generateInvoiceHTML(invoiceData);
+          console.log(`Hóa đơn đã được tạo cho đơn hàng #${order_id}`);
+          
+          // TODO: Có thể lưu HTML vào database hoặc gửi email cho khách hàng
+        } catch (invoiceError) {
+          console.error(`Lỗi khi tạo hóa đơn cho đơn hàng #${order_id}:`, invoiceError);
+        }
+      }
+
       return newPayment;
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -69,6 +104,145 @@ export class PaymentService {
       }
       console.error("Error creating payment:", error);
       throw new InternalServerErrorException('Could not create payment.');
+    }
+  }
+
+  /**
+   * Tạo URL thanh toán VNPay
+   */
+  async createVNPayPaymentUrl(orderId: number, orderInfo?: string, returnUrl?: string, ipAddr: string = '127.0.0.1'): Promise<string> {
+    // Kiểm tra đơn hàng tồn tại
+    const order = await this.prisma.order.findUnique({
+      where: { order_id: orderId },
+    });
+    if (!order) {
+      throw new NotFoundException(`Đơn hàng với ID ${orderId} không tồn tại.`);
+    }
+
+    // Tính số tiền cần thanh toán
+    const amount = Number(order.final_amount || order.total_amount || 0);
+    
+    if (amount <= 0) {
+      throw new BadRequestException('Số tiền thanh toán phải lớn hơn 0');
+    }
+
+    const paymentRequest: VNPayPaymentRequest = {
+      orderId,
+      amount,
+      orderInfo: orderInfo || `Thanh toan don hang #${orderId}`,
+      returnUrl: returnUrl || process.env.VNPAY_RETURN_URL || `${process.env.API_BASE_URL || 'http://localhost:3000'}/payments/vnpay/callback`,
+      ipAddr,
+    };
+
+    return this.vnpayService.createPaymentUrl(paymentRequest);
+  }
+
+  /**
+   * Xử lý callback từ VNPay và cập nhật trạng thái thanh toán
+   */
+  async processVNPayCallback(callbackData: any): Promise<{
+    success: boolean;
+    message: string;
+    payment?: PaymentWithRelations;
+  }> {
+    try {
+      // Xác thực callback
+      const verification = await this.vnpayService.verifyCallback(callbackData);
+      
+      if (!verification.isValid) {
+        return {
+          success: false,
+          message: 'Chữ ký không hợp lệ',
+        };
+      }
+
+      const { orderId, amount, responseCode, transactionStatus } = verification;
+      
+      if (!orderId || !amount) {
+        return {
+          success: false,
+          message: 'Thông tin giao dịch không đầy đủ',
+        };
+      }
+
+      // Kiểm tra thanh toán thành công
+      const isSuccessful = this.vnpayService.isPaymentSuccessful(responseCode!, transactionStatus!);
+      
+      // Tạo/cập nhật payment record
+      const payment = await this.createOrUpdateVNPayPayment(
+        orderId,
+        amount,
+        isSuccessful ? payment_status_enum.PAID : payment_status_enum.CANCELLED,
+        callbackData.vnp_TxnRef
+      );
+
+      // Tự động tạo hóa đơn khi thanh toán VNPay thành công
+      if (isSuccessful && payment.status === payment_status_enum.PAID) {
+        try {
+          const invoiceData = await this.invoiceService.getInvoiceData(orderId);
+          const invoiceHTML = this.invoiceService.generateInvoiceHTML(invoiceData);
+          console.log(`Hóa đơn VNPay đã được tạo cho đơn hàng #${orderId}`);
+        } catch (invoiceError) {
+          console.error(`Lỗi khi tạo hóa đơn VNPay cho đơn hàng #${orderId}:`, invoiceError);
+        }
+      }
+
+      return {
+        success: isSuccessful,
+        message: isSuccessful ? 'Thanh toán thành công' : 'Thanh toán thất bại',
+        payment,
+      };
+    } catch (error) {
+      console.error('Error processing VNPay callback:', error);
+      return {
+        success: false,
+        message: 'Lỗi xử lý callback',
+      };
+    }
+  }
+
+  /**
+   * Tạo hoặc cập nhật payment record cho VNPay
+   */
+  private async createOrUpdateVNPayPayment(
+    orderId: number,
+    amount: number,
+    status: payment_status_enum,
+    txnRef: string
+  ): Promise<PaymentWithRelations> {
+    // Tìm payment record đã tồn tại cho order này với VNPay
+    const existingPayment = await this.prisma.payment.findFirst({
+      where: {
+        order_id: orderId,
+        payment_method_id: PAYMENT_METHOD.VNPAY,
+      },
+      include: { order: true, payment_method: true },
+    });
+
+    if (existingPayment) {
+      // Cập nhật payment đã tồn tại
+      return this.prisma.payment.update({
+        where: { payment_id: existingPayment.payment_id },
+        data: {
+          status,
+          amount_paid: new Decimal(amount),
+          payment_time: new Date(),
+        },
+        include: { order: true, payment_method: true },
+      });
+    } else {
+      // Tạo payment record mới
+      return this.prisma.payment.create({
+        data: {
+          order_id: orderId,
+          payment_method_id: PAYMENT_METHOD.VNPAY,
+          status,
+          amount_paid: new Decimal(amount),
+          change_amount: new Decimal(0), // VNPay không có tiền thừa
+          payment_time: new Date(),
+        },
+        include: { order: true, payment_method: true },
+      });
     }
   }
 
@@ -94,11 +268,11 @@ export class PaymentService {
   async update(id: number, updatePaymentDto: UpdatePaymentDto): Promise<PaymentWithRelations> {
     const existingPayment = await this.findOne(id); 
 
-    const { amount_paid, status, payment_time } = updatePaymentDto;
+    const { amount_paid, payment_time } = updatePaymentDto;
     
     const dataToUpdate: Prisma.paymentUpdateInput = {};
 
-    if (status) dataToUpdate.status = status as payment_status_enum;
+    // status không được cập nhật trực tiếp từ client
     if (payment_time) dataToUpdate.payment_time = new Date(payment_time);
 
     let newPaidAmount: Decimal | undefined;

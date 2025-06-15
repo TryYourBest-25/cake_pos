@@ -33,10 +33,7 @@ export class CreatePaymentDto {
   @Type(() => Number)
   amount_paid: number; // Sẽ được chuyển thành Decimal trong service
 
-  @ApiProperty({ description: 'Trạng thái thanh toán', enum: PaymentStatusEnum, example: PaymentStatusEnum.PAID, required: false, default: PaymentStatusEnum.PROCESSING })
-  @IsOptional()
-  @IsEnum(PaymentStatusEnum)
-  status?: PaymentStatusEnum = PaymentStatusEnum.PROCESSING;
+  // status sẽ được service quản lý, không cho phép client gửi
 
   @ApiProperty({ description: 'Thời gian thanh toán (ISO 8601 string), mặc định là thời điểm hiện tại nếu không cung cấp', example: '2024-07-26T10:30:00.000Z', required: false })
   @IsOptional()

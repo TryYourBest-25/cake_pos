@@ -227,7 +227,7 @@ export type orderGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
 export type OrderGroupByOutputType = {
   order_id: number
   customer_id: number | null
-  employee_id: number
+  employee_id: number | null
   order_time: Date | null
   total_amount: number | null
   final_amount: number | null
@@ -263,7 +263,7 @@ export type orderWhereInput = {
   NOT?: Prisma.orderWhereInput | Prisma.orderWhereInput[]
   order_id?: Prisma.IntFilter<"order"> | number
   customer_id?: Prisma.IntNullableFilter<"order"> | number | null
-  employee_id?: Prisma.IntFilter<"order"> | number
+  employee_id?: Prisma.IntNullableFilter<"order"> | number | null
   order_time?: Prisma.DateTimeNullableFilter<"order"> | Date | string | null
   total_amount?: Prisma.IntNullableFilter<"order"> | number | null
   final_amount?: Prisma.IntNullableFilter<"order"> | number | null
@@ -272,7 +272,7 @@ export type orderWhereInput = {
   created_at?: Prisma.DateTimeNullableFilter<"order"> | Date | string | null
   updated_at?: Prisma.DateTimeNullableFilter<"order"> | Date | string | null
   customer?: Prisma.XOR<Prisma.CustomerNullableScalarRelationFilter, Prisma.customerWhereInput> | null
-  employee?: Prisma.XOR<Prisma.EmployeeScalarRelationFilter, Prisma.employeeWhereInput>
+  employee?: Prisma.XOR<Prisma.EmployeeNullableScalarRelationFilter, Prisma.employeeWhereInput> | null
   order_discount?: Prisma.Order_discountListRelationFilter
   order_product?: Prisma.Order_productListRelationFilter
   payment?: Prisma.PaymentListRelationFilter
@@ -281,7 +281,7 @@ export type orderWhereInput = {
 export type orderOrderByWithRelationInput = {
   order_id?: Prisma.SortOrder
   customer_id?: Prisma.SortOrderInput | Prisma.SortOrder
-  employee_id?: Prisma.SortOrder
+  employee_id?: Prisma.SortOrderInput | Prisma.SortOrder
   order_time?: Prisma.SortOrderInput | Prisma.SortOrder
   total_amount?: Prisma.SortOrderInput | Prisma.SortOrder
   final_amount?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -302,7 +302,7 @@ export type orderWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.orderWhereInput[]
   NOT?: Prisma.orderWhereInput | Prisma.orderWhereInput[]
   customer_id?: Prisma.IntNullableFilter<"order"> | number | null
-  employee_id?: Prisma.IntFilter<"order"> | number
+  employee_id?: Prisma.IntNullableFilter<"order"> | number | null
   order_time?: Prisma.DateTimeNullableFilter<"order"> | Date | string | null
   total_amount?: Prisma.IntNullableFilter<"order"> | number | null
   final_amount?: Prisma.IntNullableFilter<"order"> | number | null
@@ -311,7 +311,7 @@ export type orderWhereUniqueInput = Prisma.AtLeast<{
   created_at?: Prisma.DateTimeNullableFilter<"order"> | Date | string | null
   updated_at?: Prisma.DateTimeNullableFilter<"order"> | Date | string | null
   customer?: Prisma.XOR<Prisma.CustomerNullableScalarRelationFilter, Prisma.customerWhereInput> | null
-  employee?: Prisma.XOR<Prisma.EmployeeScalarRelationFilter, Prisma.employeeWhereInput>
+  employee?: Prisma.XOR<Prisma.EmployeeNullableScalarRelationFilter, Prisma.employeeWhereInput> | null
   order_discount?: Prisma.Order_discountListRelationFilter
   order_product?: Prisma.Order_productListRelationFilter
   payment?: Prisma.PaymentListRelationFilter
@@ -320,7 +320,7 @@ export type orderWhereUniqueInput = Prisma.AtLeast<{
 export type orderOrderByWithAggregationInput = {
   order_id?: Prisma.SortOrder
   customer_id?: Prisma.SortOrderInput | Prisma.SortOrder
-  employee_id?: Prisma.SortOrder
+  employee_id?: Prisma.SortOrderInput | Prisma.SortOrder
   order_time?: Prisma.SortOrderInput | Prisma.SortOrder
   total_amount?: Prisma.SortOrderInput | Prisma.SortOrder
   final_amount?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -341,7 +341,7 @@ export type orderScalarWhereWithAggregatesInput = {
   NOT?: Prisma.orderScalarWhereWithAggregatesInput | Prisma.orderScalarWhereWithAggregatesInput[]
   order_id?: Prisma.IntWithAggregatesFilter<"order"> | number
   customer_id?: Prisma.IntNullableWithAggregatesFilter<"order"> | number | null
-  employee_id?: Prisma.IntWithAggregatesFilter<"order"> | number
+  employee_id?: Prisma.IntNullableWithAggregatesFilter<"order"> | number | null
   order_time?: Prisma.DateTimeNullableWithAggregatesFilter<"order"> | Date | string | null
   total_amount?: Prisma.IntNullableWithAggregatesFilter<"order"> | number | null
   final_amount?: Prisma.IntNullableWithAggregatesFilter<"order"> | number | null
@@ -360,7 +360,7 @@ export type orderCreateInput = {
   created_at?: Date | string | null
   updated_at?: Date | string | null
   customer?: Prisma.customerCreateNestedOneWithoutOrderInput
-  employee: Prisma.employeeCreateNestedOneWithoutOrderInput
+  employee?: Prisma.employeeCreateNestedOneWithoutOrderInput
   order_discount?: Prisma.order_discountCreateNestedManyWithoutOrderInput
   order_product?: Prisma.order_productCreateNestedManyWithoutOrderInput
   payment?: Prisma.paymentCreateNestedManyWithoutOrderInput
@@ -369,7 +369,7 @@ export type orderCreateInput = {
 export type orderUncheckedCreateInput = {
   order_id?: number
   customer_id?: number | null
-  employee_id: number
+  employee_id?: number | null
   order_time?: Date | string | null
   total_amount?: number | null
   final_amount?: number | null
@@ -391,7 +391,7 @@ export type orderUpdateInput = {
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   customer?: Prisma.customerUpdateOneWithoutOrderNestedInput
-  employee?: Prisma.employeeUpdateOneRequiredWithoutOrderNestedInput
+  employee?: Prisma.employeeUpdateOneWithoutOrderNestedInput
   order_discount?: Prisma.order_discountUpdateManyWithoutOrderNestedInput
   order_product?: Prisma.order_productUpdateManyWithoutOrderNestedInput
   payment?: Prisma.paymentUpdateManyWithoutOrderNestedInput
@@ -400,7 +400,7 @@ export type orderUpdateInput = {
 export type orderUncheckedUpdateInput = {
   order_id?: Prisma.IntFieldUpdateOperationsInput | number
   customer_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  employee_id?: Prisma.IntFieldUpdateOperationsInput | number
+  employee_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   order_time?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   total_amount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   final_amount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -416,7 +416,7 @@ export type orderUncheckedUpdateInput = {
 export type orderCreateManyInput = {
   order_id?: number
   customer_id?: number | null
-  employee_id: number
+  employee_id?: number | null
   order_time?: Date | string | null
   total_amount?: number | null
   final_amount?: number | null
@@ -439,7 +439,7 @@ export type orderUpdateManyMutationInput = {
 export type orderUncheckedUpdateManyInput = {
   order_id?: Prisma.IntFieldUpdateOperationsInput | number
   customer_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  employee_id?: Prisma.IntFieldUpdateOperationsInput | number
+  employee_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   order_time?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   total_amount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   final_amount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -657,7 +657,7 @@ export type orderCreateWithoutCustomerInput = {
   customize_note?: string | null
   created_at?: Date | string | null
   updated_at?: Date | string | null
-  employee: Prisma.employeeCreateNestedOneWithoutOrderInput
+  employee?: Prisma.employeeCreateNestedOneWithoutOrderInput
   order_discount?: Prisma.order_discountCreateNestedManyWithoutOrderInput
   order_product?: Prisma.order_productCreateNestedManyWithoutOrderInput
   payment?: Prisma.paymentCreateNestedManyWithoutOrderInput
@@ -665,7 +665,7 @@ export type orderCreateWithoutCustomerInput = {
 
 export type orderUncheckedCreateWithoutCustomerInput = {
   order_id?: number
-  employee_id: number
+  employee_id?: number | null
   order_time?: Date | string | null
   total_amount?: number | null
   final_amount?: number | null
@@ -710,7 +710,7 @@ export type orderScalarWhereInput = {
   NOT?: Prisma.orderScalarWhereInput | Prisma.orderScalarWhereInput[]
   order_id?: Prisma.IntFilter<"order"> | number
   customer_id?: Prisma.IntNullableFilter<"order"> | number | null
-  employee_id?: Prisma.IntFilter<"order"> | number
+  employee_id?: Prisma.IntNullableFilter<"order"> | number | null
   order_time?: Prisma.DateTimeNullableFilter<"order"> | Date | string | null
   total_amount?: Prisma.IntNullableFilter<"order"> | number | null
   final_amount?: Prisma.IntNullableFilter<"order"> | number | null
@@ -784,7 +784,7 @@ export type orderCreateWithoutOrder_discountInput = {
   created_at?: Date | string | null
   updated_at?: Date | string | null
   customer?: Prisma.customerCreateNestedOneWithoutOrderInput
-  employee: Prisma.employeeCreateNestedOneWithoutOrderInput
+  employee?: Prisma.employeeCreateNestedOneWithoutOrderInput
   order_product?: Prisma.order_productCreateNestedManyWithoutOrderInput
   payment?: Prisma.paymentCreateNestedManyWithoutOrderInput
 }
@@ -792,7 +792,7 @@ export type orderCreateWithoutOrder_discountInput = {
 export type orderUncheckedCreateWithoutOrder_discountInput = {
   order_id?: number
   customer_id?: number | null
-  employee_id: number
+  employee_id?: number | null
   order_time?: Date | string | null
   total_amount?: number | null
   final_amount?: number | null
@@ -829,7 +829,7 @@ export type orderUpdateWithoutOrder_discountInput = {
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   customer?: Prisma.customerUpdateOneWithoutOrderNestedInput
-  employee?: Prisma.employeeUpdateOneRequiredWithoutOrderNestedInput
+  employee?: Prisma.employeeUpdateOneWithoutOrderNestedInput
   order_product?: Prisma.order_productUpdateManyWithoutOrderNestedInput
   payment?: Prisma.paymentUpdateManyWithoutOrderNestedInput
 }
@@ -837,7 +837,7 @@ export type orderUpdateWithoutOrder_discountInput = {
 export type orderUncheckedUpdateWithoutOrder_discountInput = {
   order_id?: Prisma.IntFieldUpdateOperationsInput | number
   customer_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  employee_id?: Prisma.IntFieldUpdateOperationsInput | number
+  employee_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   order_time?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   total_amount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   final_amount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -858,7 +858,7 @@ export type orderCreateWithoutOrder_productInput = {
   created_at?: Date | string | null
   updated_at?: Date | string | null
   customer?: Prisma.customerCreateNestedOneWithoutOrderInput
-  employee: Prisma.employeeCreateNestedOneWithoutOrderInput
+  employee?: Prisma.employeeCreateNestedOneWithoutOrderInput
   order_discount?: Prisma.order_discountCreateNestedManyWithoutOrderInput
   payment?: Prisma.paymentCreateNestedManyWithoutOrderInput
 }
@@ -866,7 +866,7 @@ export type orderCreateWithoutOrder_productInput = {
 export type orderUncheckedCreateWithoutOrder_productInput = {
   order_id?: number
   customer_id?: number | null
-  employee_id: number
+  employee_id?: number | null
   order_time?: Date | string | null
   total_amount?: number | null
   final_amount?: number | null
@@ -903,7 +903,7 @@ export type orderUpdateWithoutOrder_productInput = {
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   customer?: Prisma.customerUpdateOneWithoutOrderNestedInput
-  employee?: Prisma.employeeUpdateOneRequiredWithoutOrderNestedInput
+  employee?: Prisma.employeeUpdateOneWithoutOrderNestedInput
   order_discount?: Prisma.order_discountUpdateManyWithoutOrderNestedInput
   payment?: Prisma.paymentUpdateManyWithoutOrderNestedInput
 }
@@ -911,7 +911,7 @@ export type orderUpdateWithoutOrder_productInput = {
 export type orderUncheckedUpdateWithoutOrder_productInput = {
   order_id?: Prisma.IntFieldUpdateOperationsInput | number
   customer_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  employee_id?: Prisma.IntFieldUpdateOperationsInput | number
+  employee_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   order_time?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   total_amount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   final_amount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -932,7 +932,7 @@ export type orderCreateWithoutPaymentInput = {
   created_at?: Date | string | null
   updated_at?: Date | string | null
   customer?: Prisma.customerCreateNestedOneWithoutOrderInput
-  employee: Prisma.employeeCreateNestedOneWithoutOrderInput
+  employee?: Prisma.employeeCreateNestedOneWithoutOrderInput
   order_discount?: Prisma.order_discountCreateNestedManyWithoutOrderInput
   order_product?: Prisma.order_productCreateNestedManyWithoutOrderInput
 }
@@ -940,7 +940,7 @@ export type orderCreateWithoutPaymentInput = {
 export type orderUncheckedCreateWithoutPaymentInput = {
   order_id?: number
   customer_id?: number | null
-  employee_id: number
+  employee_id?: number | null
   order_time?: Date | string | null
   total_amount?: number | null
   final_amount?: number | null
@@ -977,7 +977,7 @@ export type orderUpdateWithoutPaymentInput = {
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   customer?: Prisma.customerUpdateOneWithoutOrderNestedInput
-  employee?: Prisma.employeeUpdateOneRequiredWithoutOrderNestedInput
+  employee?: Prisma.employeeUpdateOneWithoutOrderNestedInput
   order_discount?: Prisma.order_discountUpdateManyWithoutOrderNestedInput
   order_product?: Prisma.order_productUpdateManyWithoutOrderNestedInput
 }
@@ -985,7 +985,7 @@ export type orderUpdateWithoutPaymentInput = {
 export type orderUncheckedUpdateWithoutPaymentInput = {
   order_id?: Prisma.IntFieldUpdateOperationsInput | number
   customer_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  employee_id?: Prisma.IntFieldUpdateOperationsInput | number
+  employee_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   order_time?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   total_amount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   final_amount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -999,7 +999,7 @@ export type orderUncheckedUpdateWithoutPaymentInput = {
 
 export type orderCreateManyCustomerInput = {
   order_id?: number
-  employee_id: number
+  employee_id?: number | null
   order_time?: Date | string | null
   total_amount?: number | null
   final_amount?: number | null
@@ -1017,7 +1017,7 @@ export type orderUpdateWithoutCustomerInput = {
   customize_note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  employee?: Prisma.employeeUpdateOneRequiredWithoutOrderNestedInput
+  employee?: Prisma.employeeUpdateOneWithoutOrderNestedInput
   order_discount?: Prisma.order_discountUpdateManyWithoutOrderNestedInput
   order_product?: Prisma.order_productUpdateManyWithoutOrderNestedInput
   payment?: Prisma.paymentUpdateManyWithoutOrderNestedInput
@@ -1025,7 +1025,7 @@ export type orderUpdateWithoutCustomerInput = {
 
 export type orderUncheckedUpdateWithoutCustomerInput = {
   order_id?: Prisma.IntFieldUpdateOperationsInput | number
-  employee_id?: Prisma.IntFieldUpdateOperationsInput | number
+  employee_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   order_time?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   total_amount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   final_amount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1040,7 +1040,7 @@ export type orderUncheckedUpdateWithoutCustomerInput = {
 
 export type orderUncheckedUpdateManyWithoutCustomerInput = {
   order_id?: Prisma.IntFieldUpdateOperationsInput | number
-  employee_id?: Prisma.IntFieldUpdateOperationsInput | number
+  employee_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   order_time?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   total_amount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   final_amount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1164,7 +1164,7 @@ export type orderSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   created_at?: boolean
   updated_at?: boolean
   customer?: boolean | Prisma.order$customerArgs<ExtArgs>
-  employee?: boolean | Prisma.employeeDefaultArgs<ExtArgs>
+  employee?: boolean | Prisma.order$employeeArgs<ExtArgs>
   order_discount?: boolean | Prisma.order$order_discountArgs<ExtArgs>
   order_product?: boolean | Prisma.order$order_productArgs<ExtArgs>
   payment?: boolean | Prisma.order$paymentArgs<ExtArgs>
@@ -1183,7 +1183,7 @@ export type orderSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   created_at?: boolean
   updated_at?: boolean
   customer?: boolean | Prisma.order$customerArgs<ExtArgs>
-  employee?: boolean | Prisma.employeeDefaultArgs<ExtArgs>
+  employee?: boolean | Prisma.order$employeeArgs<ExtArgs>
 }, ExtArgs["result"]["order"]>
 
 export type orderSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1198,7 +1198,7 @@ export type orderSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   created_at?: boolean
   updated_at?: boolean
   customer?: boolean | Prisma.order$customerArgs<ExtArgs>
-  employee?: boolean | Prisma.employeeDefaultArgs<ExtArgs>
+  employee?: boolean | Prisma.order$employeeArgs<ExtArgs>
 }, ExtArgs["result"]["order"]>
 
 export type orderSelectScalar = {
@@ -1217,7 +1217,7 @@ export type orderSelectScalar = {
 export type orderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"order_id" | "customer_id" | "employee_id" | "order_time" | "total_amount" | "final_amount" | "status" | "customize_note" | "created_at" | "updated_at", ExtArgs["result"]["order"]>
 export type orderInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customer?: boolean | Prisma.order$customerArgs<ExtArgs>
-  employee?: boolean | Prisma.employeeDefaultArgs<ExtArgs>
+  employee?: boolean | Prisma.order$employeeArgs<ExtArgs>
   order_discount?: boolean | Prisma.order$order_discountArgs<ExtArgs>
   order_product?: boolean | Prisma.order$order_productArgs<ExtArgs>
   payment?: boolean | Prisma.order$paymentArgs<ExtArgs>
@@ -1225,18 +1225,18 @@ export type orderInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs =
 }
 export type orderIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customer?: boolean | Prisma.order$customerArgs<ExtArgs>
-  employee?: boolean | Prisma.employeeDefaultArgs<ExtArgs>
+  employee?: boolean | Prisma.order$employeeArgs<ExtArgs>
 }
 export type orderIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   customer?: boolean | Prisma.order$customerArgs<ExtArgs>
-  employee?: boolean | Prisma.employeeDefaultArgs<ExtArgs>
+  employee?: boolean | Prisma.order$employeeArgs<ExtArgs>
 }
 
 export type $orderPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "order"
   objects: {
     customer: Prisma.$customerPayload<ExtArgs> | null
-    employee: Prisma.$employeePayload<ExtArgs>
+    employee: Prisma.$employeePayload<ExtArgs> | null
     order_discount: Prisma.$order_discountPayload<ExtArgs>[]
     order_product: Prisma.$order_productPayload<ExtArgs>[]
     payment: Prisma.$paymentPayload<ExtArgs>[]
@@ -1244,7 +1244,7 @@ export type $orderPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     order_id: number
     customer_id: number | null
-    employee_id: number
+    employee_id: number | null
     order_time: Date | null
     total_amount: number | null
     final_amount: number | null
@@ -1647,7 +1647,7 @@ readonly fields: orderFieldRefs;
 export interface Prisma__orderClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   customer<T extends Prisma.order$customerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.order$customerArgs<ExtArgs>>): Prisma.Prisma__customerClient<runtime.Types.Result.GetResult<Prisma.$customerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  employee<T extends Prisma.employeeDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.employeeDefaultArgs<ExtArgs>>): Prisma.Prisma__employeeClient<runtime.Types.Result.GetResult<Prisma.$employeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  employee<T extends Prisma.order$employeeArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.order$employeeArgs<ExtArgs>>): Prisma.Prisma__employeeClient<runtime.Types.Result.GetResult<Prisma.$employeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   order_discount<T extends Prisma.order$order_discountArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.order$order_discountArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$order_discountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   order_product<T extends Prisma.order$order_productArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.order$order_productArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$order_productPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   payment<T extends Prisma.order$paymentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.order$paymentArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$paymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -1908,7 +1908,7 @@ export type orderCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
   /**
    * The data needed to create a order.
    */
-  data: Prisma.XOR<Prisma.orderCreateInput, Prisma.orderUncheckedCreateInput>
+  data?: Prisma.XOR<Prisma.orderCreateInput, Prisma.orderUncheckedCreateInput>
 }
 
 /**
@@ -2102,6 +2102,25 @@ export type order$customerArgs<ExtArgs extends runtime.Types.Extensions.Internal
    */
   include?: Prisma.customerInclude<ExtArgs> | null
   where?: Prisma.customerWhereInput
+}
+
+/**
+ * order.employee
+ */
+export type order$employeeArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the employee
+   */
+  select?: Prisma.employeeSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the employee
+   */
+  omit?: Prisma.employeeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.employeeInclude<ExtArgs> | null
+  where?: Prisma.employeeWhereInput
 }
 
 /**

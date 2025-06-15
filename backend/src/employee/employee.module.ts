@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
 import { EmployeeService } from './employee.service';
 import { EmployeeController } from './employee.controller';
-import { PrismaModule } from '../prisma/prisma.module'; // Đảm bảo đường dẫn chính xác
+import { PrismaModule } from '../prisma/prisma.module';
+import { AccountModule } from '../account/account.module';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [PrismaModule, AccountModule],
   controllers: [EmployeeController],
   providers: [EmployeeService],
 })

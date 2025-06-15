@@ -1,16 +1,15 @@
 import { Injectable, UnauthorizedException, ConflictException, BadRequestException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
-import { JwtPayload } from './interfaces/jwt-payload.interface';
+import { AuthTokenService } from './auth-token.service';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
   constructor(
     private prisma: PrismaService,
-    private jwtService: JwtService,
+    private authTokenService: AuthTokenService,
   ) {}
 
   async register(registerDto: RegisterDto) {
@@ -52,24 +51,11 @@ export class AuthService {
       },
     });
 
-    // Tạo JWT token
-    const payload: JwtPayload = {
-      sub: account.account_id,
-      username: account.username,
-      role_id: account.role_id,
-      role_name: account.role.name,
-    };
-
-    const access_token = this.jwtService.sign(payload);
-
-    // Lưu refresh token (optional)
-    await this.prisma.account.update({
-      where: { account_id: account.account_id },
-      data: { refresh_token: access_token },
-    });
+    // Tạo tokens
+    const tokens = await this.authTokenService.generateTokens(account);
 
     return {
-      access_token,
+      ...tokens,
       user: {
         account_id: account.account_id,
         username: account.username,
@@ -110,27 +96,19 @@ export class AuthService {
       throw new UnauthorizedException('Tên đăng nhập hoặc mật khẩu không đúng');
     }
 
-    // Tạo JWT token
-    const payload: JwtPayload = {
-      sub: account.account_id,
-      username: account.username,
-      role_id: account.role_id,
-      role_name: account.role.name,
-    };
-
-    const access_token = this.jwtService.sign(payload);
-
-    // Cập nhật last_login và refresh_token
+    // Cập nhật last_login
     await this.prisma.account.update({
       where: { account_id: account.account_id },
       data: {
         last_login: new Date(),
-        refresh_token: access_token,
       },
     });
 
+    // Tạo tokens
+    const tokens = await this.authTokenService.generateTokens(account);
+
     return {
-      access_token,
+      ...tokens,
       user: {
         account_id: account.account_id,
         username: account.username,
@@ -161,14 +139,5 @@ export class AuthService {
       is_active: account.is_active,
       is_locked: account.is_locked,
     };
-  }
-
-  async logout(account_id: number) {
-    await this.prisma.account.update({
-      where: { account_id },
-      data: { refresh_token: null },
-    });
-
-    return { message: 'Đăng xuất thành công' };
   }
 } 

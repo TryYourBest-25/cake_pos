@@ -13,7 +13,7 @@ export class OrderService {
   // CREATE ORDER
   // ==================================
   async create(createOrderDto: CreateOrderDto): Promise<order> {
-    const { employee_id, customer_id, products, discounts, customize_note, status } = createOrderDto;
+    const { employee_id, customer_id, products, discounts, customize_note } = createOrderDto;
 
     // 1. Validate Employee
     const employee = await this.prisma.employee.findUnique({ where: { employee_id } });
@@ -100,7 +100,7 @@ export class OrderService {
       order_time: new Date(),
       total_amount: calculatedTotalAmount.toNumber(), // Prisma schema là Int
       final_amount: calculatedFinalAmount.toNumber(), // Prisma schema là Int
-      status: (status as order_status_enum) || order_status_enum.PROCESSING,
+      status: order_status_enum.PROCESSING, // Mặc định là PROCESSING
       customize_note: customize_note,
       employee: { connect: { employee_id } },
       ...(customer_id && { customer: { connect: { customer_id } } }),
@@ -179,7 +179,7 @@ export class OrderService {
   async update(id: number, updateOrderDto: UpdateOrderDto): Promise<order> {
     const existingOrder = await this.findOne(id); // Checks existence and fetches current state
 
-    const { employee_id, customer_id, products, discounts, customize_note, status } = updateOrderDto;
+    const { employee_id, customer_id, products, discounts, customize_note } = updateOrderDto;
     
     // Start with data that can be directly updated
     const dataToUpdate: Prisma.orderUpdateInput = {
@@ -188,7 +188,7 @@ export class OrderService {
           customer: customer_id ? { connect: { customer_id } } : { disconnect: true } 
       }), // Allow setting customer_id to null
       ...(customize_note !== undefined && { customize_note }),
-      ...(status && { status: status as order_status_enum }),
+      // status không được cập nhật trực tiếp từ client, chỉ thông qua business logic
     };
 
     // Transaction for product/discount updates and final amount recalculation

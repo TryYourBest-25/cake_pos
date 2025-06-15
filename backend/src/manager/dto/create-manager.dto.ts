@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, MaxLength, IsEmail, IsPhoneNumber, IsInt } from 'class-validator';
+import { IsString, IsNotEmpty, MaxLength, IsEmail, IsPhoneNumber, IsOptional, MinLength } from 'class-validator';
 
 export class CreateManagerDto {
   @IsString()
@@ -26,7 +26,14 @@ export class CreateManagerDto {
   @MaxLength(100)
   position: string; // Ví dụ: 'Store Manager', 'Regional Manager'
 
-  @IsInt()
+  // Thông tin tài khoản (bắt buộc cho manager)
+  @IsString()
   @IsNotEmpty()
-  account_id: number; // ID của tài khoản liên kết
+  @MinLength(3)
+  username: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(8)
+  password: string;
 } 

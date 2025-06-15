@@ -1,14 +1,10 @@
-import { IsString, IsNotEmpty, MaxLength, IsOptional, IsInt, IsEnum, IsPhoneNumber } from 'class-validator';
-import { gender_enum } from '../../generated/prisma/client'; // Adjusted import path for enum
+import { IsString, IsNotEmpty, MaxLength, IsOptional, IsInt, IsEnum, IsPhoneNumber, MinLength } from 'class-validator';
+import { gender_enum } from '../../generated/prisma/client';
 
 export class CreateCustomerDto {
   @IsInt()
   @IsNotEmpty()
   membership_type_id: number;
-
-  @IsOptional()
-  @IsInt()
-  account_id?: number;
 
   @IsOptional()
   @IsString()
@@ -22,7 +18,7 @@ export class CreateCustomerDto {
 
   @IsString()
   @IsNotEmpty()
-  @IsPhoneNumber() // Removed null, let it use default behavior or specify region like 'VN'
+  @IsPhoneNumber()
   @MaxLength(15)
   phone: string;
 
@@ -33,4 +29,15 @@ export class CreateCustomerDto {
   @IsOptional()
   @IsEnum(gender_enum)
   gender?: gender_enum;
+
+  // Thông tin tài khoản (tùy chọn cho customer)
+  @IsOptional()
+  @IsString()
+  @MinLength(3)
+  username?: string;
+
+  @IsOptional()
+  @IsString()
+  @MinLength(8)
+  password?: string;
 } 

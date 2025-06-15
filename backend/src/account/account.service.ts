@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service'; // TODO: Ensure PrismaService exists at this path and is correctly configured.
 import { account, Prisma } from '../generated/prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'; // Import specific error type
@@ -6,7 +6,12 @@ import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
 import * as bcrypt from 'bcrypt';
 
-
+type AccountResponse = Omit<account, 'password_hash'> & {
+  role?: any;
+  customer?: any;
+  employee?: any;
+  manager?: any;
+};
 
 @Injectable()
 export class AccountService {
@@ -44,18 +49,34 @@ export class AccountService {
     }
   }
 
-  async findAll(): Promise<account[]> {
+  async findAll(): Promise<AccountResponse[]> {
     return this.prisma.account.findMany({
-      include: {
+      select: {
+        account_id: true,
+        username: true,
+        role_id: true,
+        is_active: true,
+        is_locked: true,
+        last_login: true,
+        created_at: true,
+        updated_at: true,
         role: true,
       }
     });
   }
 
-  async findOne(id: number): Promise<account | null> {
+  async findOne(id: number): Promise<AccountResponse | null> {
     const acc = await this.prisma.account.findUnique({
       where: { account_id: id },
-      include: {
+      select: {
+        account_id: true,
+        username: true,
+        role_id: true,
+        is_active: true,
+        is_locked: true,
+        last_login: true,
+        created_at: true,
+        updated_at: true,
         role: true,
         customer: true,
         employee: true,
@@ -79,7 +100,12 @@ export class AccountService {
   }
 
   async update(id: number, updateAccountDto: UpdateAccountDto): Promise<account> {
-    const { password, ...otherData } = updateAccountDto;
+    const { password, role_id, ...otherData } = updateAccountDto;
+    
+    // Không cho phép cập nhật role
+    if (role_id !== undefined) {
+      throw new BadRequestException('Không được phép cập nhật vai trò của tài khoản');
+    }
     
     const existingAccount = await this.prisma.account.findUnique({ where: { account_id: id } });
     if (!existingAccount) {

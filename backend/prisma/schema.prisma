@@ -19,7 +19,6 @@ model account {
   is_active     Boolean?   @default(false)
   is_locked     Boolean    @default(false)
   last_login    DateTime?  @cake_pos_db.Timestamp(6)
-  refresh_token String?    @cake_pos_db.VarChar(255)
   created_at    DateTime?  @default(now()) @cake_pos_db.Timestamp(6)
   updated_at    DateTime?  @default(now()) @cake_pos_db.Timestamp(6)
   role          role       @relation(fields: [role_id], references: [role_id], map: "fk_account_role")
@@ -140,7 +139,7 @@ model membership_type {
 model order {
   order_id       Int                @id @default(autoincrement())
   customer_id    Int?
-  employee_id    Int
+  employee_id    Int?
   order_time     DateTime?          @default(now()) @cake_pos_db.Timestamp(6)
   total_amount   Int?
   final_amount   Int?
@@ -149,7 +148,7 @@ model order {
   created_at     DateTime?          @default(now()) @cake_pos_db.Timestamp(6)
   updated_at     DateTime?          @default(now()) @cake_pos_db.Timestamp(6)
   customer       customer?          @relation(fields: [customer_id], references: [customer_id], map: "fk_order_customer")
-  employee       employee           @relation(fields: [employee_id], references: [employee_id], onDelete: Cascade, map: "fk_order_employee")
+  employee       employee?           @relation(fields: [employee_id], references: [employee_id], map: "fk_order_employee")
   order_discount order_discount[]
   order_product  order_product[]
   payment        payment[]

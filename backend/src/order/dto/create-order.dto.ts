@@ -46,10 +46,7 @@ export class CreateOrderDto {
   @Type(() => CreateOrderDiscountDto)
   discounts?: CreateOrderDiscountDto[];
 
-  @ApiProperty({ description: 'Trạng thái đơn hàng', enum: OrderStatusEnum, example: OrderStatusEnum.PROCESSING, required: false })
-  @IsOptional()
-  @IsEnum(OrderStatusEnum)
-  status?: OrderStatusEnum; // Sẽ được service xử lý, mặc định là PROCESSING
+  // status sẽ được service quản lý, mặc định là PROCESSING
 
   // order_time, total_amount, final_amount sẽ được service tính toán và thiết lập.
 } 

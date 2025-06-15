@@ -1,16 +1,22 @@
 import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { employee, Prisma } from '../generated/prisma/client'; // Đường dẫn này có thể cần điều chỉnh
+import { AccountService } from '../account/account.service';
+import { employee, Prisma } from '../generated/prisma/client';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
+import { ROLES } from '../auth/constants/roles.constant';
 
 @Injectable()
 export class EmployeeService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private accountService: AccountService,
+  ) {}
 
   async create(createEmployeeDto: CreateEmployeeDto): Promise<employee> {
-    const { email, account_id, position, ...restOfDto } = createEmployeeDto;
+    const { email, username, password, ...employeeData } = createEmployeeDto;
 
+    // Kiểm tra email employee đã tồn tại chưa
     const existingEmployeeByEmail = await this.prisma.employee.findUnique({
       where: { email },
     });
@@ -18,19 +24,27 @@ export class EmployeeService {
       throw new ConflictException(`Nhân viên với email '${email}' đã tồn tại.`);
     }
 
-    const data: Prisma.employeeCreateInput = {
-      ...restOfDto,
-      email,
-      position,
-      account: { // Account là bắt buộc
-        connect: { account_id },
-      },
-    };
-
     try {
+      // Bước 1: Tạo account với role STAFF
+      const account = await this.accountService.create({
+        username,
+        password,
+        role_id: await this.getStaffRoleId(),
+        is_active: true,
+      });
+
+      // Bước 2: Tạo employee record với account_id
+      const data: Prisma.employeeCreateInput = {
+        ...employeeData,
+        email,
+        account: {
+          connect: { account_id: account.account_id },
+        },
+      };
+
       return await this.prisma.employee.create({
         data,
-        include: { account: true }, // Include account trong kết quả trả về
+        include: { account: true },
       });
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -39,17 +53,25 @@ export class EmployeeService {
           if (error.meta && error.meta.target) {
             const target = error.meta.target as string[];
             if (target.includes('email')) fieldDescription = `email '${email}'`;
-            // Thêm các kiểm tra khác cho các trường unique nếu cần
           }
           throw new ConflictException(`Nhân viên đã tồn tại với ${fieldDescription}.`);
-        }
-        if (error.code === 'P2025') {
-          // Lỗi này thường xảy ra khi account_id không tồn tại
-          throw new BadRequestException(`Tài khoản với ID ${account_id} không tồn tại hoặc bản ghi liên quan khác bị thiếu.`);
         }
       }
       throw error;
     }
+  }
+
+  /**
+   * Lấy role_id cho STAFF
+   */
+  private async getStaffRoleId(): Promise<number> {
+    const staffRole = await this.prisma.role.findFirst({
+      where: { name: ROLES.STAFF },
+    });
+    if (!staffRole) {
+      throw new BadRequestException('Vai trò STAFF không tồn tại trong hệ thống');
+    }
+    return staffRole.role_id;
   }
 
   async findAll(): Promise<employee[]> {
@@ -77,19 +99,10 @@ export class EmployeeService {
   }
 
   async update(employee_id: number, updateEmployeeDto: UpdateEmployeeDto): Promise<employee> {
-    const { account_id, ...restOfData } = updateEmployeeDto;
+    // Chỉ cập nhật thông tin employee, không cập nhật account
+    const { ...employeeData } = updateEmployeeDto;
     
-    const data: Prisma.employeeUpdateInput = { ...restOfData };
-
-    if (account_id !== undefined) {
-        // Vì account là bắt buộc, chúng ta chỉ cho phép connect tới một account khác.
-        // Việc disconnect hoặc đặt là null không được hỗ trợ nếu quan hệ là bắt buộc.
-        data.account = { connect: { account_id } }; 
-    }
-    // Nếu position có thể được cập nhật, bạn sẽ thêm nó vào đây tương tự như account_id
-    // if (restOfData.position !== undefined) {
-    //   data.position = restOfData.position;
-    // }
+    const data: Prisma.employeeUpdateInput = { ...employeeData };
 
     try {
       return await this.prisma.employee.update({
@@ -100,13 +113,7 @@ export class EmployeeService {
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
-          let message = `Update failed: Employee with ID ${employee_id} not found.`;
-          if (error.meta && typeof error.meta.cause === 'string' && error.meta.cause.startsWith('Record to update not found')){
-            // Mặc định
-          } else if (account_id) {
-             message = `Update failed: Account with ID ${account_id} not found, or other related record is missing.`
-          }
-          throw new NotFoundException(message);
+          throw new NotFoundException(`Nhân viên với ID ${employee_id} không tồn tại`);
         }
         if (error.code === 'P2002') {
           throw new ConflictException('Không thể cập nhật nhân viên, vi phạm ràng buộc duy nhất (ví dụ: email đã tồn tại).');
@@ -117,22 +124,37 @@ export class EmployeeService {
   }
 
   async remove(employee_id: number): Promise<employee> {
-    // Cần kiểm tra xem có ràng buộc nào ngăn cản việc xóa employee không
-    // Ví dụ: nếu employee liên quan đến các bản ghi khác không thể cascade delete
     try {
-      return await this.prisma.employee.delete({
+      const employeeWithAccount = await this.prisma.employee.findUnique({
+        where: { employee_id },
+        include: { account: true },
+      });
+
+      if (!employeeWithAccount) {
+        throw new NotFoundException(`Nhân viên với ID ${employee_id} không tồn tại`);
+      }
+      
+      // Xóa employee trước
+      const deletedEmployee = await this.prisma.employee.delete({
         where: { employee_id },
       });
+
+      // Xóa account liên quan
+      if (employeeWithAccount.account) {
+        await this.accountService.remove(employeeWithAccount.account.account_id);
+      }
+
+      return deletedEmployee;
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
           throw new NotFoundException(`Nhân viên với ID ${employee_id} không tồn tại`);
         }
         if (error.code === 'P2003') { 
-            throw new ConflictException(`Employee with ID ${employee_id} cannot be deleted due to existing relations (e.g., assigned to tasks, orders, etc.).`);
+            throw new ConflictException(`Nhân viên với ID ${employee_id} không thể bị xóa do có quan hệ liên quan.`);
         }
       }
       throw error;
     }
   }
-} 
+}

@@ -1,24 +1,48 @@
 import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { customer, Prisma, gender_enum } from '../generated/prisma/client'; // Adjusted import path
+import { AccountService } from '../account/account.service';
+import { customer, Prisma, gender_enum } from '../generated/prisma/client';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
+import { ROLES } from '../auth/constants/roles.constant';
 
 @Injectable()
 export class CustomerService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private accountService: AccountService,
+  ) {}
 
   async create(createCustomerDto: CreateCustomerDto): Promise<customer> {
-    const { phone, account_id, membership_type_id, ...restOfDto } = createCustomerDto;
+    const { phone, username, password, membership_type_id, ...customerData } = createCustomerDto;
     
+    // Kiểm tra customer với phone đã tồn tại chưa
+    const existingCustomer = await this.prisma.customer.findUnique({
+      where: { phone },
+    });
+    if (existingCustomer) {
+      throw new ConflictException(`Khách hàng với số điện thoại '${phone}' đã tồn tại.`);
+    }
+
     const data: Prisma.customerCreateInput = {
-      ...restOfDto,
-      phone, // Ensure phone is explicitly passed if not in restOfDto by mistake
+      ...customerData,
+      phone,
       membership_type: { connect: { membership_type_id } },
     };
 
-    if (account_id) {
-      data.account = { connect: { account_id } };
+    // Tạo account nếu có username và password
+    if (username && password) {
+      try {
+        const account = await this.accountService.create({
+          username,
+          password,
+          role_id: await this.getCustomerRoleId(),
+          is_active: true,
+        });
+        data.account = { connect: { account_id: account.account_id } };
+      } catch (error) {
+        throw error;
+      }
     }
 
     try {
@@ -41,31 +65,35 @@ export class CustomerService {
           if (field.includes('phone')) {
             throw new ConflictException(`Khách hàng với số điện thoại '${phone}' đã tồn tại.`);
           }
-          throw new ConflictException(`A unique constraint violation occurred on: ${field}.`);
+          throw new ConflictException(`Trường ${field} đã tồn tại.`);
         }
         if (error.code === 'P2025') {
           let causeMessage = 'Related record not found.';
           if (error.meta && typeof error.meta.cause === 'string') {
-            const cause = error.meta.cause as string; // Safe now due to typeof check
-            if (cause.includes('Account')) { // Check for relation name or specific part of message
-              throw new BadRequestException(`Account with ID ${account_id} not found.`);
-            }
-            if (cause.includes('MembershipType')) { // Check for relation name
+            const cause = error.meta.cause as string;
+            if (cause.includes('MembershipType')) {
               throw new BadRequestException(`Loại thành viên với ID ${membership_type_id} không tồn tại.`);
             }
-            causeMessage = cause; // Use the Prisma cause if more specific and not caught above
+            causeMessage = cause;
           }
-          // Fallback messages if specific relations not identified in cause
-          if (account_id && !data.account) { /* Check if account_id was provided but failed */ }
-          if (membership_type_id && !data.membership_type) { /* Check if membership_type_id was provided but failed */ }
-
-          // More specific check if the main record itself is not found (though P2025 for create is usually about relations)
-          // For create, P2025 usually means a related record for a connect operation was not found.
           throw new BadRequestException(causeMessage);
         }
       }
       throw error;
     }
+  }
+
+  /**
+   * Lấy role_id cho CUSTOMER
+   */
+  private async getCustomerRoleId(): Promise<number> {
+    const customerRole = await this.prisma.role.findFirst({
+      where: { name: ROLES.CUSTOMER },
+    });
+    if (!customerRole) {
+      throw new BadRequestException('Vai trò CUSTOMER không tồn tại trong hệ thống');
+    }
+    return customerRole.role_id;
   }
 
   async findAll(): Promise<customer[]> {
@@ -91,13 +119,10 @@ export class CustomerService {
   }
 
   async update(id: number, updateCustomerDto: UpdateCustomerDto): Promise<customer> {
-    const { account_id, membership_type_id, ...restOfData } = updateCustomerDto;
+    const { membership_type_id, ...customerData } = updateCustomerDto;
     
-    const data: Prisma.customerUpdateInput = { ...restOfData };
+    const data: Prisma.customerUpdateInput = { ...customerData };
 
-    if (account_id !== undefined) {
-        data.account = account_id === null ? { disconnect: true } : { connect: { account_id } };
-    }
     if (membership_type_id !== undefined && membership_type_id !== null) {
         data.membership_type = { connect: { membership_type_id } };
     } else if (membership_type_id === null) {
@@ -118,8 +143,6 @@ export class CustomerService {
             const cause = error.meta.cause as string;
             if (cause.startsWith('Record to update not found')) {
               message = `Customer with ID ${id} not found.`;
-            } else if (account_id && cause.includes('Account')) { // Check if trying to connect to non-existent account
-               message = `Account with ID ${account_id} not found.`;
             } else if (membership_type_id && cause.includes('MembershipType')) { // Check if trying to connect to non-existent type
                message = `Membership type with ID ${membership_type_id} not found.`;
             }
@@ -148,9 +171,26 @@ export class CustomerService {
 
   async remove(id: number): Promise<customer> {
     try {
-      return await this.prisma.customer.delete({
+      const customerWithAccount = await this.prisma.customer.findUnique({
+        where: { customer_id: id },
+        include: { account: true },
+      });
+
+      if (!customerWithAccount) {
+        throw new NotFoundException(`Khách hàng với ID ${id} không tồn tại`);
+      }
+      
+      // Xóa customer trước
+      const deletedCustomer = await this.prisma.customer.delete({
         where: { customer_id: id },
       });
+
+      // Xóa account nếu có
+      if (customerWithAccount.account) {
+        await this.accountService.remove(customerWithAccount.account.account_id);
+      }
+
+      return deletedCustomer;
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {

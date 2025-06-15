@@ -29,10 +29,7 @@ export class UpdateOrderDto extends PartialType(CreateOrderDto) {
   @MaxLength(1000)
   customize_note?: string;
 
-  @ApiProperty({ description: 'Trạng thái đơn hàng cập nhật', enum: OrderStatusEnum, example: OrderStatusEnum.COMPLETED, required: false })
-  @IsOptional()
-  @IsEnum(OrderStatusEnum)
-  status?: OrderStatusEnum;
+  // status chỉ được cập nhật thông qua business logic, không cho phép client gửi trực tiếp
 
   // Cập nhật products và discounts: client gửi lại toàn bộ mảng mới.
   // Nếu mảng rỗng hoặc không gửi, service có thể giữ nguyên hoặc xóa hết tùy logic.

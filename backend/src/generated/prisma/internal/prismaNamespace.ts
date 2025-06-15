@@ -1810,7 +1810,6 @@ export const AccountScalarFieldEnum = {
   is_active: 'is_active',
   is_locked: 'is_locked',
   last_login: 'last_login',
-  refresh_token: 'refresh_token',
   created_at: 'created_at',
   updated_at: 'updated_at'
 } as const

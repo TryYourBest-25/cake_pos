@@ -12,6 +12,8 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import Joi from 'joi';
 import { VnpayModule } from 'nestjs-vnpay';
+import { ReportsModule } from './reports/reports.module';
+import { InvoiceModule } from './invoice/invoice.module';
 
 @Module({
   imports: [
@@ -49,13 +51,15 @@ import { VnpayModule } from 'nestjs-vnpay';
       inject: [ConfigService],
     }),
     PrismaModule,
+    AuthModule,
+    AccountModule,
     CustomerModule,
     EmployeeModule,
     ManagerModule,
     DiscountModule,
-    AccountModule,
     RoleModule,
-    AuthModule,
+    ReportsModule,
+    InvoiceModule,
   ],
   controllers: [AppController],
   providers: [AppService],

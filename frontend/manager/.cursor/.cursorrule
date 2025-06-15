@@ -1,5 +1,7 @@
 # Coding Style Guide
 
+pnpm is the package manager for this project.
+
 ## Code Style and Structure
 
 - Write concise, technical TypeScript code with accurate examples
@@ -39,6 +41,7 @@
 
 - Use Shadcn UI, Radix, and Tailwind Aria for components and styling
 - Implement responsive design with Tailwind CSS; use a desktop-first approach
+- Tanstack table is used for table component
 
 ## Performance Optimization
 
