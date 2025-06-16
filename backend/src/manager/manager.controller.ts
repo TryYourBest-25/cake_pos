@@ -88,20 +88,6 @@ export class ManagerController {
     return this.managerService.update(id, updateManagerDto);
   }
 
-  @Delete(':id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(ROLES.MANAGER)
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Delete manager - Chỉ MANAGER' })
-  @ApiParam({ name: 'id', description: 'Manager ID', type: Number })
-  @ApiResponse({ status: 204, description: 'Manager deleted successfully' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
-  @ApiResponse({ status: 404, description: 'Manager not found' })
-  async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
-    await this.managerService.remove(id);
-  }
-
   @Delete('bulk')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(ROLES.MANAGER)
@@ -118,6 +104,20 @@ export class ManagerController {
     summary: { total: number; success: number; failed: number };
   }> {
     return this.managerService.bulkDelete(bulkDeleteDto);
+  }
+
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ROLES.MANAGER)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete manager - Chỉ MANAGER' })
+  @ApiParam({ name: 'id', description: 'Manager ID', type: Number })
+  @ApiResponse({ status: 204, description: 'Manager deleted successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({ status: 404, description: 'Manager not found' })
+  async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    await this.managerService.remove(id);
   }
 
   @Get('test/ping')

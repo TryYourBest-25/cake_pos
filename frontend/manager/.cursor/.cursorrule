@@ -2,6 +2,10 @@
 
 pnpm is the package manager for this project.
 
+## Data Fetching And Display
+
+- Không được bịa ra dữ liệu, phải dựa trên dữ liệu từ backend
+
 ## Code Style and Structure
 
 - Write concise, technical TypeScript code with accurate examples

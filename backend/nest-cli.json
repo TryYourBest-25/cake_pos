@@ -8,7 +8,7 @@
     "typecheck" : true,
     "assets": [
       {
-        "include": "**/*.pem",
+        "include": "ssl/**",
         "watchAssets": true
       }
     ]

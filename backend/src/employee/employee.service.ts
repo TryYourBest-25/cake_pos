@@ -16,7 +16,7 @@ export class EmployeeService {
   ) {}
 
   async create(createEmployeeDto: CreateEmployeeDto): Promise<employee> {
-    const { email, username, password, ...employeeData } = createEmployeeDto;
+    const { email, username, ...employeeData } = createEmployeeDto;
 
     // Kiểm tra email employee đã tồn tại chưa
     const existingEmployeeByEmail = await this.prisma.employee.findUnique({
@@ -27,40 +27,60 @@ export class EmployeeService {
     }
 
     try {
-      // Bước 1: Tạo account với role STAFF
-      const account = await this.accountService.create({
-        username,
-        password,
-        role_id: await this.getStaffRoleId(),
-        is_active: true,
-      });
+      // Sử dụng transaction để đảm bảo tính toàn vẹn dữ liệu
+      return await this.prisma.$transaction(async (tx) => {
+        // Bước 1: Tạo account với role STAFF
+        const account = await this.accountService.create({
+          username,
+          password: '12345678',
+          role_id: await this.getStaffRoleId(),
+          is_active: true,
+        });
 
-      // Bước 2: Tạo employee record với account_id
-      const data: Prisma.employeeCreateInput = {
-        ...employeeData,
-        email,
-        account: {
-          connect: { account_id: account.account_id },
-        },
-      };
+        // Bước 2: Tạo employee record với account_id
+        const data: Prisma.employeeCreateInput = {
+          ...employeeData,
+          email,
+          account: {
+            connect: { account_id: account.account_id },
+          },
+        };
 
-      return await this.prisma.employee.create({
-        data,
-        include: { account: true },
+        return await tx.employee.create({
+          data,
+          include: { account: true },
+        });
       });
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2002') {
-          let fieldDescription = 'provided unique information';
-          if (error.meta && error.meta.target) {
-            const target = error.meta.target as string[];
-            if (target.includes('email')) fieldDescription = `email '${email}'`;
-          }
-          throw new ConflictException(`Nhân viên đã tồn tại với ${fieldDescription}.`);
-        }
-      }
-      throw error;
+      throw this.handleCreateError(error, email);
     }
+  }
+
+  /**
+   * Xử lý lỗi khi tạo employee
+   */
+  private handleCreateError(error: any, email: string): never {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      switch (error.code) {
+        case 'P2002':
+          const fieldDescription = this.getUniqueConstraintField(error, email);
+          throw new ConflictException(`Nhân viên đã tồn tại với ${fieldDescription}.`);
+        default:
+          throw new BadRequestException(`Lỗi cơ sở dữ liệu: ${error.message}`);
+      }
+    }
+    throw error;
+  }
+
+  /**
+   * Lấy thông tin field bị vi phạm unique constraint
+   */
+  private getUniqueConstraintField(error: Prisma.PrismaClientKnownRequestError, email: string): string {
+    if (error.meta && error.meta.target) {
+      const target = error.meta.target as string[];
+      if (target.includes('email')) return `email '${email}'`;
+    }
+    return 'thông tin duy nhất đã cung cấp';
   }
 
   /**
@@ -149,51 +169,76 @@ export class EmployeeService {
         include: { account: true },
       });
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2025') {
-          throw new NotFoundException(`Nhân viên với ID ${employee_id} không tồn tại`);
-        }
-        if (error.code === 'P2002') {
-          throw new ConflictException('Không thể cập nhật nhân viên, vi phạm ràng buộc duy nhất (ví dụ: email đã tồn tại).');
-        }
-      }
-      throw error;
+      throw this.handleUpdateError(error, employee_id);
     }
+  }
+
+  /**
+   * Xử lý lỗi khi cập nhật employee
+   */
+  private handleUpdateError(error: any, employee_id: number): never {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      switch (error.code) {
+        case 'P2025':
+          throw new NotFoundException(`Nhân viên với ID ${employee_id} không tồn tại`);
+        case 'P2002':
+          throw new ConflictException('Không thể cập nhật nhân viên, vi phạm ràng buộc duy nhất (ví dụ: email đã tồn tại).');
+        default:
+          throw new BadRequestException(`Lỗi cơ sở dữ liệu: ${error.message}`);
+      }
+    }
+    throw error;
   }
 
   async remove(employee_id: number): Promise<employee> {
     try {
-      const employeeWithAccount = await this.prisma.employee.findUnique({
-        where: { employee_id },
-        include: { account: true },
-      });
+      // Sử dụng transaction để đảm bảo tính toàn vẹn dữ liệu
+      return await this.prisma.$transaction(async (tx) => {
+        const employeeWithAccount = await tx.employee.findUnique({
+          where: { employee_id },
+          include: { account: true },
+        });
 
-      if (!employeeWithAccount) {
-        throw new NotFoundException(`Nhân viên với ID ${employee_id} không tồn tại`);
-      }
-      
-      // Xóa employee trước
-      const deletedEmployee = await this.prisma.employee.delete({
-        where: { employee_id },
-      });
-
-      // Xóa account liên quan
-      if (employeeWithAccount.account) {
-        await this.accountService.remove(employeeWithAccount.account.account_id);
-      }
-
-      return deletedEmployee;
-    } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2025') {
+        if (!employeeWithAccount) {
           throw new NotFoundException(`Nhân viên với ID ${employee_id} không tồn tại`);
         }
-        if (error.code === 'P2003') { 
-            throw new ConflictException(`Nhân viên với ID ${employee_id} không thể bị xóa do có quan hệ liên quan.`);
+        
+        // Xóa employee trước
+        const deletedEmployee = await tx.employee.delete({
+          where: { employee_id },
+        });
+
+        // Xóa account liên quan
+        if (employeeWithAccount.account) {
+          await this.accountService.remove(employeeWithAccount.account.account_id);
         }
-      }
-      throw error;
+
+        return deletedEmployee;
+      });
+    } catch (error) {
+      throw this.handleDeleteError(error, employee_id);
     }
+  }
+
+  /**
+   * Xử lý lỗi khi xóa employee
+   */
+  private handleDeleteError(error: any, employee_id: number): never {
+    if (error instanceof NotFoundException) {
+      throw error; // Re-throw NotFoundException đã được xử lý
+    }
+    
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      switch (error.code) {
+        case 'P2025':
+          throw new NotFoundException(`Nhân viên với ID ${employee_id} không tồn tại`);
+        case 'P2003':
+          throw new ConflictException(`Không thể xóa nhân viên với ID ${employee_id} do tồn tại dữ liệu liên quan.`);
+        default:
+          throw new BadRequestException(`Lỗi cơ sở dữ liệu: ${error.message}`);
+      }
+    }
+    throw error;
   }
 
   /**
@@ -205,29 +250,65 @@ export class EmployeeService {
     summary: { total: number; success: number; failed: number };
   }> {
     const { ids } = bulkDeleteDto;
-    const deleted: number[] = [];
-    const failed: { id: number; reason: string }[] = [];
 
-    for (const id of ids) {
-      try {
-        await this.remove(id);
-        deleted.push(id);
-      } catch (error) {
-        failed.push({
-          id,
-          reason: error.message || 'Lỗi không xác định',
+    try {
+      return await this.prisma.$transaction(async (tx) => {
+        // Lấy thông tin employees và accounts liên quan trước khi xóa
+        const employeesWithAccounts = await tx.employee.findMany({
+          where: { employee_id: { in: ids } },
+          include: { account: true },
         });
-      }
-    }
 
-    return {
-      deleted,
-      failed,
-      summary: {
-        total: ids.length,
-        success: deleted.length,
-        failed: failed.length,
-      },
-    };
+        const foundIds = employeesWithAccounts.map(e => e.employee_id);
+        const notFoundIds = ids.filter(id => !foundIds.includes(id));
+        const accountIds = employeesWithAccounts
+          .filter(e => e.account)
+          .map(e => e.account!.account_id);
+
+        // Xóa employees bằng deleteMany
+        const deleteResult = await tx.employee.deleteMany({
+          where: { employee_id: { in: foundIds } },
+        });
+
+        // Xóa accounts liên quan nếu có
+        if (accountIds.length > 0) {
+          await tx.account.deleteMany({
+            where: { account_id: { in: accountIds } },
+          });
+        }
+
+        // Tạo kết quả response
+        const failed: { id: number; reason: string }[] = notFoundIds.map(id => ({
+          id,
+          reason: `Nhân viên với ID ${id} không tồn tại`,
+        }));
+
+        return {
+          deleted: foundIds,
+          failed,
+          summary: {
+            total: ids.length,
+            success: foundIds.length,
+            failed: failed.length,
+          },
+        };
+      });
+    } catch (error) {
+      // Nếu có lỗi trong transaction, trả về tất cả IDs là failed
+      const failed: { id: number; reason: string }[] = ids.map(id => ({
+        id,
+        reason: error instanceof Error ? error.message : 'Lỗi không xác định',
+      }));
+
+      return {
+        deleted: [],
+        failed,
+        summary: {
+          total: ids.length,
+          success: 0,
+          failed: ids.length,
+        },
+      };
+    }
   }
 }

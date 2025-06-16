@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, Query, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, Query, HttpCode, HttpStatus, UseGuards, BadRequestException } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -101,5 +101,33 @@ export class ProductController {
     @Query() paginationDto: PaginationDto,
   ): Promise<PaginatedResult<product>> {
     return this.productService.findByCategory(categoryId, paginationDto);
+  }
+
+  @Get('category/:categoryId/with-active-prices')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ROLES.STAFF, ROLES.MANAGER, ROLES.CUSTOMER)
+  @ApiOperation({ summary: 'Lấy sản phẩm theo danh mục có ít nhất 1 giá active - TẤT CẢ ROLES' })
+  @ApiParam({ name: 'categoryId', description: 'Category ID (dùng "null" để lấy sản phẩm không có danh mục)', type: String })
+  @ApiResponse({ status: 200, description: 'Danh sách sản phẩm theo danh mục có giá active' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  async findByCategoryWithActivePrices(
+    @Param('categoryId') categoryIdParam: string,
+    @Query() paginationDto: PaginationDto,
+  ): Promise<PaginatedResult<product>> {
+    // Xử lý categoryId có thể là "null" string hoặc number
+    let categoryId: number | null = null;
+    
+    if (categoryIdParam === 'null') {
+      categoryId = null;
+    } else {
+      const parsedId = parseInt(categoryIdParam, 10);
+      if (isNaN(parsedId)) {
+        throw new BadRequestException('Category ID phải là số hoặc "null"');
+      }
+      categoryId = parsedId;
+    }
+
+    return this.productService.findByCategoryWithActivePrices(categoryId, paginationDto);
   }
 } 

@@ -1,0 +1,346 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Table account {
+  account_id Int [pk, increment]
+  role_id Int [not null]
+  username String [unique, not null]
+  password_hash String [not null]
+  is_active Boolean [default: false]
+  is_locked Boolean [not null, default: false]
+  last_login DateTime
+  created_at DateTime [default: `now()`]
+  updated_at DateTime [default: `now()`]
+  role role [not null]
+  customer customer [not null]
+  employee employee
+  manager manager
+
+  Note: 'This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments'
+}
+
+Table category {
+  category_id Int [pk, increment]
+  name String [unique, not null]
+  description String
+  created_at DateTime [default: `now()`]
+  updated_at DateTime [default: `now()`]
+  product product [not null]
+
+  Note: 'This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments'
+}
+
+Table coupon {
+  coupon_id Int [pk, increment]
+  coupon String [unique, not null]
+  description String
+  created_at DateTime [default: `now()`]
+  updated_at DateTime [default: `now()`]
+  discount discount
+
+  Note: 'This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments'
+}
+
+Table customer {
+  customer_id Int [pk, increment]
+  membership_type_id Int [not null]
+  account_id Int
+  last_name String
+  first_name String
+  phone String [unique, not null]
+  current_points Int [default: 0]
+  gender gender_enum
+  created_at DateTime [default: `now()`]
+  updated_at DateTime [default: `now()`]
+  account account
+  membership_type membership_type [not null]
+  order order [not null]
+
+  Note: 'This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments'
+}
+
+Table discount {
+  discount_id Int [pk, increment]
+  name String [unique, not null]
+  description String
+  coupon_id Int [unique, not null]
+  discount_value Decimal [not null]
+  min_required_order_value Int [not null]
+  max_discount_amount Int [not null]
+  min_required_product Int
+  valid_from DateTime
+  valid_until DateTime [not null]
+  current_uses Int
+  max_uses Int
+  max_uses_per_customer Int
+  is_active Boolean [not null, default: true]
+  created_at DateTime [default: `now()`]
+  updated_at DateTime [default: `now()`]
+  coupon coupon [not null]
+  order_discount order_discount [not null]
+
+  Note: 'This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments'
+}
+
+Table employee {
+  employee_id Int [pk, increment]
+  account_id Int [unique, not null]
+  position String [not null]
+  last_name String [not null]
+  first_name String [not null]
+  gender gender_enum
+  phone String [unique, not null]
+  email String [unique, not null]
+  created_at DateTime [default: `now()`]
+  updated_at DateTime [default: `now()`]
+  account account [not null]
+  order order [not null]
+
+  Note: 'This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments'
+}
+
+Table manager {
+  manager_id Int [pk, increment]
+  account_id Int [unique, not null]
+  last_name String [not null]
+  first_name String [not null]
+  gender gender_enum
+  phone String [unique, not null]
+  email String [unique, not null]
+  created_at DateTime [default: `now()`]
+  updated_at DateTime [default: `now()`]
+  account account [not null]
+
+  Note: 'This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments'
+}
+
+Table membership_type {
+  membership_type_id Int [pk, increment]
+  type String [unique, not null]
+  discount_value Decimal [not null]
+  required_point Int [unique, not null]
+  description String
+  valid_until DateTime
+  is_active Boolean [default: true]
+  created_at DateTime [default: `now()`]
+  updated_at DateTime [default: `now()`]
+  customer customer [not null]
+
+  Note: 'This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments'
+}
+
+Table order {
+  order_id Int [pk, increment]
+  customer_id Int
+  employee_id Int
+  order_time DateTime [default: `now()`]
+  total_amount Int
+  final_amount Int
+  status order_status_enum
+  customize_note String
+  created_at DateTime [default: `now()`]
+  updated_at DateTime [default: `now()`]
+  customer customer
+  employee employee
+  order_discount order_discount [not null]
+  order_product order_product [not null]
+  payment payment [not null]
+
+  Note: 'This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments'
+}
+
+Table order_discount {
+  order_discount_id Int [pk, increment]
+  order_id Int [not null]
+  discount_id Int [not null]
+  discount_amount Int [not null]
+  created_at DateTime [default: `now()`]
+  updated_at DateTime [default: `now()`]
+  discount discount [not null]
+  order order [not null]
+
+  indexes {
+    (order_id, discount_id) [unique]
+  }
+
+  Note: 'This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments'
+}
+
+Table order_product {
+  order_product_id Int [pk, increment]
+  order_id Int [not null]
+  product_price_id Int [not null]
+  quantity Int [not null]
+  option String
+  created_at DateTime [default: `now()`]
+  updated_at DateTime [default: `now()`]
+  order order [not null]
+  product_price product_price [not null]
+
+  indexes {
+    (order_id, product_price_id) [unique]
+  }
+
+  Note: 'This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments'
+}
+
+Table payment {
+  payment_id Int [pk, increment]
+  order_id Int [not null]
+  payment_method_id Int [not null]
+  status payment_status_enum
+  amount_paid Decimal
+  change_amount Decimal [default: 0]
+  payment_time DateTime [default: `now()`]
+  created_at DateTime [default: `now()`]
+  updated_at DateTime [default: `now()`]
+  order order [not null]
+  payment_method payment_method [not null]
+
+  Note: 'This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments'
+}
+
+Table payment_method {
+  payment_method_id Int [pk, increment]
+  name String [unique, not null]
+  description String
+  created_at DateTime [default: `now()`]
+  updated_at DateTime [default: `now()`]
+  payment payment [not null]
+
+  Note: 'This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments'
+}
+
+Table product {
+  product_id Int [pk, increment]
+  category_id Int
+  name String [unique, not null]
+  description String
+  is_signature Boolean [default: false]
+  image_path String
+  created_at DateTime [default: `now()`]
+  updated_at DateTime [default: `now()`]
+  category category
+  product_price product_price [not null]
+
+  Note: 'This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments'
+}
+
+Table product_price {
+  product_price_id Int [pk, increment]
+  product_id Int [not null]
+  size_id Int [not null]
+  price Int [not null]
+  is_active Boolean [not null, default: true]
+  created_at DateTime [default: `now()`]
+  updated_at DateTime [default: `now()`]
+  order_product order_product [not null]
+  product product [not null]
+  product_size product_size [not null]
+
+  indexes {
+    (product_id, size_id) [unique]
+  }
+
+  Note: 'This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments'
+}
+
+Table product_size {
+  size_id Int [pk, increment]
+  name String [not null]
+  unit String [not null]
+  quantity Int [not null]
+  description String
+  created_at DateTime [default: `now()`]
+  updated_at DateTime [default: `now()`]
+  product_price product_price [not null]
+
+  indexes {
+    (unit, name) [unique]
+  }
+
+  Note: 'This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments'
+}
+
+Table role {
+  role_id Int [pk, increment]
+  name String [unique, not null]
+  description String
+  created_at DateTime [default: `now()`]
+  updated_at DateTime [default: `now()`]
+  account account [not null]
+
+  Note: 'This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments'
+}
+
+Table store {
+  store_id Int [pk, increment]
+  name String [not null]
+  address String [not null]
+  phone String [not null]
+  opening_time DateTime [not null]
+  closing_time DateTime [not null]
+  email String [not null]
+  opening_date DateTime [not null]
+  tax_code String [not null]
+  created_at DateTime [default: `now()`]
+  updated_at DateTime [default: `now()`]
+
+  Note: 'This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments'
+}
+
+Enum gender_enum {
+  MALE
+  FEMALE
+  OTHER
+}
+
+Enum order_status_enum {
+  PROCESSING
+  CANCELLED
+  COMPLETED
+}
+
+Enum payment_status_enum {
+  PROCESSING
+  CANCELLED
+  PAID
+}
+
+Ref: account.role_id > role.role_id
+
+Ref: customer.account_id > account.account_id
+
+Ref: customer.membership_type_id > membership_type.membership_type_id
+
+Ref: discount.coupon_id - coupon.coupon_id
+
+Ref: employee.account_id - account.account_id
+
+Ref: manager.account_id - account.account_id
+
+Ref: order.customer_id > customer.customer_id
+
+Ref: order.employee_id > employee.employee_id
+
+Ref: order_discount.discount_id > discount.discount_id [delete: Cascade]
+
+Ref: order_discount.order_id > order.order_id [delete: Cascade]
+
+Ref: order_product.order_id > order.order_id [delete: Cascade]
+
+Ref: order_product.product_price_id > product_price.product_price_id [delete: Cascade]
+
+Ref: payment.order_id > order.order_id [delete: Cascade]
+
+Ref: payment.payment_method_id > payment_method.payment_method_id
+
+Ref: product.category_id > category.category_id
+
+Ref: product_price.product_id > product.product_id [delete: Cascade]
+
+Ref: product_price.size_id > product_size.size_id [delete: Cascade]

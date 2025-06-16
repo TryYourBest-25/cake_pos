@@ -2,12 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, MoreHorizontal, Edit, Trash2, Eye, ArrowUpDown, Loader2 } from "lucide-react";
+import { Plus, MoreHorizontal, Edit, Trash2, Eye, ArrowUpDown, Loader2, X } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -51,7 +52,12 @@ function formatDate(date: Date): string {
 export default function ManagersPage() {
   const router = useRouter();
   
-  // Zustand stores
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false);
+  const [selectedManager, setSelectedManager] = useState<Manager | null>(null);
+  const [selectedManagers, setSelectedManagers] = useState<number[]>([]);
+
   const {
     managers,
     isLoading,
@@ -60,13 +66,11 @@ export default function ManagersPage() {
     fetchManagers,
     createManager,
     deleteManager,
-    setSelectedManager,
-    selectedManager,
+    bulkDeleteManagers,
   } = useManagersStore();
-  
-  const { addNotification } = useUIStore();
 
-  // Load managers on component mount
+
+
   useEffect(() => {
     fetchManagers();
   }, [fetchManagers]);
@@ -74,19 +78,11 @@ export default function ManagersPage() {
   const handleCreateManager = async (data: CreateManagerFormData) => {
     try {
       await createManager(data);
-      addNotification({
-        type: 'success',
-        title: 'Thành công',
-        message: 'Tạo quản lý thành công!',
-      });
       setIsCreateDialogOpen(false);
+      toast.success("Tạo quản lý thành công!");
     } catch (error) {
       console.error("Lỗi tạo quản lý:", error);
-      addNotification({
-        type: 'error',
-        title: 'Lỗi',
-        message: 'Không thể tạo quản lý. Vui lòng thử lại.',
-      });
+      toast.error("Không thể tạo quản lý. Vui lòng thử lại.");
     }
   };
 
@@ -95,47 +91,92 @@ export default function ManagersPage() {
     
     try {
       await deleteManager(selectedManager.id);
-      addNotification({
-        type: 'success',
-        title: 'Thành công',
-        message: 'Xóa quản lý thành công!',
-      });
       setIsDeleteDialogOpen(false);
       setSelectedManager(null);
+      toast.success("Xóa quản lý thành công!");
     } catch (error) {
       console.error("Lỗi xóa quản lý:", error);
-      addNotification({
-        type: 'error',
-        title: 'Lỗi',
-        message: 'Không thể xóa quản lý. Vui lòng thử lại.',
-      });
+      toast.error("Không thể xóa quản lý. Vui lòng thử lại.");
     }
   };
 
-  // UI state for dialogs (local state is fine for UI-only state)
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const handleBulkDelete = async () => {
+    if (selectedManagers.length === 0) return;
+    
+    try {
+      const result = await bulkDeleteManagers(selectedManagers);
+      setIsBulkDeleteDialogOpen(false);
+      setSelectedManagers([]);
+      
+      if (result.summary.failed > 0) {
+        toast.warning(`Xóa thành công ${result.summary.success} quản lý. ${result.summary.failed} quản lý không thể xóa.`);
+      } else {
+        toast.success(`Xóa thành công ${result.summary.success} quản lý!`);
+      }
+    } catch (error) {
+      console.error("Lỗi xóa nhiều quản lý:", error);
+      toast.error("Không thể xóa các quản lý đã chọn. Vui lòng thử lại.");
+    }
+  };
 
   const openDeleteDialog = (manager: Manager) => {
     setSelectedManager(manager);
     setIsDeleteDialogOpen(true);
   };
 
-  // Define columns for Tanstack Table
+  const openBulkDeleteDialog = () => {
+    setIsBulkDeleteDialogOpen(true);
+  };
+
+  const handleSelectManager = (managerId: number, selected: boolean) => {
+    if (selected) {
+      setSelectedManagers([...selectedManagers, managerId]);
+    } else {
+      setSelectedManagers(selectedManagers.filter(id => id !== managerId));
+    }
+  };
+
+  const handleSelectAll = (selected: boolean) => {
+    if (selected) {
+      setSelectedManagers(managers.map(m => m.id));
+    } else {
+      setSelectedManagers([]);
+    }
+  };
+
+  const clearSelection = () => {
+    setSelectedManagers([]);
+  };
+
   const columns: ColumnDef<Manager>[] = [
     {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={table.getIsAllPageRowsSelected()}
+          onCheckedChange={(value) => {
+            table.toggleAllPageRowsSelected(!!value);
+            handleSelectAll(!!value);
+          }}
+          aria-label="Chọn tất cả"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={selectedManagers.includes(row.original.id)}
+          onCheckedChange={(value) => {
+            row.toggleSelected(!!value);
+            handleSelectManager(row.original.id, !!value);
+          }}
+          aria-label="Chọn hàng"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
       accessorKey: "name",
-      header: ({ column }) => {
-        return (
-          <Button
-            variant="ghost"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Người Dùng
-            <ArrowUpDown className="ml-2 h-4 w-4" />
-          </Button>
-        );
-      },
+      header: "Quản Lý",
       cell: ({ row }) => {
         const manager = row.original;
         return (
@@ -143,7 +184,7 @@ export default function ManagersPage() {
             <Avatar className="h-8 w-8">
               <AvatarImage src={manager.avatar} alt={manager.name} />
               <AvatarFallback>
-                {manager.name.split(' ').map(n => n[0]).join('')}
+                {manager.name ? manager.name.split(' ').map(n => n[0]).join('') : 'N/A'}
               </AvatarFallback>
             </Avatar>
             <div>
@@ -169,6 +210,10 @@ export default function ManagersPage() {
       },
     },
     {
+      accessorKey: "phone",
+      header: "Số điện thoại",
+    },
+    {
       accessorKey: "isActive",
       header: "Trạng Thái",
       cell: ({ row }) => {
@@ -177,29 +222,6 @@ export default function ManagersPage() {
           <Badge variant={isActive ? "default" : "secondary"}>
             {isActive ? "Hoạt Động" : "Vô Hiệu Hóa"}
           </Badge>
-        );
-      },
-    },
-    {
-      accessorKey: "permissions",
-      header: "Quyền Hạn",
-      cell: ({ row }) => {
-        const permissions = row.getValue("permissions") as string[];
-        if (!permissions) return null;
-        
-        return (
-          <div className="flex flex-wrap gap-1">
-            {permissions.slice(0, 2).map((permission) => (
-              <Badge key={permission} variant="outline" className="text-xs">
-                {permission.replace(/_/g, ' ')}
-              </Badge>
-            ))}
-            {permissions.length > 2 && (
-              <Badge variant="outline" className="text-xs">
-                +{permissions.length - 2}
-              </Badge>
-            )}
-          </div>
         );
       },
     },
@@ -239,10 +261,6 @@ export default function ManagersPage() {
                 <Eye className="mr-2 h-4 w-4" />
                 Xem Chi Tiết
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => router.push(`/users/managers/${manager.id}/edit`)}>
-                <Edit className="mr-2 h-4 w-4" />
-                Chỉnh Sửa
-              </DropdownMenuItem>
               <DropdownMenuItem 
                 className="text-destructive"
                 onClick={() => openDeleteDialog(manager)}
@@ -281,6 +299,38 @@ export default function ManagersPage() {
         </Button>
       </div>
 
+      {/* Bulk Actions Toolbar */}
+      {selectedManagers.length > 0 && (
+        <Card className="p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-muted-foreground">
+                Đã chọn {selectedManagers.length} quản lý
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearSelection}
+              >
+                <X className="h-4 w-4 mr-1" />
+                Bỏ chọn
+              </Button>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={openBulkDeleteDialog}
+                disabled={isDeleting}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Xóa đã chọn
+              </Button>
+            </div>
+          </div>
+        </Card>
+      )}
+
       {/* Managers Data Table */}
       <Card>
         <CardContent className="p-0">
@@ -305,6 +355,7 @@ export default function ManagersPage() {
           <CreateManagerForm 
             onSubmit={handleCreateManager}
             isSubmitting={isCreating}
+            onCancel={() => setIsCreateDialogOpen(false)}
           />
         </DialogContent>
       </Dialog>
@@ -333,6 +384,36 @@ export default function ManagersPage() {
                 </>
               ) : (
                 "Xóa"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Bulk Delete Confirmation Dialog */}
+      <AlertDialog open={isBulkDeleteDialogOpen} onOpenChange={setIsBulkDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xác nhận xóa nhiều quản lý</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn có chắc chắn muốn xóa {selectedManagers.length} quản lý đã chọn? 
+              Hành động này không thể hoàn tác.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleBulkDelete}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Đang xóa...
+                </>
+              ) : (
+                `Xóa ${selectedManagers.length} quản lý`
               )}
             </AlertDialogAction>
           </AlertDialogFooter>

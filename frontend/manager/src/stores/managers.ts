@@ -33,7 +33,11 @@ interface ManagersState {
   createManager: (data: CreateManagerFormData) => Promise<Manager>;
   updateManager: (id: number, data: UpdateManagerFormData) => Promise<Manager>;
   deleteManager: (id: number) => Promise<void>;
-  bulkDeleteManagers: (ids: number[]) => Promise<void>;
+  bulkDeleteManagers: (ids: number[]) => Promise<{
+    deleted: number[];
+    failed: { id: number; reason: string }[];
+    summary: { total: number; success: number; failed: number };
+  }>;
   
   // UI Actions
   setSelectedManager: (manager: Manager | null) => void;
@@ -90,33 +94,51 @@ export const useManagersStore = create<ManagersState>((set, get) => ({
         managers: [
           {
             id: 1,
+            accountId: 1,
             name: "Nguyễn Văn An",
+            firstName: "Văn An",
+            lastName: "Nguyễn",
             email: "an.nguyen@company.com",
-            avatar: "/avatars/01.png",
+            phone: "0901234567",
+            gender: "MALE" as const,
+            username: "an.nguyen",
             isActive: true,
             createdAt: new Date("2024-01-15"),
             updatedAt: new Date("2024-01-15"),
-            permissions: ["USER_MANAGEMENT", "PRODUCT_MANAGEMENT", "ORDER_MANAGEMENT"]
+            permissions: ["USER_MANAGEMENT", "PRODUCT_MANAGEMENT", "ORDER_MANAGEMENT"],
+            lastLogin: new Date("2024-01-15"),
           },
           {
-            id: 2, 
+            id: 2,
+            accountId: 2,
             name: "Trần Thị Bình",
+            firstName: "Thị Bình",
+            lastName: "Trần",
             email: "binh.tran@company.com",
-            avatar: "/avatars/02.png",
+            phone: "0901234568",
+            gender: "FEMALE" as const,
+            username: "binh.tran",
             isActive: true,
             createdAt: new Date("2024-02-20"),
             updatedAt: new Date("2024-02-20"),
-            permissions: ["PRODUCT_MANAGEMENT", "REPORT_VIEW"]
+            permissions: ["PRODUCT_MANAGEMENT", "REPORT_VIEW"],
+            lastLogin: new Date("2024-02-20"),
           },
           {
             id: 3,
-            name: "Lê Hoàng Cường", 
+            accountId: 3,
+            name: "Lê Hoàng Cường",
+            firstName: "Hoàng Cường",
+            lastName: "Lê",
             email: "cuong.le@company.com",
-            avatar: "/avatars/03.png",
+            phone: "0901234569",
+            gender: "MALE" as const,
+            username: "cuong.le",
             isActive: false,
             createdAt: new Date("2024-03-10"),
             updatedAt: new Date("2024-03-10"),
-            permissions: ["ORDER_MANAGEMENT"]
+            permissions: ["ORDER_MANAGEMENT"],
+            lastLogin: new Date("2024-03-10"),
           },
         ],
         totalCount: 3,
@@ -246,9 +268,11 @@ export const useManagersStore = create<ManagersState>((set, get) => ({
         totalCount: get().totalCount - ids.length,
       });
       
-      await managerService.bulkDelete(ids);
+      const result = await managerService.bulkDelete({ ids });
       
       set({ isDeleting: false });
+      
+      return result;
       
     } catch (error) {
       // Revert optimistic update

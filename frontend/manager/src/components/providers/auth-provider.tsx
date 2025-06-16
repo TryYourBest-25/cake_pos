@@ -9,12 +9,16 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const { isLoading } = useAuthStore();
+  const { isLoading, initializeAuth } = useAuthStore();
   const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
+    // Khởi tạo auth system
+    const cleanup = initializeAuth();
     setIsInitializing(false);
-  }, []);
+    
+    return cleanup;
+  }, [initializeAuth]);
 
   if (isInitializing || isLoading) {
     return <AuthLoading />;

@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, MaxLength, IsInt, Min, IsOptional, IsBoolean, IsDateString, IsNumber } from 'class-validator';
+import { IsString, IsNotEmpty, MaxLength, IsInt, Min, IsOptional, IsBoolean, IsDateString, IsNumber, Max } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -9,11 +9,12 @@ export class CreateMembershipTypeDto {
   @MaxLength(50)
   type: string;
 
-  @ApiProperty({ description: 'Giá trị giảm giá (ví dụ: 0.1 cho 10%, hoặc 50000 cho 50k VNĐ)', example: 0.1 })
-  @IsNumber({ maxDecimalPlaces: 4 }) // Cho phép giá trị như 0.10 (10%) hoặc 50000.00
+  @ApiProperty({ description: 'Giá trị giảm giá phần trăm 0-100%', example: 10 })
+  @IsNumber()
   @Min(0)
+  @Max(100)
   @Type(() => Number)
-  discount_value: number; // Prisma sẽ xử lý việc lưu dưới dạng Decimal
+  discount_value: number;
 
   @ApiProperty({ description: 'Điểm yêu cầu để đạt được hạng thành viên này', example: 1000 })
   @IsInt()

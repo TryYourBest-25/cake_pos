@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {
   Breadcrumb,
@@ -31,104 +31,94 @@ interface HeaderProps {
 }
 
 // Breadcrumb mapping
-const breadcrumbMap: Record<string, { label: string; href?: string }[]> = {
-  "/dashboard": [
-    { label: "Dashboard" }
-  ],
-  "/users": [
-    { label: "Dashboard", href: "/dashboard" },
-    { label: "Người Dùng" }
-  ],
-  "/users/managers": [
-    { label: "Dashboard", href: "/dashboard" },
-    { label: "Người Dùng", href: "/users" },
-    { label: "Quản Lý" }
-  ],
-  "/users/employees": [
-    { label: "Dashboard", href: "/dashboard" },
-    { label: "Người Dùng", href: "/users" },
-    { label: "Nhân Viên" }
-  ],
-  "/users/customers": [
-    { label: "Dashboard", href: "/dashboard" },
-    { label: "Người Dùng", href: "/users" },
-    { label: "Khách Hàng" }
-  ],
+const breadcrumbMap: Record<string, string> = {
+  "/dashboard": "Dashboard",
+  "/users": "Quản lý người dùng",
+  "/users/managers": "Quản lý viên",
+  "/users/employees": "Nhân viên",
+  "/users/customers": "Khách hàng",
+  "/products": "Sản phẩm",
+  "/orders": "Đơn hàng",
+  "/reports": "Báo cáo",
+  "/settings": "Cài đặt",
 };
 
-// Dynamic breadcrumb for manager detail and edit pages
-function getDynamicBreadcrumbs(pathname: string): { label: string; href?: string }[] {
-  // Manager detail page: /users/managers/[id]
-  if (pathname.match(/^\/users\/managers\/\d+$/)) {
-    return [
-      { label: "Dashboard", href: "/dashboard" },
-      { label: "Người Dùng", href: "/users" },
-      { label: "Quản Lý", href: "/users/managers" },
-      { label: "Chi Tiết" }
-    ];
+function generateBreadcrumbs(pathname: string) {
+  const segments = pathname.split("/").filter(Boolean);
+  const breadcrumbs = [];
+
+  // Always start with Dashboard
+  breadcrumbs.push({
+    label: "Dashboard",
+    href: "/dashboard",
+    isActive: pathname === "/dashboard",
+  });
+
+  // Build path progressively
+  let currentPath = "";
+  for (let i = 0; i < segments.length; i++) {
+    currentPath += `/${segments[i]}`;
+    const label = breadcrumbMap[currentPath];
+    
+    if (label) {
+      breadcrumbs.push({
+        label,
+        href: currentPath,
+        isActive: i === segments.length - 1,
+      });
+    }
   }
-  
-  // Manager edit page: /users/managers/[id]/edit
-  if (pathname.match(/^\/users\/managers\/\d+\/edit$/)) {
-    const managerId = pathname.split('/')[3];
-    return [
-      { label: "Dashboard", href: "/dashboard" },
-      { label: "Người Dùng", href: "/users" },
-      { label: "Quản Lý", href: "/users/managers" },
-      { label: "Chi Tiết", href: `/users/managers/${managerId}` },
-      { label: "Chỉnh Sửa" }
-    ];
-  }
-  
-  return breadcrumbMap[pathname] || [{ label: "Dashboard", href: "/dashboard" }];
+
+  return breadcrumbs;
 }
 
 export function Header({ onMenuClick, className }: HeaderProps) {
   const pathname = usePathname();
-  const breadcrumbs = getDynamicBreadcrumbs(pathname);
+  const breadcrumbs = generateBreadcrumbs(pathname);
 
   return (
-    <header className="border-b bg-background px-6 py-3">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onMenuClick}
-            className="md:hidden"
-          >
-            <Menu className="h-4 w-4" />
-          </Button>
-          
-          <div className="hidden sm:block">
-            <Breadcrumb>
-              <BreadcrumbList>
-                {breadcrumbs.map((breadcrumb, index) => (
-                  <React.Fragment key={breadcrumb.label}>
-                    <BreadcrumbItem>
-                      {breadcrumb.href ? (
-                        <BreadcrumbLink href={breadcrumb.href}>
-                          {breadcrumb.label}
-                        </BreadcrumbLink>
-                      ) : (
-                        <BreadcrumbPage>{breadcrumb.label}</BreadcrumbPage>
-                      )}
-                    </BreadcrumbItem>
-                    {index < breadcrumbs.length - 1 && <BreadcrumbSeparator />}
-                  </React.Fragment>
-                ))}
-              </BreadcrumbList>
-            </Breadcrumb>
-          </div>
+    <header className={`border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 ${className}`}>
+      <div className="flex h-14 items-center px-4 lg:px-6">
+        {/* Mobile menu button */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="md:hidden"
+          onClick={onMenuClick}
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
+
+        {/* Breadcrumb */}
+        <div className="flex-1">
+          <Breadcrumb>
+            <BreadcrumbList>
+              {breadcrumbs.map((breadcrumb, index) => (
+                <React.Fragment key={breadcrumb.href}>
+                  {index > 0 && <BreadcrumbSeparator />}
+                  <BreadcrumbItem>
+                    {breadcrumb.isActive ? (
+                      <BreadcrumbPage>{breadcrumb.label}</BreadcrumbPage>
+                    ) : (
+                      <BreadcrumbLink href={breadcrumb.href}>
+                        {breadcrumb.label}
+                      </BreadcrumbLink>
+                    )}
+                  </BreadcrumbItem>
+                </React.Fragment>
+              ))}
+            </BreadcrumbList>
+          </Breadcrumb>
         </div>
 
-        <div className="flex items-center gap-4">
-          {/* Search */}
+        {/* Search */}
+        <div className="flex items-center space-x-4">
           <div className="relative hidden md:block">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
+              type="search"
               placeholder="Tìm kiếm..."
-              className="w-64 pl-8"
+              className="w-[200px] pl-8 lg:w-[300px]"
             />
           </div>
 
@@ -143,22 +133,21 @@ export function Header({ onMenuClick, className }: HeaderProps) {
             </Badge>
           </Button>
 
-          {/* User Menu */}
+          {/* User menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src="/avatars/01.png" alt="Avatar" />
-                  <AvatarFallback>AD</AvatarFallback>
+                  <AvatarFallback>QT</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">Admin</p>
+                  <p className="text-sm font-medium leading-none">Quản trị viên</p>
                   <p className="text-xs leading-none text-muted-foreground">
-                    admin@example.com
+                    admin@banhngotnhalam.com
                   </p>
                 </div>
               </DropdownMenuLabel>

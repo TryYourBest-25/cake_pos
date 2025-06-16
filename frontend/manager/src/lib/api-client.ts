@@ -44,6 +44,8 @@ class ApiClient {
   private baseURL: string;
   private timeout: number;
   private retryAttempts: number;
+  private isRefreshing: boolean = false;
+  private refreshPromise: Promise<string> | null = null;
 
   constructor() {
     this.baseURL = API_CONFIG.BASE_URL;
@@ -66,9 +68,80 @@ class ApiClient {
   }
 
   /**
-   * Xử lý response từ API
+   * Refresh access token
    */
-  private async handleResponse<T>(response: Response): Promise<T> {
+  private async refreshAccessToken(): Promise<string> {
+    if (this.isRefreshing && this.refreshPromise) {
+      return this.refreshPromise;
+    }
+
+    this.isRefreshing = true;
+    this.refreshPromise = this.performTokenRefresh();
+
+    try {
+      const newToken = await this.refreshPromise;
+      return newToken;
+    } finally {
+      this.isRefreshing = false;
+      this.refreshPromise = null;
+    }
+  }
+
+  /**
+   * Thực hiện refresh token
+   */
+  private async performTokenRefresh(): Promise<string> {
+    try {
+      const response = await fetch(`${this.baseURL}/auth/refresh`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // Để gửi cookie refresh_token
+      });
+
+      if (!response.ok) {
+        throw new Error('Không thể refresh token');
+      }
+
+      const data = await response.json();
+      const newToken = data.access_token;
+
+      // Cập nhật token mới vào localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('auth_token', newToken);
+      }
+
+      return newToken;
+    } catch (error) {
+      // Nếu refresh thất bại, clear auth và redirect về login
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('auth_token');
+        // Dispatch custom event để auth store có thể lắng nghe
+        window.dispatchEvent(new CustomEvent('auth:token-expired'));
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Xử lý response từ API với auto refresh token
+   */
+  private async handleResponse<T>(response: Response, originalRequest?: () => Promise<Response>): Promise<T> {
+    // Nếu gặp lỗi 401 và có originalRequest, thử refresh token
+    if (response.status === 401 && originalRequest && !this.isRefreshing) {
+      try {
+        await this.refreshAccessToken();
+        
+        // Retry request với token mới
+        const retryResponse = await originalRequest();
+        return this.handleResponse<T>(retryResponse);
+      } catch (refreshError) {
+        // Nếu refresh thất bại, throw lỗi 401 gốc
+        console.error('Token refresh failed:', refreshError);
+      }
+    }
+
     if (!response.ok) {
       let errorMessage = `HTTP ${response.status}`;
       
@@ -154,12 +227,13 @@ class ApiClient {
       });
     }
 
-    const response = await this.fetchWithRetry(url.toString(), {
+    const makeRequest = () => this.fetchWithRetry(url.toString(), {
       method: "GET",
       headers: this.getHeaders(),
     });
 
-    return this.handleResponse<T>(response);
+    const response = await makeRequest();
+    return this.handleResponse<T>(response, makeRequest);
   }
 
   /**
@@ -168,13 +242,14 @@ class ApiClient {
   async post<T>(endpoint: string, data?: any): Promise<T> {
     const url = new URL(this.baseURL + endpoint);
 
-    const response = await this.fetchWithRetry(url.toString(), {
+    const makeRequest = () => this.fetchWithRetry(url.toString(), {
       method: "POST",
       headers: this.getHeaders(),
       body: data ? JSON.stringify(data) : undefined,
     });
 
-    return this.handleResponse<T>(response);
+    const response = await makeRequest();
+    return this.handleResponse<T>(response, makeRequest);
   }
 
   /**
@@ -183,13 +258,14 @@ class ApiClient {
   async patch<T>(endpoint: string, data?: any): Promise<T> {
     const url = new URL(this.baseURL + endpoint);
 
-    const response = await this.fetchWithRetry(url.toString(), {
+    const makeRequest = () => this.fetchWithRetry(url.toString(), {
       method: "PATCH",
       headers: this.getHeaders(),
       body: data ? JSON.stringify(data) : undefined,
     });
 
-    return this.handleResponse<T>(response);
+    const response = await makeRequest();
+    return this.handleResponse<T>(response, makeRequest);
   }
 
   /**
@@ -198,27 +274,30 @@ class ApiClient {
   async put<T>(endpoint: string, data?: any): Promise<T> {
     const url = new URL(this.baseURL + endpoint);
 
-    const response = await this.fetchWithRetry(url.toString(), {
+    const makeRequest = () => this.fetchWithRetry(url.toString(), {
       method: "PUT",
       headers: this.getHeaders(),
       body: data ? JSON.stringify(data) : undefined,
     });
 
-    return this.handleResponse<T>(response);
+    const response = await makeRequest();
+    return this.handleResponse<T>(response, makeRequest);
   }
 
   /**
    * DELETE request
    */
-  async delete<T>(endpoint: string): Promise<T> {
+  async delete<T>(endpoint: string, data?: any): Promise<T> {
     const url = new URL(this.baseURL + endpoint);
 
-    const response = await this.fetchWithRetry(url.toString(), {
+    const makeRequest = () => this.fetchWithRetry(url.toString(), {
       method: "DELETE",
       headers: this.getHeaders(),
+      body: data ? JSON.stringify(data) : undefined,
     });
 
-    return this.handleResponse<T>(response);
+    const response = await makeRequest();
+    return this.handleResponse<T>(response, makeRequest);
   }
 
   /**

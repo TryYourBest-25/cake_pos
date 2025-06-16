@@ -44,7 +44,7 @@ export class MembershipTypeService {
       this.prisma.membership_type.findMany({
         skip,
         take: limit,
-        orderBy: { membership_type_id: 'desc' },
+        orderBy: { required_point: 'desc' },
       }),
       this.prisma.membership_type.count(),
     ]);

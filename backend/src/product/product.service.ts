@@ -337,6 +337,56 @@ export class ProductService {
     };
   }
 
+  async findByCategoryWithActivePrices(category_id: number | null, paginationDto: PaginationDto): Promise<PaginatedResult<product>> {
+    const { page = 1, limit = 10 } = paginationDto;
+    const skip = (page - 1) * limit;
+
+    // Điều kiện where cho category
+    const categoryCondition = category_id === null 
+      ? { category_id: null }  // Lấy sản phẩm không có danh mục
+      : { category_id: category_id }; // Lấy sản phẩm thuộc danh mục
+
+    const [data, total] = await Promise.all([
+      this.prisma.product.findMany({
+        where: {
+          ...categoryCondition,
+          product_price: {
+            some: {
+              is_active: true, // Có ít nhất 1 product_price active
+            },
+          },
+        },
+        skip,
+        take: limit,
+        orderBy: { product_id: 'desc' },
+      }),
+      this.prisma.product.count({
+        where: {
+          ...categoryCondition,
+          product_price: {
+            some: {
+              is_active: true,
+            },
+          },
+        },
+      }),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    };
+  }
+
   // Các phương thức tiện ích khác có thể thêm ở đây, ví dụ:
   // - addPriceToProduct(productId, createProductPriceDto)
   // - updatePriceForProduct(productId, priceId, updateProductPriceDto)

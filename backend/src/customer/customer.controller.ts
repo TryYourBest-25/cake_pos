@@ -43,6 +43,24 @@ export class CustomerController {
     return this.customerService.findAll(paginationDto);
   }
 
+  @Delete('bulk')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ROLES.MANAGER)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Bulk delete customers - Chỉ MANAGER' })
+  @ApiBody({ type: BulkDeleteCustomerDto })
+  @ApiResponse({ status: 200, description: 'Bulk delete completed with results' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  async bulkDelete(@Body() bulkDeleteDto: BulkDeleteCustomerDto): Promise<{
+    deleted: number[];
+    failed: { id: number; reason: string }[];
+    summary: { total: number; success: number; failed: number };
+  }> {
+    return this.customerService.bulkDelete(bulkDeleteDto);
+  }
+
   @Get(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(ROLES.MANAGER, ROLES.STAFF, ROLES.CUSTOMER)
@@ -102,23 +120,7 @@ export class CustomerController {
     await this.customerService.remove(id);
   }
 
-  @Delete('bulk')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(ROLES.MANAGER)
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Bulk delete customers - Chỉ MANAGER' })
-  @ApiBody({ type: BulkDeleteCustomerDto })
-  @ApiResponse({ status: 200, description: 'Bulk delete completed with results' })
-  @ApiResponse({ status: 400, description: 'Bad Request' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
-  async bulkDelete(@Body() bulkDeleteDto: BulkDeleteCustomerDto): Promise<{
-    deleted: number[];
-    failed: { id: number; reason: string }[];
-    summary: { total: number; success: number; failed: number };
-  }> {
-    return this.customerService.bulkDelete(bulkDeleteDto);
-  }
+
 
   @Get('test/ping')
   @UseGuards(JwtAuthGuard, RolesGuard)

@@ -43,18 +43,7 @@ export class EmployeeController {
     return this.employeeService.findAll(paginationDto);
   }
 
-  @Get(':id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(ROLES.MANAGER, ROLES.STAFF)
-  @ApiOperation({ summary: 'Get employee by ID - MANAGER và STAFF' })
-  @ApiParam({ name: 'id', description: 'Employee ID', type: Number })
-  @ApiResponse({ status: 200, description: 'Employee details' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
-  @ApiResponse({ status: 404, description: 'Employee not found' })
-  async findOne(@Param('id', ParseIntPipe) id: number): Promise<employee | null> {
-    return this.employeeService.findOne(id);
-  }
+
 
   @Get('email/:email') // Endpoint ví dụ để tìm theo email
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -67,6 +56,39 @@ export class EmployeeController {
   @ApiResponse({ status: 404, description: 'Employee not found' })
   async findByEmail(@Param('email') email: string): Promise<employee | null> {
     return this.employeeService.findByEmail(email);
+  }
+  
+  
+
+  @Delete('bulk')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ROLES.MANAGER)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Bulk delete employees - Chỉ MANAGER' })
+  @ApiBody({ type: BulkDeleteEmployeeDto })
+  @ApiResponse({ status: 200, description: 'Bulk delete completed with results' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  async bulkDelete(@Body() bulkDeleteDto: BulkDeleteEmployeeDto): Promise<{
+    deleted: number[];
+    failed: { id: number; reason: string }[];
+    summary: { total: number; success: number; failed: number };
+  }> {
+    return this.employeeService.bulkDelete(bulkDeleteDto);
+  }
+
+  @Get(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ROLES.MANAGER, ROLES.STAFF)
+  @ApiOperation({ summary: 'Get employee by ID - MANAGER và STAFF' })
+  @ApiParam({ name: 'id', description: 'Employee ID', type: Number })
+  @ApiResponse({ status: 200, description: 'Employee details' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({ status: 404, description: 'Employee not found' })
+  async findOne(@Param('id', ParseIntPipe) id: number): Promise<employee | null> {
+    return this.employeeService.findOne(id);
   }
 
   @Patch(':id')
@@ -100,24 +122,6 @@ export class EmployeeController {
   @ApiResponse({ status: 404, description: 'Employee not found' })
   async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     await this.employeeService.remove(id);
-  }
-
-  @Delete('bulk')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(ROLES.MANAGER)
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Bulk delete employees - Chỉ MANAGER' })
-  @ApiBody({ type: BulkDeleteEmployeeDto })
-  @ApiResponse({ status: 200, description: 'Bulk delete completed with results' })
-  @ApiResponse({ status: 400, description: 'Bad Request' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
-  async bulkDelete(@Body() bulkDeleteDto: BulkDeleteEmployeeDto): Promise<{
-    deleted: number[];
-    failed: { id: number; reason: string }[];
-    summary: { total: number; success: number; failed: number };
-  }> {
-    return this.employeeService.bulkDelete(bulkDeleteDto);
   }
 
   @Get('test/ping')
