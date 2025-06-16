@@ -23,7 +23,7 @@ export const createCustomerSchema = z.object({
     .min(0, "Điểm hiện tại không được âm")
     .optional(),
     
-  gender: z.enum(["male", "female"])
+  gender: z.enum(["MALE", "FEMALE", "OTHER"])
     .optional(),
     
   username: z.string()
@@ -58,7 +58,7 @@ export const updateCustomerSchema = z.object({
     .min(0, "Điểm hiện tại không được âm")
     .optional(),
     
-  gender: z.enum(["male", "female"])
+  gender: z.enum(["MALE", "FEMALE", "OTHER"])
     .optional(),
     
   username: z.string()

@@ -2,6 +2,7 @@ import { apiClient } from "@/lib/api-client";
 import { 
   MembershipType, 
   BackendMembershipTypeResponse,
+  BackendPaginatedResponse,
   transformMembershipTypeResponse,
   CreateMembershipTypeDto, 
   UpdateMembershipTypeDto,
@@ -13,19 +14,6 @@ import {
   CreateMembershipTypeFormData,
   UpdateMembershipTypeFormData 
 } from "@/lib/validations/membership-type";
-
-// Backend pagination response structure
-interface BackendPaginatedResponse<T> {
-  data: T[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-    hasNext: boolean;
-    hasPrev: boolean;
-  };
-}
 
 /**
  * MembershipType Service
@@ -40,7 +28,6 @@ export class MembershipTypeService {
   async getAll(params?: { 
     page?: number; 
     limit?: number;
-    includeCustomers?: boolean;
   }): Promise<PaginatedResponse<MembershipType>> {
     const backendResponse = await apiClient.get<BackendPaginatedResponse<BackendMembershipTypeResponse>>(
       this.endpoint, 

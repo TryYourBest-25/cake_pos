@@ -2,6 +2,8 @@ import { apiClient } from "@/lib/api-client";
 import { 
   Manager, 
   BackendManagerResponse,
+  BackendPaginatedResponse,
+  BulkDeleteResponse,
   transformManagerResponse,
   CreateManagerDto, 
   UpdateManagerDto,
@@ -15,26 +17,6 @@ import {
   UpdateManagerFormData,
   BulkDeleteManagerFormData 
 } from "@/lib/validations/manager";
-
-// Backend pagination response structure
-interface BackendPaginatedResponse<T> {
-  data: T[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-    hasNext: boolean;
-    hasPrev: boolean;
-  };
-}
-
-// Backend bulk delete response
-interface BulkDeleteResponse {
-  deleted: number[];
-  failed: { id: number; reason: string }[];
-  summary: { total: number; success: number; failed: number };
-}
 
 /**
  * Manager Service

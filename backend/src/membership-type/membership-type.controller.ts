@@ -41,10 +41,8 @@ export class MembershipTypeController {
   @ApiResponse({ status: 200, description: 'Paginated list of membership types' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async findAll(
-    @Query() paginationDto: PaginationDto,
-    @Query('includeCustomers') includeCustomers?: string
-  ): Promise<PaginatedResult<membership_type>> {
-    return this.membershipTypeService.findAll(paginationDto, includeCustomers === 'true');
+    @Query() paginationDto: PaginationDto  ): Promise<PaginatedResult<membership_type>> {
+    return this.membershipTypeService.findAll(paginationDto);
   }
 
   @Get(':id')

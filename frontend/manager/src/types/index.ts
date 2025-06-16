@@ -1,37 +1,27 @@
-// User Management Types
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  role: UserRole;
-  avatar?: string;
-  isActive: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
+// Import các types chính từ api.ts để tránh trùng lặp
+export type {
+  Manager,
+  Employee,
+  Customer,
+  MembershipType,
+  Order,
+  OrderItem,
+  CreateManagerDto,
+  UpdateManagerDto,
+  CreateEmployeeDto,
+  UpdateEmployeeDto,
+  CreateCustomerDto,
+  UpdateCustomerDto,
+  CreateMembershipTypeDto,
+  UpdateMembershipTypeDto,
+  BulkDeleteManagerDto,
+  BulkDeleteEmployeeDto,
+  BulkDeleteCustomerDto,
+  ApiResponse,
+  PaginatedResponse
+} from './api';
 
-export interface Manager extends User {
-  role: 'MANAGER';
-  permissions: Permission[];
-}
-
-export interface Employee extends User {
-  role: 'EMPLOYEE';
-  storeId: string;
-  position: string;
-  salary?: number;
-  hireDate: Date;
-}
-
-export interface Customer extends User {
-  role: 'CUSTOMER';
-  phone?: string;
-  address?: string;
-  membershipType?: MembershipType;
-  totalSpent: number;
-  orderCount: number;
-}
-
+// User Role Types
 export type UserRole = 'MANAGER' | 'EMPLOYEE' | 'CUSTOMER';
 
 export interface Permission {
@@ -40,7 +30,7 @@ export interface Permission {
   description: string;
 }
 
-// Product Management Types
+// Product Management Types (chưa có trong backend)
 export interface Product {
   id: string;
   name: string;
@@ -79,49 +69,10 @@ export interface ProductSize {
   updatedAt: Date;
 }
 
-// Order Management Types
-export interface Order {
-  id: string;
-  customerId: string;
-  customer: Customer;
-  employeeId?: string;
-  employee?: Employee;
-  items: OrderItem[];
-  status: OrderStatus;
-  totalAmount: number;
-  paymentMethod: PaymentMethod;
-  paymentStatus: PaymentStatus;
-  notes?: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface OrderItem {
-  id: string;
-  orderId: string;
-  productId: string;
-  product: Product;
-  sizeId?: string;
-  size?: ProductSize;
-  quantity: number;
-  unitPrice: number;
-  totalPrice: number;
-}
-
+// Order status và payment types (enum alternatives)
 export type OrderStatus = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'CANCELLED';
 export type PaymentStatus = 'PENDING' | 'PAID' | 'FAILED' | 'REFUNDED';
 export type PaymentMethod = 'CASH' | 'CARD' | 'DIGITAL_WALLET' | 'BANK_TRANSFER';
-
-// Membership Types
-export interface MembershipType {
-  id: string;
-  name: string;
-  description: string;
-  discount: number;
-  minSpentAmount: number;
-  benefits: string[];
-  isActive: boolean;
-}
 
 // Navigation Types
 export interface NavItem {
@@ -137,23 +88,6 @@ export interface FormState {
   isLoading: boolean;
   errors: Record<string, string>;
   success?: string;
-}
-
-// API Response Types
-export interface ApiResponse<T> {
-  data: T;
-  message: string;
-  success: boolean;
-}
-
-export interface PaginatedResponse<T> {
-  data: T[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    pages: number;
-  };
 }
 
 // Dashboard Types

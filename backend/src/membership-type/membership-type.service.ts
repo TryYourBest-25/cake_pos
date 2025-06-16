@@ -36,7 +36,7 @@ export class MembershipTypeService {
     }
   }
 
-  async findAll(paginationDto: PaginationDto, includeCustomers: boolean = false): Promise<PaginatedResult<membership_type>> {
+  async findAll(paginationDto: PaginationDto): Promise<PaginatedResult<membership_type>> {
     const { page = 1, limit = 10 } = paginationDto;
     const skip = (page - 1) * limit;
 

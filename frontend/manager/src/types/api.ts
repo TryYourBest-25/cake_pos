@@ -134,7 +134,7 @@ export interface BackendCustomerResponse {
   first_name?: string;
   phone: string;
   current_points?: number;
-  gender?: 'male' | 'female';
+  gender?: 'MALE' | 'FEMALE' | 'OTHER';
   created_at: string;
   updated_at: string;
   account?: {
@@ -170,7 +170,7 @@ export interface Customer {
   lastName?: string;
   phone: string;
   currentPoints?: number;
-  gender?: 'male' | 'female';
+  gender?: 'MALE' | 'FEMALE' | 'OTHER';
   createdAt: Date;
   updatedAt: Date;
   username?: string;
@@ -329,7 +329,7 @@ export interface CreateCustomerDto {
   first_name?: string;
   phone: string;
   current_points?: number;
-  gender?: 'male' | 'female';
+  gender?: 'MALE' | 'FEMALE' | 'OTHER';
   username?: string;
 }
 
@@ -339,7 +339,7 @@ export interface UpdateCustomerDto {
   first_name?: string;
   phone?: string;
   current_points?: number;
-  gender?: 'male' | 'female';
+  gender?: 'MALE' | 'FEMALE' | 'OTHER';
   username?: string;
 }
 
@@ -374,10 +374,31 @@ export interface ApiResponse<T> {
   error?: string;
 }
 
+// Frontend pagination response interface
 export interface PaginatedResponse<T> {
   data: T[];
   total: number;
   page: number;
   limit: number;
   totalPages: number;
+}
+
+// Backend pagination response structure (for internal service use)
+export interface BackendPaginatedResponse<T> {
+  data: T[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
+}
+
+// Backend bulk delete response structure (for internal service use)
+export interface BulkDeleteResponse {
+  deleted: number[];
+  failed: { id: number; reason: string }[];
+  summary: { total: number; success: number; failed: number };
 } 

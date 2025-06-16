@@ -47,12 +47,14 @@ function generateBreadcrumbs(pathname: string) {
   const segments = pathname.split("/").filter(Boolean);
   const breadcrumbs = [];
 
-  // Always start with Dashboard
-  breadcrumbs.push({
-    label: "Dashboard",
-    href: "/dashboard",
-    isActive: pathname === "/dashboard",
-  });
+  // Only add Dashboard if we're not on dashboard or if dashboard is not part of path
+  if (pathname !== "/dashboard") {
+    breadcrumbs.push({
+      label: "Dashboard",
+      href: "/dashboard",
+      isActive: false,
+    });
+  }
 
   // Build path progressively
   let currentPath = "";
@@ -94,7 +96,7 @@ export function Header({ onMenuClick, className }: HeaderProps) {
           <Breadcrumb>
             <BreadcrumbList>
               {breadcrumbs.map((breadcrumb, index) => (
-                <React.Fragment key={breadcrumb.href}>
+                <React.Fragment key={`${breadcrumb.href}-${index}`}>
                   {index > 0 && <BreadcrumbSeparator />}
                   <BreadcrumbItem>
                     {breadcrumb.isActive ? (

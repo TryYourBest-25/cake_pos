@@ -16,15 +16,25 @@ export class CustomerService {
   ) {}
 
   async create(createCustomerDto: CreateCustomerDto): Promise<customer> {
-    const { phone, username, membership_type_id, ...customerData } = createCustomerDto;
+    const { phone, username, ...customerData } = createCustomerDto;
 
     try {
       // Sử dụng transaction để đảm bảo tính toàn vẹn dữ liệu
       return await this.prisma.$transaction(async (tx) => {
+        // Tìm membership type có required_point thấp nhất
+        const lowestMembershipType = await tx.membership_type.findFirst({
+          orderBy: { required_point: 'asc' },
+        });
+
+        if (!lowestMembershipType) {
+          throw new BadRequestException('Không tìm thấy loại thành viên nào trong hệ thống');
+        }
+
         const data: Prisma.customerCreateInput = {
           ...customerData,
           phone,
-          membership_type: { connect: { membership_type_id } },
+          current_points: lowestMembershipType.required_point, // Set current_points = required_point
+          membership_type: { connect: { membership_type_id: lowestMembershipType.membership_type_id } },
         };
 
         // Tạo account nếu có username
@@ -44,23 +54,20 @@ export class CustomerService {
         });
       });
     } catch (error) {
-      throw this.handleCreateError(error, phone, membership_type_id);
+      throw this.handleCreateError(error, phone);
     }
   }
 
   /**
    * Xử lý lỗi khi tạo customer
    */
-  private handleCreateError(error: any, phone: string, membership_type_id: number): never {
+  private handleCreateError(error: any, phone: string): never {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       switch (error.code) {
         case 'P2002':
           const fieldDescription = this.getUniqueConstraintField(error, phone);
           throw new ConflictException(`Khách hàng đã tồn tại với ${fieldDescription}.`);
         case 'P2025':
-          if (this.isMembershipTypeError(error)) {
-            throw new BadRequestException(`Loại thành viên với ID ${membership_type_id} không tồn tại.`);
-          }
           throw new BadRequestException('Bản ghi liên quan không tồn tại.');
         default:
           throw new BadRequestException(`Lỗi cơ sở dữ liệu: ${error.message}`);
@@ -169,15 +176,8 @@ export class CustomerService {
   }
 
   async update(id: number, updateCustomerDto: UpdateCustomerDto): Promise<customer> {
-    const { membership_type_id, ...customerData } = updateCustomerDto;
-    
-    const data: Prisma.customerUpdateInput = { ...customerData };
-
-    if (membership_type_id !== undefined && membership_type_id !== null) {
-        data.membership_type = { connect: { membership_type_id } };
-    } else if (membership_type_id === null) {
-        console.warn(`Cố gắng đặt membership_type_id thành null cho khách hàng ${id}, nhưng đây là quan hệ bắt buộc. Sẽ bỏ qua.`);
-    }
+    // Loại bỏ hoàn toàn việc cập nhật membership_type_id và current_points
+    const data: Prisma.customerUpdateInput = { ...updateCustomerDto };
 
     try {
       return await this.prisma.customer.update({
@@ -197,9 +197,6 @@ export class CustomerService {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       switch (error.code) {
         case 'P2025':
-          if (updateDto.membership_type_id && this.isMembershipTypeError(error)) {
-            throw new NotFoundException(`Loại thành viên với ID ${updateDto.membership_type_id} không tồn tại.`);
-          }
           throw new NotFoundException(`Khách hàng với ID ${id} không tồn tại.`);
         case 'P2002':
           if (updateDto.phone && this.isPhoneConstraintError(error)) {

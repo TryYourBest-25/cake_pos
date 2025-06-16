@@ -1,19 +1,8 @@
-import { IsString, IsNotEmpty, MaxLength, IsOptional, IsInt, IsEnum, IsPhoneNumber, MinLength } from 'class-validator';
+import { IsString, IsNotEmpty, MaxLength, IsOptional, IsEnum, IsPhoneNumber, MinLength } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
 import { gender_enum } from '../../generated/prisma/client';
 
 export class CreateCustomerDto {
-  @ApiProperty({
-    description: 'ID của loại thành viên',
-    example: 1,
-    type: Number,
-  })
-  @IsInt({ message: 'ID loại thành viên phải là số nguyên' })
-  @IsNotEmpty({ message: 'ID loại thành viên không được để trống' })
-  @Type(() => Number)
-  membership_type_id: number;
-
   @ApiPropertyOptional({
     description: 'Họ và tên đệm của khách hàng',
     example: 'Trần Văn',
@@ -49,17 +38,6 @@ export class CreateCustomerDto {
   phone: string;
 
   @ApiPropertyOptional({
-    description: 'Điểm tích lũy hiện tại của khách hàng',
-    example: 100,
-    type: Number,
-    default: 0,
-  })
-  @IsOptional()
-  @IsInt({ message: 'Điểm hiện tại phải là số nguyên' })
-  @Type(() => Number)
-  current_points?: number;
-
-  @ApiPropertyOptional({
     description: 'Giới tính của khách hàng',
     example: 'male',
     enum: gender_enum,
@@ -79,5 +57,4 @@ export class CreateCustomerDto {
   @IsString({ message: 'Tên đăng nhập phải là chuỗi ký tự' })
   @MinLength(3, { message: 'Tên đăng nhập phải có ít nhất 3 ký tự' })
   username?: string;
-
 } 

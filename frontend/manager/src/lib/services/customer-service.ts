@@ -2,6 +2,7 @@ import { apiClient } from "@/lib/api-client";
 import { 
   Customer, 
   BackendCustomerResponse,
+  BackendPaginatedResponse,
   transformCustomerResponse,
   CreateCustomerDto, 
   UpdateCustomerDto,
@@ -15,19 +16,6 @@ import {
   UpdateCustomerFormData,
   BulkDeleteCustomerFormData 
 } from "@/lib/validations/customer";
-
-// Backend pagination response structure
-interface BackendPaginatedResponse<T> {
-  data: T[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-    hasNext: boolean;
-    hasPrev: boolean;
-  };
-}
 
 /**
  * Customer Service

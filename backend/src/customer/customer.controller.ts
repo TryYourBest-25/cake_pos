@@ -21,13 +21,16 @@ export class CustomerController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(ROLES.MANAGER, ROLES.STAFF)
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'Create a new customer - Chỉ MANAGER và STAFF' })
+  @ApiOperation({ 
+    summary: 'Tạo khách hàng mới - Chỉ MANAGER và STAFF',
+    description: 'Hệ thống sẽ tự động gán loại thành viên có điểm yêu cầu thấp nhất và đặt điểm hiện tại bằng điểm yêu cầu đó'
+  })
   @ApiBody({ type: CreateCustomerDto })
-  @ApiResponse({ status: 201, description: 'Customer created successfully' })
+  @ApiResponse({ status: 201, description: 'Khách hàng được tạo thành công với membership type và points tự động' })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
-  @ApiResponse({ status: 409, description: 'Conflict (phone or email already exists)' })
+  @ApiResponse({ status: 409, description: 'Conflict (phone already exists)' })
   async create(@Body() createCustomerDto: CreateCustomerDto): Promise<customer> {
     return this.customerService.create(createCustomerDto);
   }
@@ -90,15 +93,18 @@ export class CustomerController {
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(ROLES.MANAGER, ROLES.STAFF, ROLES.CUSTOMER)
-  @ApiOperation({ summary: 'Update customer - Tất cả role (CUSTOMER chỉ update thông tin của mình)' })
+  @ApiOperation({ 
+    summary: 'Cập nhật thông tin khách hàng - Tất cả role (CUSTOMER chỉ update thông tin của mình)',
+    description: 'Không thể cập nhật membership_type_id và current_points. Các trường này được quản lý tự động bởi hệ thống.'
+  })
   @ApiParam({ name: 'id', description: 'Customer ID', type: Number })
   @ApiBody({ type: UpdateCustomerDto })
-  @ApiResponse({ status: 200, description: 'Customer updated successfully' })
+  @ApiResponse({ status: 200, description: 'Cập nhật thông tin khách hàng thành công' })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
   @ApiResponse({ status: 404, description: 'Customer not found' })
-  @ApiResponse({ status: 409, description: 'Conflict (phone or email already exists)' })
+  @ApiResponse({ status: 409, description: 'Conflict (phone already exists)' })
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateCustomerDto: UpdateCustomerDto,

@@ -75,11 +75,10 @@ export const useMembershipTypeStore = create<MembershipTypeState>()(
         set({ isLoading: true, error: null });
         
         try {
-          const { page = 1, limit = 10, includeCustomers = false } = params;
+          const { page = 1, limit = 10 } = params;
           const response: PaginatedResponse<MembershipType> = await membershipTypeService.getAll({
             page,
             limit,
-            includeCustomers,
           });
           
           set({
