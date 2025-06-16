@@ -131,4 +131,19 @@ export class CustomerController {
   async test(): Promise<{ message: string }> {
     return { message: 'Customer controller is working!' };
   }
+
+  @Get('membership-type/:membershipTypeId')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ROLES.STAFF, ROLES.MANAGER)
+  @ApiOperation({ summary: 'Lấy khách hàng theo loại thành viên với pagination - STAFF/MANAGER' })
+  @ApiParam({ name: 'membershipTypeId', description: 'Membership Type ID', type: Number })
+  @ApiResponse({ status: 200, description: 'Danh sách khách hàng theo loại thành viên' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  async findByMembershipType(
+    @Param('membershipTypeId', ParseIntPipe) membershipTypeId: number,
+    @Query() paginationDto: PaginationDto,
+  ): Promise<PaginatedResult<customer>> {
+    return this.customerService.findByMembershipType(membershipTypeId, paginationDto);
+  }
 } 

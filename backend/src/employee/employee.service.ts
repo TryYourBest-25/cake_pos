@@ -107,7 +107,21 @@ export class EmployeeService {
   async findOne(employee_id: number): Promise<employee | null> {
     const emp = await this.prisma.employee.findUnique({
       where: { employee_id },
-      include: { account: true },
+      include: { 
+        account: {
+          select: {
+            account_id: true,
+            role_id: true,
+            username: true,
+            is_active: true,
+            is_locked: true,
+            last_login: true,
+            created_at: true,
+            updated_at: true,
+            role: true,
+          }
+        }
+      },
     });
     if (!emp) {
       throw new NotFoundException(`Nhân viên với ID ${employee_id} không tồn tại`);

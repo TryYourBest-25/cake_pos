@@ -345,4 +345,35 @@ export class PaymentService {
       throw new InternalServerErrorException('Could not delete payment.');
     }
   }
+
+  async findByPaymentMethod(payment_method_id: number, paginationDto: PaginationDto): Promise<PaginatedResult<payment>> {
+    const { page = 1, limit = 10 } = paginationDto;
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+      this.prisma.payment.findMany({
+        where: { payment_method_id },
+        skip,
+        take: limit,
+        orderBy: { payment_id: 'desc' },
+      }),
+      this.prisma.payment.count({
+        where: { payment_method_id },
+      }),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    };
+  }
 } 

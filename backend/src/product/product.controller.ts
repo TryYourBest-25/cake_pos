@@ -87,4 +87,19 @@ export class ProductController {
   async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     await this.productService.remove(id);
   }
+
+  @Get('category/:categoryId')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ROLES.STAFF, ROLES.MANAGER, ROLES.CUSTOMER)
+  @ApiOperation({ summary: 'Lấy sản phẩm theo danh mục với pagination - TẤT CẢ ROLES' })
+  @ApiParam({ name: 'categoryId', description: 'Category ID', type: Number })
+  @ApiResponse({ status: 200, description: 'Danh sách sản phẩm theo danh mục' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  async findByCategory(
+    @Param('categoryId', ParseIntPipe) categoryId: number,
+    @Query() paginationDto: PaginationDto,
+  ): Promise<PaginatedResult<product>> {
+    return this.productService.findByCategory(categoryId, paginationDto);
+  }
 } 

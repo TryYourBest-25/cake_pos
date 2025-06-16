@@ -106,8 +106,22 @@ export class ManagerService {
 
   async findOne(manager_id: number): Promise<manager | null> {
     const mgr = await this.prisma.manager.findUnique({
-      where: { manager_id }, // Giả sử khóa chính là manager_id
-      include: { account: true },
+      where: { manager_id },
+      include: { 
+        account: {
+          select: {
+            account_id: true,
+            role_id: true,
+            username: true,
+            is_active: true,
+            is_locked: true,
+            last_login: true,
+            created_at: true,
+            updated_at: true,
+            role: true,
+          }
+        }
+      },
     });
     if (!mgr) {
       throw new NotFoundException(`Quản lý với ID ${manager_id} không tồn tại`);

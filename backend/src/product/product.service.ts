@@ -306,6 +306,37 @@ export class ProductService {
     }
   }
 
+  async findByCategory(category_id: number, paginationDto: PaginationDto): Promise<PaginatedResult<product>> {
+    const { page = 1, limit = 10 } = paginationDto;
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+      this.prisma.product.findMany({
+        where: { category_id },
+        skip,
+        take: limit,
+        orderBy: { product_id: 'desc' },
+      }),
+      this.prisma.product.count({
+        where: { category_id },
+      }),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    };
+  }
+
   // Các phương thức tiện ích khác có thể thêm ở đây, ví dụ:
   // - addPriceToProduct(productId, createProductPriceDto)
   // - updatePriceForProduct(productId, priceId, updateProductPriceDto)

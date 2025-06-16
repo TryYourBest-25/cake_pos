@@ -334,4 +334,66 @@ export class OrderService {
     await this.prisma.order.delete({ where: { order_id: id } });
     return orderToDelete; 
   }
+
+  async findByEmployee(employee_id: number, paginationDto: PaginationDto): Promise<PaginatedResult<order>> {
+    const { page = 1, limit = 10 } = paginationDto;
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+      this.prisma.order.findMany({
+        where: { employee_id },
+        skip,
+        take: limit,
+        orderBy: { order_id: 'desc' },
+      }),
+      this.prisma.order.count({
+        where: { employee_id },
+      }),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    };
+  }
+
+  async findByCustomer(customer_id: number, paginationDto: PaginationDto): Promise<PaginatedResult<order>> {
+    const { page = 1, limit = 10 } = paginationDto;
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+      this.prisma.order.findMany({
+        where: { customer_id },
+        skip,
+        take: limit,
+        orderBy: { order_id: 'desc' },
+      }),
+      this.prisma.order.count({
+        where: { customer_id },
+      }),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    };
+  }
 } 

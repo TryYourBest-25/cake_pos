@@ -129,7 +129,22 @@ export class CustomerService {
   async findOne(id: number): Promise<customer | null> {
     const customerDetails = await this.prisma.customer.findUnique({
       where: { customer_id: id },
-      include: { account: true, membership_type: true, order: false }, 
+      include: { 
+        account: {
+          select: {
+            account_id: true,
+            role_id: true,
+            username: true,
+            is_active: true,
+            is_locked: true,
+            last_login: true,
+            created_at: true,
+            updated_at: true,
+            role: true,
+          }
+        },
+        membership_type: true,
+      },
     });
     if (!customerDetails) {
       throw new NotFoundException(`Khách hàng với ID ${id} không tồn tại`);
@@ -261,6 +276,37 @@ export class CustomerService {
         total: ids.length,
         success: deleted.length,
         failed: failed.length,
+      },
+    };
+  }
+
+  async findByMembershipType(membership_type_id: number, paginationDto: PaginationDto): Promise<PaginatedResult<customer>> {
+    const { page = 1, limit = 10 } = paginationDto;
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+      this.prisma.customer.findMany({
+        where: { membership_type_id },
+        skip,
+        take: limit,
+        orderBy: { customer_id: 'desc' },
+      }),
+      this.prisma.customer.count({
+        where: { membership_type_id },
+      }),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
       },
     };
   }

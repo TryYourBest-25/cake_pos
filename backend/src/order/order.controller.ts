@@ -104,4 +104,34 @@ export class OrderController {
   async remove(@Param('id', ParseIntPipe) id: number): Promise<order> {
     return this.orderService.remove(id);
   }
+
+  @Get('employee/:employeeId')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ROLES.STAFF, ROLES.MANAGER)
+  @ApiOperation({ summary: 'Lấy đơn hàng theo nhân viên với pagination - STAFF/MANAGER' })
+  @ApiParam({ name: 'employeeId', description: 'Employee ID', type: Number })
+  @ApiResponse({ status: 200, description: 'Danh sách đơn hàng của nhân viên' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  async findByEmployee(
+    @Param('employeeId', ParseIntPipe) employeeId: number,
+    @Query() paginationDto: PaginationDto,
+  ): Promise<PaginatedResult<order>> {
+    return this.orderService.findByEmployee(employeeId, paginationDto);
+  }
+
+  @Get('customer/:customerId')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ROLES.STAFF, ROLES.MANAGER)
+  @ApiOperation({ summary: 'Lấy đơn hàng theo khách hàng với pagination - STAFF/MANAGER' })
+  @ApiParam({ name: 'customerId', description: 'Customer ID', type: Number })
+  @ApiResponse({ status: 200, description: 'Danh sách đơn hàng của khách hàng' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  async findByCustomer(
+    @Param('customerId', ParseIntPipe) customerId: number,
+    @Query() paginationDto: PaginationDto,
+  ): Promise<PaginatedResult<order>> {
+    return this.orderService.findByCustomer(customerId, paginationDto);
+  }
 } 

@@ -190,4 +190,19 @@ export class PaymentController {
   adminTest(): { message: string } {
     return { message: 'Payment controller is working!' };
   }
+
+  @Get('payment-method/:paymentMethodId')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ROLES.STAFF, ROLES.MANAGER)
+  @ApiOperation({ summary: 'Lấy thanh toán theo phương thức thanh toán với pagination - STAFF/MANAGER' })
+  @ApiParam({ name: 'paymentMethodId', description: 'Payment Method ID', type: Number })
+  @ApiResponse({ status: 200, description: 'Danh sách thanh toán theo phương thức' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  async findByPaymentMethod(
+    @Param('paymentMethodId', ParseIntPipe) paymentMethodId: number,
+    @Query() paginationDto: PaginationDto,
+  ): Promise<PaginatedResult<payment>> {
+    return this.paymentService.findByPaymentMethod(paymentMethodId, paginationDto);
+  }
 } 
