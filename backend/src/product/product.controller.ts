@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, Query,
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { PaginationDto, PaginatedResult } from '../common/dto/pagination.dto';
 import { product } from '../generated/prisma/client';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -33,16 +34,13 @@ export class ProductController {
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(ROLES.MANAGER, ROLES.STAFF, ROLES.CUSTOMER)
-  @ApiOperation({ summary: 'Get all products with their active prices and sizes - Tất cả role' })
-  @ApiQuery({ name: 'skip', required: false, type: Number, description: 'Number of records to skip' })
-  @ApiQuery({ name: 'take', required: false, type: Number, description: 'Number of records to take' })
-  @ApiResponse({ status: 200, description: 'Return all products.' })
+  @ApiOperation({ summary: 'Get all products with pagination - Tất cả role' })
+  @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number' })
+  @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Items per page' })
+  @ApiResponse({ status: 200, description: 'Paginated list of products' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async findAll(
-    @Query('skip', new ParseIntPipe({ optional: true })) skip?: number,
-    @Query('take', new ParseIntPipe({ optional: true })) take?: number,
-  ): Promise<product[]> {
-    return this.productService.findAll({ skip, take });
+  async findAll(@Query() paginationDto: PaginationDto): Promise<PaginatedResult<product>> {
+    return this.productService.findAll(paginationDto);
   }
 
   @Get(':id')

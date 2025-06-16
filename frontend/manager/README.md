@@ -10,28 +10,29 @@
 #### Sidebar Navigation (Menu Bên)
 - **Dashboard** - Tổng quan và thống kê
 - **Người Dùng**:
-  - Quản lý:
+  - Quản lý: Danh sách quản lý
     - Chi tiết người dùng
-  - Nhân viên:
+  - Nhân viên: Danh sách nhân viên
     - Chi tiết nhân viên
-  - Khách Hàng: 
+  - Khách Hàng: Danh sách khách hàng
     - Chi tiết khách hàng
 - **Sản Phẩm**
-  - Sản phẩm
+  - Sản phẩm: Danh sách sản phẩm
     - Chi tiết sản phẩm
-  - Danh mục
-    - Danh mục sản phẩm
-  - Kích thước sản phẩm
+  - Danh mục: Danh mục sản phẩm
+    - Chi tiết danh mục sản phẩm
+  - Kích thước sản phẩm: Danh sách kích thước sản phẩm
     - Chi tiết kích thước sản phẩm
 - **Khuyến mãi**
-  - Chương trình khuyến mãi:
+  - Chương trình khuyến mãi: Danh sách chương trình khuyến mãi
     - Chi tiết chương trình khuyến mãi
-  - Chương trình thành viên:
+  - Chương trình thành viên: Danh sách chương trình thành viên
     - Chi tiết chương trình thành viên
 - **Đơn Hàng**:
-  - Đã Hoàn Thành
-  - Đang Xử Lý
-  - Đã Hủy
+  - Đã Hoàn Thành: Danh sách đơn hàng đã hoàn thành
+  - Đang Xử Lý: Danh sách đơn hàng đang xử lý
+  - Đã Hủy: Danh sách đơn hàng đã hủy
+    - Chi tiết đơn hàng khi click vào đơn hàng
 - **Báo Cáo**
   - Doanh thu
   - Sản phẩm bán chạy
@@ -152,7 +153,36 @@
 - **Feedback**: Alert, Toast, Modal, Tooltip
 - **Navigation**: Breadcrumb, Pagination, Tabs
 
-### 5. Tính Năng UX/UI Nâng Cao
+### 5. Quy Tắc UI/UX và Tương Tác
+
+#### Quy Tắc Chung
+- **Thêm mới**: Luôn sử dụng Dialog/Modal để tạo mới item
+- **Chỉnh sửa**: Luôn điều hướng đến trang chi tiết riêng biệt
+- **Xóa**: Luôn hiển thị confirmation dialog trước khi xóa
+- **Cập nhật**: Luôn hiển thị confirmation dialog trước khi cập nhật dữ liệu quan trọng
+
+#### Patterns Tương Tác
+```
+┌─────────────────────────────────────────────────────────┐
+│ Danh Sách Items                                         │
+│ ┌─────────────────────────────────────────────────────┐ │
+│ │ [Thêm Mới] Button → Opens Dialog                    │ │
+│ └─────────────────────────────────────────────────────┘ │
+│ ┌─────────────────────────────────────────────────────┐ │
+│ │ Item Row                                            │ │
+│ │ ├─ [Xem] → Navigate to detail page                  │ │
+│ │ ├─ [Sửa] → Navigate to edit page                    │ │
+│ │ └─ [Xóa] → Show confirmation dialog                 │ │
+│ └─────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────┘
+```
+
+#### Confirmation Dialogs
+- **Xóa**: "Bạn có chắc chắn muốn xóa [item name]? Hành động này không thể hoàn tác."
+- **Cập nhật**: "Bạn có muốn lưu các thay đổi?"
+- **Bulk Actions**: "Bạn có chắc chắn muốn thực hiện hành động này với [X] items đã chọn?"
+
+### 6. Tính Năng UX/UI Nâng Cao
 
 #### Dark Mode
 - System preference detection
@@ -177,7 +207,7 @@
 - Service workers cho offline
 - Real-time updates với WebSocket
 
-### 6. Tech Stack Đề Xuất
+### 7. Tech Stack Đề Xuất
 
 #### Frontend
 - **Framework**: Next.js 15 (App Router)
@@ -194,7 +224,7 @@
 - **Real-time**: Socket.io/Server-Sent Events
 - **File Upload**: Cloudinary/AWS S3
 
-### 7. Cấu Trúc Thư Mục Đề Xuất
+### 8. Cấu Trúc Thư Mục Đề Xuất
 
 ```
 src/
@@ -217,7 +247,7 @@ src/
 └── stores/               # State management
 ```
 
-### 8. Roadmap Phát Triển
+### 9. Roadmap Phát Triển
 
 #### Phase 1 (MVP)
 - [ ] Authentication & Authorization

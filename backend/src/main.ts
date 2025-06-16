@@ -1,9 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import * as cookieParser from 'cookie-parser';
+import cookieParser from 'cookie-parser';
 import * as fs from 'fs';
 import * as path from 'path';
-import { VersioningType } from '@nestjs/common';
+import { VersioningType, ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
 
@@ -11,7 +11,7 @@ async function bootstrap() {
     key: fs.readFileSync(path.join(__dirname, 'ssl', 'key.pem')),
     cert: fs.readFileSync(path.join(__dirname, 'ssl', 'cert.pem')),
   };
-  const app = await NestFactory.create(AppModule, { httpsOptions });
+  const app = await NestFactory.create(AppModule, { httpsOptions, logger: ['error', 'warn', 'log'] });
   
   app.use(cookieParser());
   
@@ -22,13 +22,21 @@ async function bootstrap() {
     exposedHeaders: ['Set-Cookie'],
     credentials: true,
   });
-
+  app.setGlobalPrefix('api');
   app.enableVersioning({
     type: VersioningType.URI,
     defaultVersion: '1',
+    prefix: 'v',
   });
 
-  app.setGlobalPrefix('api');
+  // Cấu hình global validation pipe với transform
+  app.useGlobalPipes(new ValidationPipe({
+    transform: true,
+    whitelist: true,
+    forbidNonWhitelisted: true,
+  }));
+
+
   
   await app.listen(process.env.PORT ?? 3000);
 }

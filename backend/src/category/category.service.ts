@@ -4,6 +4,7 @@ import { category, Prisma } from '../generated/prisma/client'; // Adjusted impor
 // PrismaClientKnownRequestError should be available via Prisma namespace
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { PaginationDto, PaginatedResult } from '../common/dto/pagination.dto';
 
 @Injectable()
 export class CategoryService {
@@ -24,8 +25,32 @@ export class CategoryService {
     }
   }
 
-  async findAll(): Promise<category[]> {
-    return this.prisma.category.findMany();
+  async findAll(paginationDto: PaginationDto): Promise<PaginatedResult<category>> {
+    const { page = 1, limit = 10 } = paginationDto;
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+      this.prisma.category.findMany({
+        skip,
+        take: limit,
+        orderBy: { category_id: 'desc' },
+      }),
+      this.prisma.category.count(),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    };
   }
 
   async findOne(id: number): Promise<category | null> {

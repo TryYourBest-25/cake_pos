@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AuthGuard } from "@/components/auth/auth-guard";
 // Utility function
 function formatCurrency(amount: number): string {
   return new Intl.NumberFormat("vi-VN", {
@@ -47,7 +48,8 @@ const mockRecentActivities = [
 
 export default function DashboardPage() {
   return (
-    <div className="space-y-6">
+    <AuthGuard>
+      <div className="space-y-6">
       {/* Page Header */}
       <div>
         <h1 className="text-3xl font-bold">Dashboard</h1>
@@ -179,5 +181,6 @@ export default function DashboardPage() {
         </Card>
       </div>
     </div>
+    </AuthGuard>
   );
 } 

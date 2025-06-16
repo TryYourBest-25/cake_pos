@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, HttpCo
 import { OrderService } from './order.service';
 import { CreateOrderDto, OrderStatusEnum } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
+import { PaginationDto, PaginatedResult } from '../common/dto/pagination.dto';
 import { order, Prisma } from '../generated/prisma/client'; // Import Prisma namespace for types
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -33,36 +34,28 @@ export class OrderController {
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(ROLES.MANAGER, ROLES.STAFF)
-  @ApiOperation({ summary: 'Get all orders with optional filtering and pagination - Chỉ MANAGER và STAFF' })
-  @ApiQuery({ name: 'skip', required: false, type: Number, description: 'Number of records to skip' })
-  @ApiQuery({ name: 'take', required: false, type: Number, description: 'Number of records to take' })
+  @ApiOperation({ summary: 'Get all orders with pagination and filtering - Chỉ MANAGER và STAFF' })
+  @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number' })
+  @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Items per page' })
   @ApiQuery({ name: 'customerId', required: false, type: Number, description: 'Filter by customer ID' })
   @ApiQuery({ name: 'employeeId', required: false, type: Number, description: 'Filter by employee ID' })
   @ApiQuery({ name: 'status', required: false, enum: OrderStatusEnum, description: 'Filter by order status' })
-  // Thêm các query params khác cho filter (ví dụ: date range) nếu cần
-  @ApiResponse({ status: 200, description: 'List of orders' })
+  @ApiResponse({ status: 200, description: 'Paginated list of orders' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
   async findAll(
-    @Query('skip') skip?: string,
-    @Query('take') take?: string,
+    @Query() paginationDto: PaginationDto,
     @Query('customerId') customerId?: string,
     @Query('employeeId') employeeId?: string,
     @Query('status') status?: OrderStatusEnum,
-    // @Query('orderBy') orderBy?: string, // Cần parse orderBy phức tạp hơn
-  ): Promise<order[]> {
-    const where: Prisma.orderWhereInput = {};
-    if (customerId) where.customer_id = parseInt(customerId, 10);
-    if (employeeId) where.employee_id = parseInt(employeeId, 10);
-    if (status) where.status = status;
-
-    const params = {
-      skip: skip ? parseInt(skip, 10) : undefined,
-      take: take ? parseInt(take, 10) : undefined,
-      where,
-      // orderBy: orderBy ? JSON.parse(orderBy) : undefined, // Cần cẩn thận với JSON.parse từ query
+  ): Promise<PaginatedResult<order>> {
+    const filters = {
+      ...(customerId && { customerId: parseInt(customerId, 10) }),
+      ...(employeeId && { employeeId: parseInt(employeeId, 10) }),
+      ...(status && { status }),
     };
-    return this.orderService.findAll(params);
+
+    return this.orderService.findAll(paginationDto, filters);
   }
 
   @Get(':id')

@@ -56,9 +56,36 @@ const breadcrumbMap: Record<string, { label: string; href?: string }[]> = {
   ],
 };
 
+// Dynamic breadcrumb for manager detail and edit pages
+function getDynamicBreadcrumbs(pathname: string): { label: string; href?: string }[] {
+  // Manager detail page: /users/managers/[id]
+  if (pathname.match(/^\/users\/managers\/\d+$/)) {
+    return [
+      { label: "Dashboard", href: "/dashboard" },
+      { label: "Người Dùng", href: "/users" },
+      { label: "Quản Lý", href: "/users/managers" },
+      { label: "Chi Tiết" }
+    ];
+  }
+  
+  // Manager edit page: /users/managers/[id]/edit
+  if (pathname.match(/^\/users\/managers\/\d+\/edit$/)) {
+    const managerId = pathname.split('/')[3];
+    return [
+      { label: "Dashboard", href: "/dashboard" },
+      { label: "Người Dùng", href: "/users" },
+      { label: "Quản Lý", href: "/users/managers" },
+      { label: "Chi Tiết", href: `/users/managers/${managerId}` },
+      { label: "Chỉnh Sửa" }
+    ];
+  }
+  
+  return breadcrumbMap[pathname] || [{ label: "Dashboard", href: "/dashboard" }];
+}
+
 export function Header({ onMenuClick, className }: HeaderProps) {
   const pathname = usePathname();
-  const breadcrumbs = breadcrumbMap[pathname] || [{ label: "Dashboard", href: "/dashboard" }];
+  const breadcrumbs = getDynamicBreadcrumbs(pathname);
 
   return (
     <header className="border-b bg-background px-6 py-3">

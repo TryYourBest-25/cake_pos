@@ -5,6 +5,12 @@
   "compilerOptions": {
     "deleteOutDir": true,
     "builder": "swc",
-    "typecheck" : true
+    "typecheck" : true,
+    "assets": [
+      {
+        "include": "**/*.pem",
+        "watchAssets": true
+      }
+    ]
   }
 }

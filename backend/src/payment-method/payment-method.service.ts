@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { payment_method, Prisma } from '../generated/prisma/client';
 import { CreatePaymentMethodDto } from './dto/create-payment-method.dto';
 import { UpdatePaymentMethodDto } from './dto/update-payment-method.dto';
+import { PaginationDto, PaginatedResult } from '../common/dto/pagination.dto';
 
 @Injectable()
 export class PaymentMethodService {
@@ -29,8 +30,32 @@ export class PaymentMethodService {
     }
   }
 
-  async findAll(): Promise<payment_method[]> {
-    return this.prisma.payment_method.findMany({ orderBy: { name: 'asc' } });
+  async findAll(paginationDto: PaginationDto): Promise<PaginatedResult<payment_method>> {
+    const { page = 1, limit = 10 } = paginationDto;
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+      this.prisma.payment_method.findMany({
+        skip,
+        take: limit,
+        orderBy: { name: 'asc' },
+      }),
+      this.prisma.payment_method.count(),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    };
   }
 
   async findOne(id: number): Promise<payment_method> {

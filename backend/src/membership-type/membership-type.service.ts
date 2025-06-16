@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { membership_type, Prisma } from '../generated/prisma/client';
 import { CreateMembershipTypeDto } from './dto/create-membership-type.dto';
 import { UpdateMembershipTypeDto } from './dto/update-membership-type.dto';
+import { PaginationDto, PaginatedResult } from '../common/dto/pagination.dto';
 import { Decimal } from '@prisma/client/runtime/library'; // Import Decimal
 
 @Injectable()
@@ -35,10 +36,32 @@ export class MembershipTypeService {
     }
   }
 
-  async findAll(includeCustomers: boolean = false): Promise<membership_type[]> {
-    return this.prisma.membership_type.findMany({
-      include: { customer: includeCustomers },
-    });
+  async findAll(paginationDto: PaginationDto, includeCustomers: boolean = false): Promise<PaginatedResult<membership_type>> {
+    const { page = 1, limit = 10 } = paginationDto;
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+      this.prisma.membership_type.findMany({
+        skip,
+        take: limit,
+        orderBy: { membership_type_id: 'desc' },
+      }),
+      this.prisma.membership_type.count(),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    };
   }
 
   async findOne(id: number, includeCustomers: boolean = false): Promise<membership_type | null> {

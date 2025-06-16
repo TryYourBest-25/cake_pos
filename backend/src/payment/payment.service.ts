@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { payment, Prisma, order as OrderModel, payment_method as PaymentMethodModel, payment_status_enum } from '../generated/prisma/client';
 import { CreatePaymentDto, PaymentStatusEnum as PaymentStatusDtoEnum } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
+import { PaginationDto, PaginatedResult } from '../common/dto/pagination.dto';
 import { VNPayService, VNPayPaymentRequest } from './vnpay.service';
 import { InvoiceService } from '../invoice/invoice.service';
 import { Decimal } from '@prisma/client/runtime/library';
@@ -246,12 +247,39 @@ export class PaymentService {
     }
   }
 
-  async findAll(orderId?: number): Promise<PaymentWithRelations[]> {
-    return this.prisma.payment.findMany({
-      where: orderId ? { order_id: orderId } : {},
-      include: { order: true, payment_method: true },
-      orderBy: { payment_time: 'desc' }
-    });
+  async findAll(
+    paginationDto: PaginationDto,
+    orderId?: number
+  ): Promise<PaginatedResult<PaymentWithRelations>> {
+    const { page = 1, limit = 10 } = paginationDto;
+    const skip = (page - 1) * limit;
+
+    const where = orderId ? { order_id: orderId } : {};
+
+    const [data, total] = await Promise.all([
+      this.prisma.payment.findMany({
+        skip,
+        take: limit,
+        where,
+        include: { order: true, payment_method: true },
+        orderBy: { payment_time: 'desc' },
+      }),
+      this.prisma.payment.count({ where }),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    };
   }
 
   async findOne(id: number): Promise<PaymentWithRelations> {

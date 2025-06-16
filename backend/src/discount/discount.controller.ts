@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, HttpCo
 import { DiscountService } from './discount.service';
 import { CreateDiscountDto } from './dto/create-discount.dto';
 import { UpdateDiscountDto } from './dto/update-discount.dto';
+import { PaginationDto, PaginatedResult } from '../common/dto/pagination.dto';
 import { discount } from '../generated/prisma/client';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -33,16 +34,13 @@ export class DiscountController {
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(ROLES.MANAGER, ROLES.STAFF, ROLES.CUSTOMER)
-  @ApiOperation({ summary: 'Get all discounts - Tất cả role' })
-  @ApiQuery({ name: 'skip', required: false, type: Number, description: 'Number of records to skip' })
-  @ApiQuery({ name: 'take', required: false, type: Number, description: 'Number of records to take' })
-  @ApiResponse({ status: 200, description: 'Return all discounts.' })
+  @ApiOperation({ summary: 'Get all discounts with pagination - Tất cả role' })
+  @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number' })
+  @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Items per page' })
+  @ApiResponse({ status: 200, description: 'Paginated list of discounts' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async findAll(
-    @Query('skip', new ParseIntPipe({ optional: true })) skip?: number,
-    @Query('take', new ParseIntPipe({ optional: true })) take?: number,
-  ): Promise<discount[]> {
-    return this.discountService.findAll({ skip, take });
+  async findAll(@Query() paginationDto: PaginationDto): Promise<PaginatedResult<discount>> {
+    return this.discountService.findAll(paginationDto);
   }
 
   @Get(':id')

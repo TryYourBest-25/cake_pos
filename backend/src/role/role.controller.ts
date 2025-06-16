@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, HttpCode, HttpStatus, UseGuards, Query } from '@nestjs/common';
 import { RoleService } from './role.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
+import { PaginationDto, PaginatedResult } from '../common/dto/pagination.dto';
 import { role } from '../generated/prisma/client';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -33,12 +34,12 @@ export class RoleController {
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(ROLES.MANAGER, ROLES.STAFF)
-  @ApiOperation({ summary: 'Get all roles - MANAGER và STAFF' })
-  @ApiResponse({ status: 200, description: 'List of roles' })
+  @ApiOperation({ summary: 'Get all roles with pagination - MANAGER và STAFF' })
+  @ApiResponse({ status: 200, description: 'Paginated list of roles' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
-  async findAll(): Promise<role[]> {
-    return this.roleService.findAll();
+  async findAll(@Query() paginationDto: PaginationDto): Promise<PaginatedResult<role>> {
+    return this.roleService.findAll(paginationDto);
   }
 
   @Get(':id')

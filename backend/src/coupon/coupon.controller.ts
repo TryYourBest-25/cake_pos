@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, HttpCode, HttpStatus, UseGuards, Query } from '@nestjs/common';
 import { CouponService } from './coupon.service';
 import { CreateCouponDto } from './dto/create-coupon.dto';
 import { UpdateCouponDto } from './dto/update-coupon.dto';
+import { PaginationDto, PaginatedResult } from '../common/dto/pagination.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -33,11 +34,11 @@ export class CouponController {
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(ROLES.MANAGER, ROLES.STAFF, ROLES.CUSTOMER)
-  @ApiOperation({ summary: 'Get all coupons - Tất cả role' })
-  @ApiResponse({ status: 200, description: 'List of coupons' })
+  @ApiOperation({ summary: 'Get all coupons with pagination - Tất cả role' })
+  @ApiResponse({ status: 200, description: 'Paginated list of coupons' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async findAll(): Promise<any[]> { // Promise<coupon[]>
-    return this.couponService.findAll();
+  async findAll(@Query() paginationDto: PaginationDto): Promise<PaginatedResult<any>> {
+    return this.couponService.findAll(paginationDto);
   }
 
   @Get(':id')

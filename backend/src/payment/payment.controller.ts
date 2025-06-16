@@ -4,6 +4,7 @@ import { PaymentService } from './payment.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { CreateVNPayPaymentDto } from './dto/create-vnpay-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
+import { PaginationDto, PaginatedResult } from '../common/dto/pagination.dto';
 import { payment } from '../generated/prisma/client';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -35,20 +36,25 @@ export class PaymentController {
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(ROLES.MANAGER, ROLES.STAFF)
-  @ApiOperation({ summary: 'Get all payments, optionally filtered by order ID - Chỉ MANAGER và STAFF' })
+  @ApiOperation({ summary: 'Get all payments with pagination and optional order filter - Chỉ MANAGER và STAFF' })
+  @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number' })
+  @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Items per page' })
   @ApiQuery({ name: 'orderId', required: false, type: Number, description: 'Filter payments by a specific order ID' })
-  @ApiResponse({ status: 200, description: 'List of payments', type: [CreatePaymentDto] })
+  @ApiResponse({ status: 200, description: 'Paginated list of payments' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
-  async findAll(@Query('orderId') orderId?: string): Promise<payment[]> {
+  async findAll(
+    @Query() paginationDto: PaginationDto,
+    @Query('orderId') orderId?: string
+  ): Promise<PaginatedResult<payment>> {
+    let orderIdNum: number | undefined;
     if (orderId) {
-      const orderIdNum = parseInt(orderId, 10);
+      orderIdNum = parseInt(orderId, 10);
       if (isNaN(orderIdNum)) {
         throw new BadRequestException('ID đơn hàng không hợp lệ. Phải là số.');
       }
-      return this.paymentService.findAll(orderIdNum);
     }
-    return this.paymentService.findAll();
+    return this.paymentService.findAll(paginationDto, orderIdNum);
   }
 
   @Get(':id')

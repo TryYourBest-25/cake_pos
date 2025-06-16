@@ -4,6 +4,8 @@ import { AccountService } from '../account/account.service';
 import { employee, Prisma } from '../generated/prisma/client';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
+import { BulkDeleteEmployeeDto } from './dto/bulk-delete-employee.dto';
+import { PaginationDto, PaginatedResult } from '../common/dto/pagination.dto';
 import { ROLES } from '../auth/constants/roles.constant';
 
 @Injectable()
@@ -74,10 +76,32 @@ export class EmployeeService {
     return staffRole.role_id;
   }
 
-  async findAll(): Promise<employee[]> {
-    return this.prisma.employee.findMany({
-        include: { account: true }, 
-    });
+  async findAll(paginationDto: PaginationDto): Promise<PaginatedResult<employee>> {
+    const { page = 1, limit = 10 } = paginationDto;
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+      this.prisma.employee.findMany({
+        skip,
+        take: limit,
+        orderBy: { employee_id: 'desc' },
+      }),
+      this.prisma.employee.count(),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    };
   }
 
   async findOne(employee_id: number): Promise<employee | null> {
@@ -156,5 +180,40 @@ export class EmployeeService {
       }
       throw error;
     }
+  }
+
+  /**
+   * Xóa nhiều employee theo danh sách ID
+   */
+  async bulkDelete(bulkDeleteDto: BulkDeleteEmployeeDto): Promise<{
+    deleted: number[];
+    failed: { id: number; reason: string }[];
+    summary: { total: number; success: number; failed: number };
+  }> {
+    const { ids } = bulkDeleteDto;
+    const deleted: number[] = [];
+    const failed: { id: number; reason: string }[] = [];
+
+    for (const id of ids) {
+      try {
+        await this.remove(id);
+        deleted.push(id);
+      } catch (error) {
+        failed.push({
+          id,
+          reason: error.message || 'Lỗi không xác định',
+        });
+      }
+    }
+
+    return {
+      deleted,
+      failed,
+      summary: {
+        total: ids.length,
+        success: deleted.length,
+        failed: failed.length,
+      },
+    };
   }
 }

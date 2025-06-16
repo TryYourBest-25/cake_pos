@@ -5,133 +5,53 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ef5dec76-6049-4938-8b0f-72cdaa7b5451" name="Changes" comment="Add .gitignore and package-lock.json for frontend&#10;&#10;Introduced a .gitignore file to exclude unnecessary files such as node_modules, build artifacts, and environment files. Added a package-lock.json file to lock dependencies for consistent builds. These changes set up the basic project structure for the frontend.">
-      <change afterPath="$PROJECT_DIR$/backend/authorization-guide.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/database/V1.0.2__trigger.sql" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/env-config.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/src/auth/constants/roles.constant.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/src/invoice/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/src/invoice/invoice.controller.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/src/invoice/invoice.module.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/src/invoice/invoice.service.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/src/payment/dto/create-vnpay-payment.dto.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/src/payment/vnpay.service.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/src/reports/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/src/reports/dto/index.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/src/reports/dto/sales-report-query.dto.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/src/reports/dto/sales-report-response.dto.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/src/reports/reports.controller.spec.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/src/reports/reports.controller.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/src/reports/reports.module.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/src/reports/reports.service.spec.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/src/reports/reports.service.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/manager/.cursorignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/manager/components.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/manager/manager.code-workspace" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/manager/pnpm-lock.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/manager/pnpm-workspace.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/manager/src/app/(dashboard)/dashboard/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/manager/src/app/(dashboard)/layout.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/manager/src/app/(dashboard)/users/customers/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/manager/src/app/(dashboard)/users/employees/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/manager/src/app/(dashboard)/users/managers/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/manager/src/app/(dashboard)/users/page.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/manager/src/components/layout/header.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/manager/src/components/layout/main-layout.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/manager/src/components/layout/sidebar.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/manager/src/components/ui/avatar.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/manager/src/components/ui/badge.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/manager/src/components/ui/breadcrumb.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/manager/src/components/ui/button.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/manager/src/components/ui/card.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/manager/src/components/ui/collapsible.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/manager/src/components/ui/data-table.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/manager/src/components/ui/dialog.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/manager/src/components/ui/dropdown-menu.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/manager/src/components/ui/input.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/manager/src/components/ui/scroll-area.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/manager/src/components/ui/separator.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/manager/src/components/ui/sheet.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/manager/src/components/ui/sidebar.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/manager/src/components/ui/skeleton.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/manager/src/components/ui/sonner.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/manager/src/components/ui/table.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/manager/src/components/ui/tooltip.tsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/manager/src/hooks/use-mobile.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/manager/src/lib/utils.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/manager/src/types/api.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/manager/src/types/index.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/manager/tailwind.config.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.env.dev" beforeDir="false" afterPath="$PROJECT_DIR$/.env.dev" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.local.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.local.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/7db628d6-646a-4049-a218-420ea0c7eab0.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/7db628d6-646a-4049-a218-420ea0c7eab0.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/7db628d6-646a-4049-a218-420ea0c7eab0/storage_v2/_src_/database/cake_pos_db.MMKWfw/schema/public.abK9xQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/7db628d6-646a-4049-a218-420ea0c7eab0/storage_v2/_src_/database/cake_pos_db.MMKWfw/schema/public.abK9xQ.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources/7db628d6-646a-4049-a218-420ea0c7eab0/storage_v2/_src_/database/cake_pos_db.MMKWfw/schema/public.abK9xQ.zip" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/7db628d6-646a-4049-a218-420ea0c7eab0/storage_v2/_src_/database/cake_pos_db.MMKWfw/schema/public.abK9xQ.zip" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sqldialects.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/.env.development" beforeDir="false" afterPath="$PROJECT_DIR$/backend/.env.development" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/database/B1.0.0__base_line.sql" beforeDir="false" afterPath="$PROJECT_DIR$/backend/database/B1.0.0__base_line.sql" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/database/V1.0.1__init_default_data.sql" beforeDir="false" afterPath="$PROJECT_DIR$/backend/database/V1.0.1__init_default_data.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/database/V1.0.8__init_optional_data.sql" beforeDir="false" afterPath="$PROJECT_DIR$/backend/database/V1.0.8__init_optional_data.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/backend/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/pnpm-lock.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/backend/prisma/schema.prisma" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/database/V1.0.2__trigger.sql" beforeDir="false" afterPath="$PROJECT_DIR$/backend/database/V1.0.2__trigger.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/nest-cli.json" beforeDir="false" afterPath="$PROJECT_DIR$/backend/nest-cli.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/account/account.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/account/account.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/account/account.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/account/account.module.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/account/account.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/account/account.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/app.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/app.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/auth/auth-token.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/auth/auth-token.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/auth/auth.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/auth/auth.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/auth/auth.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/auth/auth.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/auth/decorators/roles.decorator.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/auth/decorators/roles.decorator.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/auth/guards/roles.guard.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/auth/guards/roles.guard.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/category/category.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/category/category.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/cert/cert.pem" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/ssl/cert.pem" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/cert/key.pem" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/ssl/key.pem" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/category/category.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/category/category.service.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/coupon/coupon.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/coupon/coupon.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/coupon/coupon.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/coupon/coupon.service.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/customer/customer.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/customer/customer.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/customer/customer.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/customer/customer.module.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/customer/customer.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/customer/customer.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/customer/dto/create-customer.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/customer/dto/create-customer.dto.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/discount/discount.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/discount/discount.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/employee/dto/create-employee.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/employee/dto/create-employee.dto.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/discount/discount.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/discount/discount.service.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/employee/employee.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/employee/employee.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/employee/employee.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/employee/employee.module.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/employee/employee.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/employee/employee.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/firebase-storage/firebase-storage.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/firebase-storage/firebase-storage.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/generated/prisma/commonInputTypes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/generated/prisma/commonInputTypes.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/generated/prisma/internal/class.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/generated/prisma/internal/class.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/generated/prisma/internal/prismaNamespace.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/generated/prisma/internal/prismaNamespace.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/generated/prisma/models/account.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/generated/prisma/models/account.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/generated/prisma/models/category.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/generated/prisma/models/category.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/generated/prisma/models/employee.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/generated/prisma/models/employee.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/generated/prisma/models/order.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/generated/prisma/models/order.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/manager/dto/create-manager.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/manager/dto/create-manager.dto.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/manager/manager.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/manager/manager.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/manager/manager.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/manager/manager.module.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/manager/manager.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/manager/manager.service.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/membership-type/membership-type.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/membership-type/membership-type.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/order/dto/create-order.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/order/dto/create-order.dto.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/order/dto/update-order.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/order/dto/update-order.dto.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/membership-type/membership-type.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/membership-type/membership-type.service.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/order/order.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/order/order.controller.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/order/order.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/order/order.service.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/payment-method/payment-method.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/payment-method/payment-method.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/payment/dto/create-payment.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/payment/dto/create-payment.dto.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/payment/dto/update-payment.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/payment/dto/update-payment.dto.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/payment-method/payment-method.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/payment-method/payment-method.service.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/payment/payment.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/payment/payment.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/payment/payment.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/payment/payment.module.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/payment/payment.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/payment/payment.service.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/product/product.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/product/product.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/product/product.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/product/product.service.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/role/role.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/role/role.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/role/role.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/role/role.service.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/store/store.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/store/store.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/compose-dev.yml" beforeDir="false" afterPath="$PROJECT_DIR$/compose-dev.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/.cursor/.cursorrule" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/.cursor/.cursorrule" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/.cursor/rules/ui-and-styling.mdc" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/.cursor/rules/ui-and-styling.mdc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/store/store.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/store/store.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/.cursor/rules/next-js.mdc" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/.cursor/rules/next-js.mdc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/.cursor/rules/performance-optimization.mdc" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/.cursor/rules/performance-optimization.mdc" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/manager/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/manager/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/src/app/globals.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/app/globals.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/src/app/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/app/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/pnpm-lock.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/src/app/(dashboard)/dashboard/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/src/app/(dashboard)/layout.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/src/app/(dashboard)/users/customers/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/src/app/(dashboard)/users/employees/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/src/app/(dashboard)/users/managers/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/src/app/(dashboard)/users/page.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/src/app/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/app/layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/src/components/layout/header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/components/layout/header.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/src/components/layout/sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/components/layout/sidebar.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -164,34 +84,34 @@
     <option name="showLibraryContents" value="true" />
     <option name="showMembers" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Docker.compose-dev.yml.cake_pos_db: Compose Deployment.executor": "Run",
-    "Docker.compose-dev.yml: Compose Deployment.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "feature/phunguy65",
-    "last_opened_file_path": "/home/PNguyen/Workspace/MyProject/cake_pos",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_interpreter_path": "/home/PNguyen/development/nvm/current/bin/node",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "ts.external.directory.path": "/home/PNguyen/development/ides/webstorm/plugins/javascript-plugin/jsLanguageServicesImpl/external",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Docker.compose-dev.yml.cake_pos_db: Compose Deployment.executor&quot;: &quot;Run&quot;,
+    &quot;Docker.compose-dev.yml: Compose Deployment.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;feature/phunguy65&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/PNguyen/Workspace/MyProject/cake_pos&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_interpreter_path&quot;: &quot;/home/PNguyen/development/nvm/current/bin/node&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/home/PNguyen/development/ides/webstorm/plugins/javascript-plugin/jsLanguageServicesImpl/external&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
-  "keyToStringList": {
-    "DatabaseDriversLRU": [
-      "mysql"
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;mysql&quot;
     ],
-    "com.intellij.ide.scratch.LRUPopupBuilder$1/": [
-      "MySQL"
+    &quot;com.intellij.ide.scratch.LRUPopupBuilder$1/&quot;: [
+      &quot;MySQL&quot;
     ]
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/backend/prisma" />
@@ -265,7 +185,8 @@
       <workItem from="1747476528978" duration="11948000" />
       <workItem from="1747537900274" duration="6000" />
       <workItem from="1749738446092" duration="17000" />
-      <workItem from="1749964105174" duration="7188000" />
+      <workItem from="1749964105174" duration="11629000" />
+      <workItem from="1750034948886" duration="604000" />
     </task>
     <task id="LOCAL-00001" summary="Remove all project files and configurations&#10;&#10;This commit deletes all source code, dependencies, configurations, and project assets. It effectively cleans up the repository, leaving no traces of the previous Next.js project or related files.">
       <option name="closed" value="true" />

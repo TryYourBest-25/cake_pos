@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { Prisma, product, product_price, product_size, category } from '../generated/prisma/client';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { PaginationDto, PaginatedResult } from '../common/dto/pagination.dto';
 import { CreateProductPriceDto } from './dto/create-product-price.dto';
 import { Decimal } from '@prisma/client/runtime/library';
 
@@ -109,25 +110,32 @@ export class ProductService {
     }
   }
 
-  async findAll(params: {
-    skip?: number;
-    take?: number;
-    cursor?: Prisma.productWhereUniqueInput;
-    where?: Prisma.productWhereInput;
-    orderBy?: Prisma.productOrderByWithRelationInput;
-  } = {}): Promise<product[]> {
-    const { skip, take, cursor, where, orderBy } = params;
-    return this.prisma.product.findMany({
-      skip, take, cursor, where, orderBy,
-      include: {
-        category: true,
-        product_price: { 
-          where: { is_active: true }, // Chỉ lấy giá active
-          include: { product_size: true }, 
-          orderBy: { product_size: { name: 'asc'} } // Sắp xếp giá theo tên size
-        },
+  async findAll(paginationDto: PaginationDto): Promise<PaginatedResult<product>> {
+    const { page = 1, limit = 10 } = paginationDto;
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+      this.prisma.product.findMany({
+        skip,
+        take: limit,
+        orderBy: { product_id: 'desc' },
+      }),
+      this.prisma.product.count(),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
       },
-    });
+    };
   }
 
   async findOne(product_id: number): Promise<product | null> {

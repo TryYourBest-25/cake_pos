@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useUIStore } from "@/stores/ui";
 import { 
   LayoutDashboard, 
   Users, 
@@ -115,6 +116,7 @@ interface SidebarProps {
 
 export function Sidebar({ className }: SidebarProps) {
   const pathname = usePathname();
+  const { sidebarCollapsed } = useUIStore();
   const [openItems, setOpenItems] = React.useState<string[]>([]);
 
   const toggleItem = (title: string) => {
@@ -172,9 +174,18 @@ export function Sidebar({ className }: SidebarProps) {
   };
 
   return (
-    <div className={cn("w-64 border-r bg-card", className)}>
+    <div className={cn(
+      "border-r bg-card transition-all duration-300",
+      sidebarCollapsed ? "w-16" : "w-64",
+      className
+    )}>
       <div className="p-6">
-        <h2 className="text-lg font-semibold">Quản Lý Cửa Hàng</h2>
+        <h2 className={cn(
+          "text-lg font-semibold transition-opacity duration-300",
+          sidebarCollapsed ? "opacity-0" : "opacity-100"
+        )}>
+          {!sidebarCollapsed && "Quản Lý Cửa Hàng"}
+        </h2>
       </div>
       <ScrollArea className="h-[calc(100vh-80px)]">
         <div className="space-y-1 p-2">

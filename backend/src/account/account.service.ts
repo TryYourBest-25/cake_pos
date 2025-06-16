@@ -4,6 +4,7 @@ import { account, Prisma } from '../generated/prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'; // Import specific error type
 import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
+import { PaginationDto, PaginatedResult } from '../common/dto/pagination.dto';
 import * as bcrypt from 'bcrypt';
 
 type AccountResponse = Omit<account, 'password_hash'> & {
@@ -49,20 +50,42 @@ export class AccountService {
     }
   }
 
-  async findAll(): Promise<AccountResponse[]> {
-    return this.prisma.account.findMany({
-      select: {
-        account_id: true,
-        username: true,
-        role_id: true,
-        is_active: true,
-        is_locked: true,
-        last_login: true,
-        created_at: true,
-        updated_at: true,
-        role: true,
-      }
-    });
+  async findAll(paginationDto: PaginationDto): Promise<PaginatedResult<AccountResponse>> {
+    const { page = 1, limit = 10 } = paginationDto;
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+      this.prisma.account.findMany({
+        skip,
+        take: limit,
+        select: {
+          account_id: true,
+          username: true,
+          role_id: true,
+          is_active: true,
+          is_locked: true,
+          last_login: true,
+          created_at: true,
+          updated_at: true,
+        },
+        orderBy: { account_id: 'desc' },
+      }),
+      this.prisma.account.count(),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    };
   }
 
   async findOne(id: number): Promise<AccountResponse | null> {

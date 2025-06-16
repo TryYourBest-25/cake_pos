@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { discount, Prisma, coupon as CouponModel } from '../generated/prisma/client';
 import { CreateDiscountDto } from './dto/create-discount.dto';
 import { UpdateDiscountDto } from './dto/update-discount.dto';
+import { PaginationDto, PaginatedResult } from '../common/dto/pagination.dto';
 import { Decimal } from '@prisma/client/runtime/library';
 
 @Injectable()
@@ -60,17 +61,32 @@ export class DiscountService {
     }
   }
 
-  async findAll(params: { 
-    skip?: number;
-    take?: number;
-    cursor?: Prisma.discountWhereUniqueInput;
-    where?: Prisma.discountWhereInput;
-    orderBy?: Prisma.discountOrderByWithRelationInput;
-    include?: Prisma.discountInclude 
-  } = {}): Promise<discount[]> {
-    const { skip, take, cursor, where, orderBy } = params;
-    const include = params.include || { coupon: true };
-    return this.prisma.discount.findMany({ skip, take, cursor, where, orderBy, include });
+  async findAll(paginationDto: PaginationDto): Promise<PaginatedResult<discount>> {
+    const { page = 1, limit = 10 } = paginationDto;
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+      this.prisma.discount.findMany({
+        skip,
+        take: limit,
+        orderBy: { discount_id: 'desc' },
+      }),
+      this.prisma.discount.count(),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    };
   }
 
   async findOne(discount_id: number, include?: Prisma.discountInclude): Promise<discount | null> {

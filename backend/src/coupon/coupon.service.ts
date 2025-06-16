@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { coupon, Prisma } from '../generated/prisma/client'; // Adjusted import path based on user feedback
 import { CreateCouponDto } from './dto/create-coupon.dto';
 import { UpdateCouponDto } from './dto/update-coupon.dto';
+import { PaginationDto, PaginatedResult } from '../common/dto/pagination.dto';
 
 @Injectable()
 export class CouponService {
@@ -23,8 +24,32 @@ export class CouponService {
     }
   }
 
-  async findAll(): Promise<coupon[]> {
-    return this.prisma.coupon.findMany();
+  async findAll(paginationDto: PaginationDto): Promise<PaginatedResult<coupon>> {
+    const { page = 1, limit = 10 } = paginationDto;
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+      this.prisma.coupon.findMany({
+        skip,
+        take: limit,
+        orderBy: { coupon_id: 'desc' },
+      }),
+      this.prisma.coupon.count(),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    };
   }
 
   async findOne(id: number): Promise<coupon | null> {

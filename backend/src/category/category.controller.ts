@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, HttpCode, HttpStatus, UseGuards, Query } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { PaginationDto, PaginatedResult } from '../common/dto/pagination.dto';
 import { category } from '../generated/prisma/client'; // Đã import
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -33,11 +34,11 @@ export class CategoryController {
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(ROLES.MANAGER, ROLES.STAFF, ROLES.CUSTOMER)
-  @ApiOperation({ summary: 'Get all categories - Tất cả role' })
-  @ApiResponse({ status: 200, description: 'List of categories', type: [CreateCategoryDto] })
+  @ApiOperation({ summary: 'Get all categories with pagination - Tất cả role' })
+  @ApiResponse({ status: 200, description: 'Paginated list of categories' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async findAll(): Promise<category[]> {
-    return this.categoryService.findAll();
+  async findAll(@Query() paginationDto: PaginationDto): Promise<PaginatedResult<category>> {
+    return this.categoryService.findAll(paginationDto);
   }
 
   @Get(':id')

@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { Prisma, order, order_status_enum, product_price, discount as DiscountModel } from '../generated/prisma/client';
 import { CreateOrderDto, OrderStatusEnum as OrderStatusDtoEnum } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
+import { PaginationDto, PaginatedResult } from '../common/dto/pagination.dto';
 import { Decimal } from '@prisma/client/runtime/library';
 
 @Injectable()
@@ -131,29 +132,52 @@ export class OrderService {
   // ==================================
   // FIND ORDERS
   // ==================================
-  async findAll(params: {
-    skip?: number;
-    take?: number;
-    cursor?: Prisma.orderWhereUniqueInput;
-    where?: Prisma.orderWhereInput;
-    orderBy?: Prisma.orderOrderByWithRelationInput;
-    include?: Prisma.orderInclude; 
-  }): Promise<order[]> {
-    const { skip, take, cursor, where, orderBy, include } = params;
-    return this.prisma.order.findMany({
-      skip,
-      take,
-      cursor,
-      where,
-      orderBy,
-      include: include || { 
-        customer: true, 
-        employee: true, 
-        order_product: { include: { product_price: {include: {product_size: true, product:true}} } }, 
-        order_discount: { include: { discount: true } },
-        payment: true 
+  async findAll(
+    paginationDto: PaginationDto,
+    filters?: {
+      customerId?: number;
+      employeeId?: number;
+      status?: OrderStatusDtoEnum;
+    }
+  ): Promise<PaginatedResult<order>> {
+    const { page = 1, limit = 10 } = paginationDto;
+    const skip = (page - 1) * limit;
+
+    const where: Prisma.orderWhereInput = {};
+    if (filters?.customerId) where.customer_id = filters.customerId;
+    if (filters?.employeeId) where.employee_id = filters.employeeId;
+    if (filters?.status) where.status = filters.status as order_status_enum;
+
+    const [data, total] = await Promise.all([
+      this.prisma.order.findMany({
+        skip,
+        take: limit,
+        where,
+        orderBy: { order_id: 'desc' },
+        include: { 
+          customer: true, 
+          employee: true, 
+          order_product: { include: { product_price: {include: {product_size: true, product:true}} } }, 
+          order_discount: { include: { discount: true } },
+          payment: true 
+        },
+      }),
+      this.prisma.order.count({ where }),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
       },
-    });
+    };
   }
 
   async findOne(id: number, include?: Prisma.orderInclude): Promise<order> {

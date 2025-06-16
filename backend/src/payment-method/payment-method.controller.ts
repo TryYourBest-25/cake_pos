@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, HttpCode, HttpStatus, UseGuards, Query } from '@nestjs/common';
 import { PaymentMethodService } from './payment-method.service';
 import { CreatePaymentMethodDto } from './dto/create-payment-method.dto';
 import { UpdatePaymentMethodDto } from './dto/update-payment-method.dto';
+import { PaginationDto, PaginatedResult } from '../common/dto/pagination.dto';
 import { payment_method } from '../generated/prisma/client';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -33,11 +34,11 @@ export class PaymentMethodController {
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(ROLES.MANAGER, ROLES.STAFF, ROLES.CUSTOMER)
-  @ApiOperation({ summary: 'Get all payment methods - Tất cả role' })
-  @ApiResponse({ status: 200, description: 'List of payment methods' })
+  @ApiOperation({ summary: 'Get all payment methods with pagination - Tất cả role' })
+  @ApiResponse({ status: 200, description: 'Paginated list of payment methods' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async findAll(): Promise<payment_method[]> {
-    return this.paymentMethodService.findAll();
+  async findAll(@Query() paginationDto: PaginationDto): Promise<PaginatedResult<payment_method>> {
+    return this.paymentMethodService.findAll(paginationDto);
   }
 
   @Get(':id')

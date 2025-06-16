@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, HttpCo
 import { MembershipTypeService } from './membership-type.service';
 import { CreateMembershipTypeDto } from './dto/create-membership-type.dto';
 import { UpdateMembershipTypeDto } from './dto/update-membership-type.dto';
+import { PaginationDto, PaginatedResult } from '../common/dto/pagination.dto';
 import { membership_type } from '../generated/prisma/client';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -33,12 +34,17 @@ export class MembershipTypeController {
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(ROLES.MANAGER, ROLES.STAFF, ROLES.CUSTOMER)
-  @ApiOperation({ summary: 'Get all membership types - Tất cả role' })
+  @ApiOperation({ summary: 'Get all membership types with pagination - Tất cả role' })
+  @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number' })
+  @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Items per page' })
   @ApiQuery({ name: 'includeCustomers', required: false, type: Boolean, description: 'Set to true to include customer details' })
-  @ApiResponse({ status: 200, description: 'List of membership types' })
+  @ApiResponse({ status: 200, description: 'Paginated list of membership types' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async findAll(@Query('includeCustomers') includeCustomers?: string): Promise<membership_type[]> {
-    return this.membershipTypeService.findAll(includeCustomers === 'true');
+  async findAll(
+    @Query() paginationDto: PaginationDto,
+    @Query('includeCustomers') includeCustomers?: string
+  ): Promise<PaginatedResult<membership_type>> {
+    return this.membershipTypeService.findAll(paginationDto, includeCustomers === 'true');
   }
 
   @Get(':id')

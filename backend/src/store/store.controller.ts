@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, HttpCode, HttpStatus, UseGuards, Query } from '@nestjs/common';
 import { StoreService } from './store.service';
 import { CreateStoreDto } from './dto/create-store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
+import { PaginationDto, PaginatedResult } from '../common/dto/pagination.dto';
 import { store } from '../generated/prisma/client';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -33,12 +34,12 @@ export class StoreController {
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(ROLES.MANAGER, ROLES.STAFF)
-  @ApiOperation({ summary: 'Get all stores - MANAGER và STAFF' })
-  @ApiResponse({ status: 200, description: 'List of all stores' })
+  @ApiOperation({ summary: 'Get all stores with pagination - MANAGER và STAFF' })
+  @ApiResponse({ status: 200, description: 'Paginated list of stores' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
-  async findAll(): Promise<store[]> {
-    return this.storeService.findAll();
+  async findAll(@Query() paginationDto: PaginationDto): Promise<PaginatedResult<store>> {
+    return this.storeService.findAll(paginationDto);
   }
 
   @Get(':id')

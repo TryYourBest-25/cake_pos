@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, HttpCode, HttpStatus, UseGuards, Query } from '@nestjs/common';
 import { AccountService } from './account.service';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
+import { PaginationDto, PaginatedResult } from '../common/dto/pagination.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -35,12 +36,12 @@ export class AccountController {
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(ROLES.MANAGER)
-  @ApiOperation({ summary: 'Get all accounts - Chỉ MANAGER' })
-  @ApiResponse({ status: 200, description: 'List of accounts' })
+  @ApiOperation({ summary: 'Get all accounts with pagination - Chỉ MANAGER' })
+  @ApiResponse({ status: 200, description: 'Paginated list of accounts' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
-  async findAll(): Promise<any[]> {
-    return this.accountService.findAll();
+  async findAll(@Query() paginationDto: PaginationDto): Promise<PaginatedResult<any>> {
+    return this.accountService.findAll(paginationDto);
   }
 
   @Get(':id')

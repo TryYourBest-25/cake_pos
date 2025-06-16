@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { store, Prisma } from '../generated/prisma/client';
 import { CreateStoreDto } from './dto/create-store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
+import { PaginationDto, PaginatedResult } from '../common/dto/pagination.dto';
 
 @Injectable()
 export class StoreService {
@@ -48,8 +49,32 @@ export class StoreService {
     }
   }
 
-  async findAll(): Promise<store[]> {
-    return this.prisma.store.findMany();
+  async findAll(paginationDto: PaginationDto): Promise<PaginatedResult<store>> {
+    const { page = 1, limit = 10 } = paginationDto;
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+      this.prisma.store.findMany({
+        skip,
+        take: limit,
+        orderBy: { store_id: 'desc' },
+      }),
+      this.prisma.store.count(),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    };
   }
 
   async findOne(id: number): Promise<store | null> {

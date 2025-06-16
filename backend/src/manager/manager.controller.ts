@@ -1,7 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, HttpCode, HttpStatus, UseGuards, Query } from '@nestjs/common';
 import { ManagerService } from './manager.service';
 import { CreateManagerDto } from './dto/create-manager.dto';
 import { UpdateManagerDto } from './dto/update-manager.dto';
+import { BulkDeleteManagerDto } from './dto/bulk-delete-manager.dto';
+import { PaginationDto, PaginatedResult } from '../common/dto/pagination.dto';
 import { manager } from '../generated/prisma/client';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -33,12 +35,12 @@ export class ManagerController {
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(ROLES.MANAGER)
-  @ApiOperation({ summary: 'Get all managers - Chỉ MANAGER' })
-  @ApiResponse({ status: 200, description: 'List of managers' })
+  @ApiOperation({ summary: 'Get all managers with pagination - Chỉ MANAGER' })
+  @ApiResponse({ status: 200, description: 'Paginated list of managers' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
-  async findAll(): Promise<manager[]> {
-    return this.managerService.findAll();
+  async findAll(@Query() paginationDto: PaginationDto): Promise<PaginatedResult<manager>> {
+    return this.managerService.findAll(paginationDto);
   }
 
   @Get(':id')
@@ -98,6 +100,24 @@ export class ManagerController {
   @ApiResponse({ status: 404, description: 'Manager not found' })
   async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     await this.managerService.remove(id);
+  }
+
+  @Delete('bulk')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ROLES.MANAGER)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Bulk delete managers - Chỉ MANAGER' })
+  @ApiBody({ type: BulkDeleteManagerDto })
+  @ApiResponse({ status: 200, description: 'Bulk delete completed with results' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  async bulkDelete(@Body() bulkDeleteDto: BulkDeleteManagerDto): Promise<{
+    deleted: number[];
+    failed: { id: number; reason: string }[];
+    summary: { total: number; success: number; failed: number };
+  }> {
+    return this.managerService.bulkDelete(bulkDeleteDto);
   }
 
   @Get('test/ping')

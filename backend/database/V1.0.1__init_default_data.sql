@@ -181,25 +181,25 @@ CREATE TRIGGER before_store_update_trigger
 -- Dữ liệu cho tài khoản và người dùng
 -- ================================================================================================================
 
--- Tạo tài khoản cho Manager (3 người)
+-- Tạo tài khoản cho Manager (3 người) - Mật khẩu: "123456"
 INSERT INTO account (role_id, username, password_hash, is_active, is_locked) VALUES
-((SELECT role_id FROM role WHERE name = 'MANAGER'), 'manager1', '$2b$10$K8QjZ2l9fH3XyNpQwRvLZeJ4vK6mN8pL1qS3tU7wV9xY0zA2bC4dE', true, false),
-((SELECT role_id FROM role WHERE name = 'MANAGER'), 'manager2', '$2b$10$M9RkZ3n0gI4XzOqRxSvMYfK5wL7oO9qM2rT4uV8wX0yZ1aB3cD5eF', true, false),
-((SELECT role_id FROM role WHERE name = 'MANAGER'), 'manager3', '$2b$10$P0SmA4o1hJ5Y0PsS0TvNZgL6xM8pP0rN3sU5vW9xY1zA2bC4dE6fG', true, false);
+((SELECT role_id FROM role WHERE name = 'MANAGER'), 'manager1', '$2a$10$9osuezRS/O.jawrXQ1ecr.Jht2AN0XXkff/4wMlPPbHsgUPzYKTdG', true, false),
+((SELECT role_id FROM role WHERE name = 'MANAGER'), 'manager2', '$2a$10$9osuezRS/O.jawrXQ1ecr.Jht2AN0XXkff/4wMlPPbHsgUPzYKTdG', true, false),
+((SELECT role_id FROM role WHERE name = 'MANAGER'), 'manager3', '$2a$10$9osuezRS/O.jawrXQ1ecr.Jht2AN0XXkff/4wMlPPbHsgUPzYKTdG', true, false);
 
--- Tạo tài khoản cho Staff (3 người)
+-- Tạo tài khoản cho Staff (3 người) - Mật khẩu: "123456"
 INSERT INTO account (role_id, username, password_hash, is_active, is_locked) VALUES
-((SELECT role_id FROM role WHERE name = 'STAFF'), 'staff1', '$2b$10$Q1ToB5p2iK6Z1QtT1UvOahM7yN9qQ1sO4tV6wX0yZ2aB3cD5eF7gH', true, false),
-((SELECT role_id FROM role WHERE name = 'STAFF'), 'staff2', '$2b$10$R2UpC6q3jL7a2RuU2VvPbiN8zO0rR2tP5uW7xY1zA3bC4dE6fG8hI', true, false),
-((SELECT role_id FROM role WHERE name = 'STAFF'), 'staff3', '$2b$10$S3VqD7r4kM8b3SvV3WvQcjO9aP1sS3uQ6vX8yZ2aB4cD5eF7gH9iJ', true, false);
+((SELECT role_id FROM role WHERE name = 'STAFF'), 'staff1', '$2a$10$9osuezRS/O.jawrXQ1ecr.Jht2AN0XXkff/4wMlPPbHsgUPzYKTdG', true, false),
+((SELECT role_id FROM role WHERE name = 'STAFF'), 'staff2', '$2a$10$9osuezRS/O.jawrXQ1ecr.Jht2AN0XXkff/4wMlPPbHsgUPzYKTdG', true, false),
+((SELECT role_id FROM role WHERE name = 'STAFF'), 'staff3', '$2a$10$9osuezRS/O.jawrXQ1ecr.Jht2AN0XXkff/4wMlPPbHsgUPzYKTdG', true, false);
 
--- Tạo tài khoản cho Customer (5 người)
+-- Tạo tài khoản cho Customer (5 người) - Mật khẩu: "123456"
 INSERT INTO account (role_id, username, password_hash, is_active, is_locked) VALUES
-((SELECT role_id FROM role WHERE name = 'CUSTOMER'), 'customer1', '$2b$10$T4WrE8s5lN9c4TwW4XvRdkP0bQ2tT4vR7wY9zA3bC5dE6fG8hI0jK', true, false),
-((SELECT role_id FROM role WHERE name = 'CUSTOMER'), 'customer2', '$2b$10$U5XsF9t6mO0d5UxX5YvSemQ1cR3uU5wS8xZ0aB4cD6eF7gH9iJ1kL', true, false),
-((SELECT role_id FROM role WHERE name = 'CUSTOMER'), 'customer3', '$2b$10$V6YtG0u7nP1e6VyY6ZvTfnR2dS4vV6xT9yA1bC5dE7fG8hI0jK2mM', true, false),
-((SELECT role_id FROM role WHERE name = 'CUSTOMER'), 'customer4', '$2b$10$W7ZuH1v8oQ2f7WzZ7AvUgoS3eT5wW7yU0zA2bC6dE8fG9hI1jK3nN', true, false),
-((SELECT role_id FROM role WHERE name = 'CUSTOMER'), 'customer5', '$2b$10$X8AvI2w9pR3g8XaA8BvVhpT4fU6xX8zV1aB3cD7eF9gH0iJ2kL4oO', true, false);
+((SELECT role_id FROM role WHERE name = 'CUSTOMER'), 'customer1', '$2a$10$9osuezRS/O.jawrXQ1ecr.Jht2AN0XXkff/4wMlPPbHsgUPzYKTdG', true, false),
+((SELECT role_id FROM role WHERE name = 'CUSTOMER'), 'customer2', '$2a$10$9osuezRS/O.jawrXQ1ecr.Jht2AN0XXkff/4wMlPPbHsgUPzYKTdG', true, false),
+((SELECT role_id FROM role WHERE name = 'CUSTOMER'), 'customer3', '$2a$10$9osuezRS/O.jawrXQ1ecr.Jht2AN0XXkff/4wMlPPbHsgUPzYKTdG', true, false),
+((SELECT role_id FROM role WHERE name = 'CUSTOMER'), 'customer4', '$2a$10$9osuezRS/O.jawrXQ1ecr.Jht2AN0XXkff/4wMlPPbHsgUPzYKTdG', true, false),
+((SELECT role_id FROM role WHERE name = 'CUSTOMER'), 'customer5', '$2a$10$9osuezRS/O.jawrXQ1ecr.Jht2AN0XXkff/4wMlPPbHsgUPzYKTdG', true, false);
 
 -- Tạo thông tin Manager
 INSERT INTO manager (account_id, last_name, first_name, gender, phone, email) VALUES

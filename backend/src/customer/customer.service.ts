@@ -4,6 +4,8 @@ import { AccountService } from '../account/account.service';
 import { customer, Prisma, gender_enum } from '../generated/prisma/client';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
+import { BulkDeleteCustomerDto } from './dto/bulk-delete-customer.dto';
+import { PaginationDto, PaginatedResult } from '../common/dto/pagination.dto';
 import { ROLES } from '../auth/constants/roles.constant';
 
 @Injectable()
@@ -96,8 +98,32 @@ export class CustomerService {
     return customerRole.role_id;
   }
 
-  async findAll(): Promise<customer[]> {
-    return this.prisma.customer.findMany({ include: { account: true, membership_type: true } });
+  async findAll(paginationDto: PaginationDto): Promise<PaginatedResult<customer>> {
+    const { page = 1, limit = 10 } = paginationDto;
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+      this.prisma.customer.findMany({
+        skip,
+        take: limit,
+        orderBy: { customer_id: 'desc' },
+      }),
+      this.prisma.customer.count(),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    };
   }
 
   async findOne(id: number): Promise<customer | null> {
@@ -203,4 +229,39 @@ export class CustomerService {
       throw error;
     }
   }
-} 
+
+  /**
+   * Xóa nhiều customer theo danh sách ID
+   */
+  async bulkDelete(bulkDeleteDto: BulkDeleteCustomerDto): Promise<{
+    deleted: number[];
+    failed: { id: number; reason: string }[];
+    summary: { total: number; success: number; failed: number };
+  }> {
+    const { ids } = bulkDeleteDto;
+    const deleted: number[] = [];
+    const failed: { id: number; reason: string }[] = [];
+
+    for (const id of ids) {
+      try {
+        await this.remove(id);
+        deleted.push(id);
+      } catch (error) {
+        failed.push({
+          id,
+          reason: error.message || 'Lỗi không xác định',
+        });
+      }
+    }
+
+    return {
+      deleted,
+      failed,
+      summary: {
+        total: ids.length,
+        success: deleted.length,
+        failed: failed.length,
+      },
+    };
+  }
+}
