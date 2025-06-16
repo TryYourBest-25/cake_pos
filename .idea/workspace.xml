@@ -6,52 +6,13 @@
   <component name="ChangeListManager">
     <list default="true" id="ef5dec76-6049-4938-8b0f-72cdaa7b5451" name="Changes" comment="Add .gitignore and package-lock.json for frontend&#10;&#10;Introduced a .gitignore file to exclude unnecessary files such as node_modules, build artifacts, and environment files. Added a package-lock.json file to lock dependencies for consistent builds. These changes set up the basic project structure for the frontend.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/database/V1.0.1__init_default_data.sql" beforeDir="false" afterPath="$PROJECT_DIR$/backend/database/V1.0.1__init_default_data.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/database/V1.0.2__trigger.sql" beforeDir="false" afterPath="$PROJECT_DIR$/backend/database/V1.0.2__trigger.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/nest-cli.json" beforeDir="false" afterPath="$PROJECT_DIR$/backend/nest-cli.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/account/account.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/account/account.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/account/account.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/account/account.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/category/category.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/category/category.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/category/category.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/category/category.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/coupon/coupon.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/coupon/coupon.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/coupon/coupon.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/coupon/coupon.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/customer/customer.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/customer/customer.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/customer/customer.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/customer/customer.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/discount/discount.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/discount/discount.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/discount/discount.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/discount/discount.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/employee/employee.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/employee/employee.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/employee/employee.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/employee/employee.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/manager/manager.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/manager/manager.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/manager/manager.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/manager/manager.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/membership-type/membership-type.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/membership-type/membership-type.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/membership-type/membership-type.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/membership-type/membership-type.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/order/order.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/order/order.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/order/order.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/order/order.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/payment-method/payment-method.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/payment-method/payment-method.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/payment-method/payment-method.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/payment-method/payment-method.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/payment/payment.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/payment/payment.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/payment/payment.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/payment/payment.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/product/product.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/product/product.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/product/product.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/product/product.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/role/role.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/role/role.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/role/role.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/role/role.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/store/store.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/store/store.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/store/store.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/store/store.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/.cursor/rules/next-js.mdc" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/.cursor/rules/next-js.mdc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/.cursor/rules/performance-optimization.mdc" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/.cursor/rules/performance-optimization.mdc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/pnpm-lock.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/src/app/(dashboard)/dashboard/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/src/app/(dashboard)/layout.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/src/app/(dashboard)/users/customers/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/src/app/(dashboard)/users/employees/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/src/app/(dashboard)/users/managers/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/src/app/(dashboard)/users/page.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/src/app/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/app/layout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/src/components/layout/header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/components/layout/header.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/src/components/layout/sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/components/layout/sidebar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/customer/dto/create-customer.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/customer/dto/create-customer.dto.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/src/app/users/customers/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/app/users/customers/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/src/components/forms/create-customer-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/components/forms/create-customer-dialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/src/lib/services/customer-service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/lib/services/customer-service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/src/lib/validations/customer.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/lib/validations/customer.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/src/lib/validations/membership-type.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/lib/validations/membership-type.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -186,7 +147,7 @@
       <workItem from="1747537900274" duration="6000" />
       <workItem from="1749738446092" duration="17000" />
       <workItem from="1749964105174" duration="11629000" />
-      <workItem from="1750034948886" duration="604000" />
+      <workItem from="1750034948886" duration="8174000" />
     </task>
     <task id="LOCAL-00001" summary="Remove all project files and configurations&#10;&#10;This commit deletes all source code, dependencies, configurations, and project assets. It effectively cleans up the repository, leaving no traces of the previous Next.js project or related files.">
       <option name="closed" value="true" />

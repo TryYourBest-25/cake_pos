@@ -1,10 +1,8 @@
 import { z } from "zod";
 
 // Schema cho việc tạo khách hàng mới - dựa trên CreateCustomerDto của backend
+// Backend sẽ tự động gán membership type và points
 export const createCustomerSchema = z.object({
-  membershipTypeId: z.number()
-    .min(1, "Vui lòng chọn loại thành viên"),
-    
   lastName: z.string()
     .max(70, "Họ không được quá 70 ký tự")
     .optional(),
@@ -18,18 +16,16 @@ export const createCustomerSchema = z.object({
     .max(15, "Số điện thoại không được quá 15 ký tự")
     .regex(/^(\+84|0)[0-9]{9,10}$/, "Số điện thoại không đúng định dạng"),
     
-  currentPoints: z.number()
-    .int("Điểm hiện tại phải là số nguyên")
-    .min(0, "Điểm hiện tại không được âm")
-    .optional(),
-    
   gender: z.enum(["MALE", "FEMALE", "OTHER"])
     .optional(),
     
   username: z.string()
-    .min(3, "Tên đăng nhập phải có ít nhất 3 ký tự")
-    .max(50, "Tên đăng nhập không được quá 50 ký tự")
-    .regex(/^[a-zA-Z0-9_]+$/, "Tên đăng nhập chỉ được chứa chữ cái, số và dấu gạch dưới")
+    .refine((val) => val === "" || (val.length >= 3 && val.length <= 50), {
+      message: "Tên đăng nhập phải có ít nhất 3 ký tự hoặc để trống"
+    })
+    .refine((val) => val === "" || /^[a-zA-Z0-9_]+$/.test(val), {
+      message: "Tên đăng nhập chỉ được chứa chữ cái, số và dấu gạch dưới"
+    })
     .optional(),
 });
 
@@ -62,9 +58,12 @@ export const updateCustomerSchema = z.object({
     .optional(),
     
   username: z.string()
-    .min(3, "Tên đăng nhập phải có ít nhất 3 ký tự")
-    .max(50, "Tên đăng nhập không được quá 50 ký tự")
-    .regex(/^[a-zA-Z0-9_]+$/, "Tên đăng nhập chỉ được chứa chữ cái, số và dấu gạch dưới")
+    .refine((val) => val === "" || (val.length >= 3 && val.length <= 50), {
+      message: "Tên đăng nhập phải có ít nhất 3 ký tự hoặc để trống"
+    })
+    .refine((val) => val === "" || /^[a-zA-Z0-9_]+$/.test(val), {
+      message: "Tên đăng nhập chỉ được chứa chữ cái, số và dấu gạch dưới"
+    })
     .optional(),
 });
 
@@ -82,13 +81,11 @@ export type BulkDeleteCustomerFormData = z.infer<typeof bulkDeleteCustomerSchema
 // Transform functions để chuyển đổi dữ liệu giữa frontend và backend
 export function transformCreateCustomerFormData(formData: CreateCustomerFormData) {
   return {
-    membership_type_id: formData.membershipTypeId,
     last_name: formData.lastName,
     first_name: formData.firstName,
     phone: formData.phone,
-    current_points: formData.currentPoints,
     gender: formData.gender,
-    username: formData.username,
+    username: formData.username && formData.username.trim() !== "" ? formData.username : null,
   };
 }
 
@@ -101,7 +98,9 @@ export function transformUpdateCustomerFormData(formData: UpdateCustomerFormData
   if (formData.phone !== undefined) result.phone = formData.phone;
   if (formData.currentPoints !== undefined) result.current_points = formData.currentPoints;
   if (formData.gender !== undefined) result.gender = formData.gender;
-  if (formData.username !== undefined) result.username = formData.username;
+  if (formData.username !== undefined) {
+    result.username = formData.username && formData.username.trim() !== "" ? formData.username : null;
+  }
   
   return result;
 } 

@@ -28,7 +28,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { createCustomerSchema, CreateCustomerFormData } from "@/lib/validations/customer";
 import { useCustomerStore } from "@/stores/customers";
-import { useMembershipTypeStore } from "@/stores/membership-types";
 import { toast } from "sonner";
 
 interface CreateCustomerDialogProps {
@@ -38,27 +37,17 @@ interface CreateCustomerDialogProps {
 export function CreateCustomerDialog({ children }: CreateCustomerDialogProps) {
   const [open, setOpen] = useState(false);
   const { createCustomer, isCreating } = useCustomerStore();
-  const { membershipTypes, fetchMembershipTypes } = useMembershipTypeStore();
 
   const form = useForm<CreateCustomerFormData>({
     resolver: zodResolver(createCustomerSchema),
     defaultValues: {
-      membershipTypeId: undefined,
       lastName: "",
       firstName: "",
       phone: "",
-      currentPoints: 0,
-      gender: undefined,
+      gender: "MALE",
       username: "",
     },
   });
-
-  // Load membership types khi dialog mở
-  useEffect(() => {
-    if (open && membershipTypes.length === 0) {
-      fetchMembershipTypes();
-    }
-  }, [open, membershipTypes.length, fetchMembershipTypes]);
 
   async function onSubmit(data: CreateCustomerFormData) {
     try {
@@ -93,41 +82,12 @@ export function CreateCustomerDialog({ children }: CreateCustomerDialogProps) {
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            {/* Membership Type - Required */}
-            <FormField
-              control={form.control}
-              name="membershipTypeId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    Loại thành viên <span className="text-red-500">*</span>
-                  </FormLabel>
-                  <Select 
-                    onValueChange={(value) => field.onChange(parseInt(value))} 
-                    value={field.value?.toString()}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Chọn loại thành viên" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {membershipTypes.map((type) => (
-                        <SelectItem key={type.id} value={type.id.toString()}>
-                          <div className="flex items-center gap-2">
-                            <span>{type.type}</span>
-                            <Badge variant="secondary" className="text-xs">
-                              {type.discountValue}% off
-                            </Badge>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {/* Thông báo tự động gán membership */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <p className="text-sm text-blue-800">
+                <strong>Lưu ý:</strong> Hệ thống sẽ tự động gán loại thành viên có điểm yêu cầu thấp nhất và đặt điểm tích lũy tương ứng cho khách hàng mới.
+              </p>
+            </div>
 
             {/* Phone - Required */}
             <FormField
@@ -180,51 +140,29 @@ export function CreateCustomerDialog({ children }: CreateCustomerDialogProps) {
               />
             </div>
 
-            {/* Gender và Points */}
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="gender"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Giới tính</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Chọn giới tính" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="MALE">Nam</SelectItem>
-                        <SelectItem value="FEMALE">Nữ</SelectItem>
-                        <SelectItem value="OTHER">Khác</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="currentPoints"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Điểm tích lũy ban đầu</FormLabel>
+            {/* Gender */}
+            <FormField
+              control={form.control}
+              name="gender"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Giới tính</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value || ""}>
                     <FormControl>
-                      <Input 
-                        type="number" 
-                        placeholder="0" 
-                        min="0"
-                        {...field}
-                        onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                      />
+                      <SelectTrigger>
+                        <SelectValue placeholder="Chọn giới tính" />
+                      </SelectTrigger>
                     </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+                    <SelectContent>
+                      <SelectItem value="MALE">Nam</SelectItem>
+                      <SelectItem value="FEMALE">Nữ</SelectItem>
+                      <SelectItem value="OTHER">Khác</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             {/* Username - Optional */}
             <FormField

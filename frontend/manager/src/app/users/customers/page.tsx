@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, MoreHorizontal, Edit, Trash2, Eye, ArrowUpDown, Phone, CreditCard, Calendar, Users, Crown } from "lucide-react";
+import { Plus, MoreHorizontal, Edit, Trash2, Eye, ArrowUpDown, Phone, CreditCard, Calendar, Users, Crown, Trash } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
 
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,18 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DataTable } from "@/components/ui/data-table";
@@ -52,7 +64,49 @@ function getGenderLabel(gender?: string): string {
 }
 
 // Customer columns function
-const createCustomerColumns = (router: any): ColumnDef<Customer>[] => [
+const createCustomerColumns = (
+  router: any, 
+  membershipTypes: MembershipType[],
+  selectedIds: Set<number>,
+  onSelectCustomer: (id: number) => void,
+  onDeselectCustomer: (id: number) => void
+): ColumnDef<Customer>[] => [
+  {
+    id: "select",
+    header: ({ table }) => {
+      const allRowsSelected = table.getRowModel().rows.every(row => selectedIds.has(row.original.id));
+      const someRowsSelected = table.getRowModel().rows.some(row => selectedIds.has(row.original.id));
+      
+      return (
+        <Checkbox
+          checked={allRowsSelected}
+          onCheckedChange={(value) => {
+            if (value) {
+              table.getRowModel().rows.forEach(row => onSelectCustomer(row.original.id));
+            } else {
+              table.getRowModel().rows.forEach(row => onDeselectCustomer(row.original.id));
+            }
+          }}
+          aria-label="Chọn tất cả"
+        />
+      );
+    },
+    cell: ({ row }) => (
+      <Checkbox
+        checked={selectedIds.has(row.original.id)}
+        onCheckedChange={(value) => {
+          if (value) {
+            onSelectCustomer(row.original.id);
+          } else {
+            onDeselectCustomer(row.original.id);
+          }
+        }}
+        aria-label="Chọn hàng"
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  },
   {
     accessorKey: "name",
     header: ({ column }) => (
@@ -93,10 +147,12 @@ const createCustomerColumns = (router: any): ColumnDef<Customer>[] => [
     },
   },
   {
-    accessorKey: "membershipType",
+    accessorKey: "membershipTypeId",
     header: "Loại Thành Viên",
     cell: ({ row }) => {
-      const membershipType = row.original.membershipType;
+      const membershipTypeId = row.original.membershipTypeId;
+      const membershipType = membershipTypes.find(mt => mt.id === membershipTypeId);
+      
       if (!membershipType) return <span className="text-muted-foreground">Chưa có</span>;
       
       return (
@@ -176,10 +232,6 @@ const createCustomerColumns = (router: any): ColumnDef<Customer>[] => [
             <DropdownMenuItem onClick={() => router.push(`/users/customers/${customer.id}`)}>
               <Eye className="mr-2 h-4 w-4" />
               Xem Chi Tiết
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => router.push(`/users/customers/${customer.id}`)}>
-              <Edit className="mr-2 h-4 w-4" />
-              Chỉnh Sửa
             </DropdownMenuItem>
             <DropdownMenuItem className="text-destructive">
               <Trash2 className="mr-2 h-4 w-4" />
@@ -315,10 +367,6 @@ const createMembershipTypeColumns = (router: any): ColumnDef<MembershipType>[] =
               <Eye className="mr-2 h-4 w-4" />
               Xem Chi Tiết
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => router.push(`/users/membership-types/${membershipType.id}`)}>
-              <Edit className="mr-2 h-4 w-4" />
-              Chỉnh Sửa
-            </DropdownMenuItem>
             <DropdownMenuItem className="text-destructive">
               <Trash2 className="mr-2 h-4 w-4" />
               Xóa
@@ -333,14 +381,22 @@ const createMembershipTypeColumns = (router: any): ColumnDef<MembershipType>[] =
 export default function CustomersPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("customers");
+  const [showBulkDeleteDialog, setShowBulkDeleteDialog] = useState(false);
   
   const { 
     customers, 
     currentPage: customerPage,
     totalPages: customerTotalPages,
     totalItems: customerTotal,
+    selectedIds,
     fetchCustomers,
-    isLoading: customersLoading 
+    isLoading: customersLoading,
+    isDeleting,
+    selectCustomer,
+    deselectCustomer,
+    selectAllCustomers,
+    deselectAllCustomers,
+    bulkDeleteCustomers
   } = useCustomerStore();
   
   const { 
@@ -360,6 +416,20 @@ export default function CustomersPage() {
       fetchMembershipTypes();
     }
   }, [activeTab, fetchCustomers, fetchMembershipTypes]);
+
+  // Bulk delete handler
+  const handleBulkDelete = async () => {
+    const selectedArray = Array.from(selectedIds);
+    if (selectedArray.length === 0) return;
+
+    try {
+      await bulkDeleteCustomers({ ids: selectedArray });
+      setShowBulkDeleteDialog(false);
+      deselectAllCustomers();
+    } catch (error) {
+      // Error is handled in store
+    }
+  };
 
   return (
     <AuthGuard>
@@ -449,18 +519,49 @@ export default function CustomersPage() {
                   Quản lý thông tin và lịch sử của khách hàng
                 </p>
               </div>
-              <CreateCustomerDialog>
-                <Button>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Thêm Khách Hàng
-                </Button>
-              </CreateCustomerDialog>
+              <div className="flex items-center gap-2">
+                {selectedIds.size > 0 && (
+                  <AlertDialog open={showBulkDeleteDialog} onOpenChange={setShowBulkDeleteDialog}>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive" size="sm">
+                        <Trash className="mr-2 h-4 w-4" />
+                        Xóa ({selectedIds.size})
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Xác nhận xóa khách hàng</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Bạn có chắc chắn muốn xóa {selectedIds.size} khách hàng đã chọn? 
+                          Hành động này không thể hoàn tác.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Hủy</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={handleBulkDelete}
+                          disabled={isDeleting}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                          {isDeleting ? "Đang xóa..." : "Xóa"}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                )}
+                <CreateCustomerDialog>
+                  <Button>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Thêm Khách Hàng
+                  </Button>
+                </CreateCustomerDialog>
+              </div>
             </div>
 
             <Card>
               <CardContent className="p-0">
                                                  <DataTable 
-                  columns={createCustomerColumns(router)} 
+                  columns={createCustomerColumns(router, membershipTypes, selectedIds, selectCustomer, deselectCustomer)} 
                   data={customers}
                   searchKey="name"
                   searchPlaceholder="Tìm kiếm theo tên hoặc số điện thoại..."

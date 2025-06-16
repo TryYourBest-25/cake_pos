@@ -53,8 +53,8 @@ export class CreateCustomerDto {
     minLength: 3,
     type: String,
   })
-  @IsOptional()
   @IsString({ message: 'Tên đăng nhập phải là chuỗi ký tự' })
   @MinLength(3, { message: 'Tên đăng nhập phải có ít nhất 3 ký tự' })
+  @IsOptional()
   username?: string;
 } 

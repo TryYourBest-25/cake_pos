@@ -117,8 +117,7 @@ export class CustomerService {
     failed: { id: number; reason: string }[];
     summary: { total: number; success: number; failed: number };
   }> {
-    const backendData = { ids: formData.ids };
-    return await apiClient.delete(`${this.endpoint}/bulk`, { data: backendData });
+    return await apiClient.delete(`${this.endpoint}/bulk`, { ids: formData.ids });
   }
 
   /**

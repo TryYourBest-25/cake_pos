@@ -58,7 +58,6 @@ export class CreateProductDto {
   @Min(1, { message: 'ID danh mục phải lớn hơn 0' })
   @Type(() => Number)
   category_id?: number;
-  // Hoặc có thể thêm trường để tạo category mới nếu cần, ví dụ: category_name?: string;
 
   @ApiProperty({
     description: 'Danh sách giá cho các kích thước khác nhau của sản phẩm',

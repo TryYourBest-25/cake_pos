@@ -20,8 +20,12 @@ export const createMembershipTypeSchema = z.object({
     .optional(),
     
   validUntil: z.string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Ngày hết hạn phải có định dạng YYYY-MM-DD")
-    .optional(),
+    .optional()
+    .refine((val) => {
+      if (!val) return true;
+      // Accept both YYYY-MM-DD and YYYY-MM-DDTHH:mm formats
+      return /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?$/.test(val);
+    }, "Ngày hết hạn phải có định dạng hợp lệ"),
     
   isActive: z.boolean()
     .optional(),
@@ -50,8 +54,12 @@ export const updateMembershipTypeSchema = z.object({
     .optional(),
     
   validUntil: z.string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Ngày hết hạn phải có định dạng YYYY-MM-DD")
-    .optional(),
+    .optional()
+    .refine((val) => {
+      if (!val) return true;
+      // Accept both YYYY-MM-DD and YYYY-MM-DDTHH:mm formats
+      return /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2})?$/.test(val);
+    }, "Ngày hết hạn phải có định dạng hợp lệ"),
     
   isActive: z.boolean()
     .optional(),
@@ -68,7 +76,8 @@ export function transformCreateMembershipTypeFormData(formData: CreateMembership
     discount_value: formData.discountValue,
     required_point: formData.requiredPoint,
     description: formData.description,
-    valid_until: formData.validUntil,
+    // Chuyển đổi datetime-local (YYYY-MM-DDTHH:mm) thành date (YYYY-MM-DD)
+    valid_until: formData.validUntil ? formData.validUntil.split('T')[0] : undefined,
     is_active: formData.isActive,
   };
 }
@@ -80,7 +89,8 @@ export function transformUpdateMembershipTypeFormData(formData: UpdateMembership
   if (formData.discountValue !== undefined) result.discount_value = formData.discountValue;
   if (formData.requiredPoint !== undefined) result.required_point = formData.requiredPoint;
   if (formData.description !== undefined) result.description = formData.description;
-  if (formData.validUntil !== undefined) result.valid_until = formData.validUntil;
+  // Chuyển đổi datetime-local (YYYY-MM-DDTHH:mm) thành date (YYYY-MM-DD)
+  if (formData.validUntil !== undefined) result.valid_until = formData.validUntil ? formData.validUntil.split('T')[0] : undefined;
   if (formData.isActive !== undefined) result.is_active = formData.isActive;
   
   return result;
