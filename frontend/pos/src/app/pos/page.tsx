@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Search, ShoppingCart, User, Plus, Minus, Crown, Gift, Tag, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,13 +30,16 @@ const categoryIcons: Record<string, string> = {
 };
 
 export default function POSPage() {
+  const router = useRouter();
   const {
     selectedCategoryId,
     cart,
     searchQuery,
     appliedDiscounts,
+    selectedCustomer,
     setSelectedCategoryId,
     setSearchQuery,
+    setSelectedCustomer,
     updateCartItemQuantity,
     removeFromCart,
     removeDiscount,
@@ -48,7 +52,6 @@ export default function POSPage() {
   // Use optimized data hook
   const { categories, products, isLoadingCategories, isLoadingProducts } = usePOSData();
 
-  const [customer, setCustomer] = useState<POSCustomer | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isProductDialogOpen, setIsProductDialogOpen] = useState(false);
   const [isCustomerDialogOpen, setIsCustomerDialogOpen] = useState(false);
@@ -65,7 +68,7 @@ export default function POSPage() {
   };
 
   const handleCustomerSelect = (newCustomer: POSCustomer) => {
-    setCustomer(newCustomer);
+    setSelectedCustomer(newCustomer);
   };
 
   const openCustomerDialog = () => {
@@ -86,9 +89,7 @@ export default function POSPage() {
 
   const subtotal = getCartTotal();
   const discountAmount = getTotalDiscount();
-  const afterDiscount = subtotal - discountAmount;
-  const tax = afterDiscount * 0.1;
-  const total = afterDiscount + tax;
+  const total = subtotal - discountAmount;
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', {
@@ -275,25 +276,25 @@ export default function POSPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
-              {customer ? (
+              {selectedCustomer ? (
                 <div className="space-y-3">
                   <div className="flex items-center space-x-3">
                     <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
                       <span className="text-blue-600 font-semibold text-xs">
-                        {getInitials(customer.name)}
+                        {getInitials(selectedCustomer.name)}
                       </span>
                     </div>
                     <div>
-                      <p className="font-medium text-sm">{customer.name}</p>
-                      <p className="text-xs text-gray-500">{customer.phone}</p>
-                      {customer.isGuest && (
+                      <p className="font-medium text-sm">{selectedCustomer.name}</p>
+                      <p className="text-xs text-gray-500">{selectedCustomer.phone}</p>
+                      {selectedCustomer.isGuest && (
                         <p className="text-xs text-blue-600">Khách mới</p>
                       )}
                     </div>
                   </div>
                   
                   {/* Membership Info */}
-                  {customer.membership_type && (
+                  {selectedCustomer.membership_type && (
                     <div className="bg-gray-50 rounded-lg p-3 border">
                       <div className="flex items-center space-x-2 mb-2">
                         <Crown className="w-4 h-4 text-yellow-500" />
@@ -301,13 +302,13 @@ export default function POSPage() {
                       </div>
                       <div className="space-y-1">
                         <p className="text-sm font-semibold text-blue-600">
-                          {customer.membership_type.type}
+                          {selectedCustomer.membership_type.type}
                         </p>
                         <div className="flex items-center justify-between text-xs text-gray-600">
-                          <span>Giảm giá: {customer.membership_type.discount_value}%</span>
+                          <span>Giảm giá: {selectedCustomer.membership_type.discount_value}%</span>
                           <div className="flex items-center space-x-1">
                             <Gift className="w-3 h-3" />
-                            <span>{customer.current_points || 0} điểm</span>
+                            <span>{selectedCustomer.current_points || 0} điểm</span>
                           </div>
                         </div>
                       </div>
@@ -327,6 +328,50 @@ export default function POSPage() {
               )}
             </CardContent>
           </Card>
+        </div>
+
+        {/* Discount Section */}
+        <div className="px-4 py-2 border-b">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-medium text-gray-700">Mã giảm giá</h3>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={openCouponDialog}
+              className="h-8 px-3"
+            >
+              <Tag className="w-3 h-3 mr-1" />
+              Thêm mã
+            </Button>
+          </div>
+          
+          {appliedDiscounts.length > 0 && (
+            <div className="space-y-2">
+              {appliedDiscounts.map((appliedDiscount) => (
+                <div
+                  key={appliedDiscount.discount.discount_id}
+                  className="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg p-2"
+                >
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-green-700">
+                      {appliedDiscount.discount.name}
+                    </p>
+                    <p className="text-xs text-green-600">
+                      -{formatPrice(appliedDiscount.discount_amount)}
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removeDiscount(appliedDiscount.discount.discount_id)}
+                    className="h-6 w-6 p-0 text-green-600 hover:text-red-600"
+                  >
+                    <X className="w-3 h-3" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Cart Items */}
@@ -392,10 +437,13 @@ export default function POSPage() {
                 <span>Tạm tính:</span>
                 <span>{formatPrice(subtotal)}</span>
               </div>
-              <div className="flex justify-between text-sm">
-                <span>VAT (10%):</span>
-                <span>{formatPrice(tax)}</span>
-              </div>
+              {discountAmount > 0 && (
+                <div className="flex justify-between text-sm text-green-600">
+                  <span>Giảm giá:</span>
+                  <span>-{formatPrice(discountAmount)}</span>
+                </div>
+              )}
+              
               <Separator />
               <div className="flex justify-between font-semibold">
                 <span>Tổng cộng:</span>
@@ -404,7 +452,11 @@ export default function POSPage() {
             </div>
             
             <div className="space-y-2">
-              <Button className="w-full" size="lg">
+              <Button 
+                className="w-full" 
+                size="lg"
+                onClick={() => router.push('/checkout')}
+              >
                 Thanh toán
               </Button>
               <Button variant="outline" className="w-full">
@@ -427,7 +479,14 @@ export default function POSPage() {
         isOpen={isCustomerDialogOpen}
         onClose={closeCustomerDialog}
         onSelectCustomer={handleCustomerSelect}
-        currentCustomer={customer || undefined}
+        currentCustomer={selectedCustomer || undefined}
+      />
+
+      {/* Coupon Dialog */}
+      <CouponDialog
+        isOpen={isCouponDialogOpen}
+        onClose={closeCouponDialog}
+        customer={selectedCustomer}
       />
     </div>
     </AuthGuard>

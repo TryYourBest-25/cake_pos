@@ -1,40 +1,23 @@
 export interface User {
-  id: number;
+  account_id: number;
   username: string;
-  role: {
-    role_id: number;
-    name: string;
-    description?: string;
-  };
-  manager?: {
-    manager_id: number;
-    first_name: string;
-    last_name: string;
-    email: string;
-    phone: string;
-    gender?: 'MALE' | 'FEMALE' | 'OTHER';
-  };
-  employee?: {
-    employee_id: number;
-    first_name: string;
-    last_name: string;
-    email: string;
-    phone: string;
-    gender?: 'MALE' | 'FEMALE' | 'OTHER';
-  };
-  customer?: {
-    customer_id: number;
-    first_name: string;
-    last_name: string;
-    email: string;
-    phone: string;
-    gender?: 'MALE' | 'FEMALE' | 'OTHER';
-  }[];
-  is_active?: boolean;
+  role_id: number;
+  role_name: string;
+  is_active: boolean;
   is_locked: boolean;
   last_login?: Date;
   created_at?: Date;
-  updated_at?: Date;
+  profile?: {
+    manager_id?: number;
+    employee_id?: number;
+    customer_id?: number;
+    first_name: string;
+    last_name: string;
+    email: string;
+    phone: string;
+    gender?: 'MALE' | 'FEMALE' | 'OTHER';
+    position?: string; // Chỉ có với employee
+  };
 }
 
 export interface LoginCredentials {

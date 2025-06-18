@@ -258,7 +258,7 @@ export class AuthService {
       } else if (roleName === 'STAFF') {
         profile = result.employee;
       } else if (roleName === 'CUSTOMER') {
-        profile = result.customer?.[0] || null;
+        profile = result.customer || null;
       }
 
       return {
@@ -305,14 +305,14 @@ export class AuthService {
     }
 
     const roleName = account.role.name;
-    let profile = null;
+    let profile: any = null;
 
     if (roleName === 'MANAGER' && account.manager) {
       profile = account.manager;
     } else if (roleName === 'STAFF' && account.employee) {
       profile = account.employee;
-    } else if (roleName === 'CUSTOMER' && account.customer?.[0]) {
-      profile = account.customer[0];
+    } else if (roleName === 'CUSTOMER' && account.customer) {
+      profile = account.customer;
     }
 
     return {

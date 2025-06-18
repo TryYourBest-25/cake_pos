@@ -4,6 +4,9 @@ import * as React from "react";
 import { usePathname } from "next/navigation";
 import { Search, Bell, User, LogOut, Menu, Store } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { useAuthStore } from "@/stores/auth";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -107,7 +110,20 @@ function generateBreadcrumbs(pathname: string) {
 
 export function Header({ onMenuClick, className }: HeaderProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const breadcrumbs = generateBreadcrumbs(pathname);
+  const { logout, user } = useAuthStore();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast.success("Đăng xuất thành công!");
+      router.push("/login");
+    } catch (error) {
+      console.error("Lỗi đăng xuất:", error);
+      toast.error("Có lỗi xảy ra khi đăng xuất");
+    }
+  };
 
   return (
     <header className={`border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 ${className}`}>
@@ -171,16 +187,28 @@ export function Header({ onMenuClick, className }: HeaderProps) {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                 <Avatar className="h-8 w-8">
-                  <AvatarFallback>QT</AvatarFallback>
+                  <AvatarFallback>
+                    {user?.manager?.first_name && user?.manager?.last_name 
+                      ? `${user.manager.first_name[0]}${user.manager.last_name[0]}`
+                      : user?.employee?.first_name && user?.employee?.last_name
+                      ? `${user.employee.first_name[0]}${user.employee.last_name[0]}`
+                      : user?.username?.[0]?.toUpperCase() || "U"}
+                  </AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">Quản trị viên</p>
+                  <p className="text-sm font-medium leading-none">
+                    {user?.manager?.first_name && user?.manager?.last_name 
+                      ? `${user.manager.first_name} ${user.manager.last_name}`
+                      : user?.employee?.first_name && user?.employee?.last_name
+                      ? `${user.employee.first_name} ${user.employee.last_name}`
+                      : user?.username || "Người dùng"}
+                  </p>
                   <p className="text-xs leading-none text-muted-foreground">
-                    admin@banhngotnhalam.com
+                    {user?.manager?.email || user?.employee?.email || "admin@banhngotnhalam.com"}
                   </p>
                 </div>
               </DropdownMenuLabel>
@@ -198,7 +226,7 @@ export function Header({ onMenuClick, className }: HeaderProps) {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout}>
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Đăng xuất</span>
               </DropdownMenuItem>

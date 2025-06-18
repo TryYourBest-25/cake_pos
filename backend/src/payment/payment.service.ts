@@ -31,7 +31,6 @@ type PaymentWithRelations = Prisma.paymentGetPayload<{
   };
 }>;
 
-// Constants cho payment method IDs
 export const PAYMENT_METHOD = {
   CASH: 1,
   VNPAY: 2,
@@ -77,13 +76,10 @@ export class PaymentService {
       changeAmount = paidAmount.minus(orderFinalAmount);
     }
 
-    // Xác định status dựa trên payment method
     let paymentStatus: payment_status_enum = payment_status_enum.PROCESSING;
     if (payment_method_id === PAYMENT_METHOD.CASH) {
-      // Thanh toán tiền mặt được coi là hoàn thành ngay lập tức
       paymentStatus = payment_status_enum.PAID;
     }
-    // VNPay sẽ được cập nhật status thông qua callback
 
     const paymentData: Prisma.paymentCreateInput = {
       status: paymentStatus,
@@ -104,17 +100,14 @@ export class PaymentService {
         include: { order: true, payment_method: true },
       });
 
-      // Tự động tạo hóa đơn khi thanh toán thành công
       if (newPayment.status === payment_status_enum.PAID) {
         try {
-          // Tạo HTML hóa đơn và log để kiểm tra
           const invoiceData =
             await this.invoiceService.getInvoiceData(order_id);
           const invoiceHTML =
             this.invoiceService.generateInvoiceHTML(invoiceData);
           console.log(`Hóa đơn đã được tạo cho đơn hàng #${order_id}`);
 
-          // TODO: Có thể lưu HTML vào database hoặc gửi email cho khách hàng
         } catch (invoiceError) {
           console.error(
             `Lỗi khi tạo hóa đơn cho đơn hàng #${order_id}:`,
@@ -146,7 +139,6 @@ export class PaymentService {
     returnUrl?: string,
     ipAddr: string = '127.0.0.1',
   ): Promise<string> {
-    // Kiểm tra đơn hàng tồn tại
     const order = await this.prisma.order.findUnique({
       where: { order_id: orderId },
     });
@@ -154,7 +146,6 @@ export class PaymentService {
       throw new NotFoundException(`Đơn hàng với ID ${orderId} không tồn tại.`);
     }
 
-    // Tính số tiền cần thanh toán
     const amount = Number(order.final_amount || order.total_amount || 0);
 
     if (amount <= 0) {
@@ -184,7 +175,6 @@ export class PaymentService {
     payment?: PaymentWithRelations;
   }> {
     try {
-      // Xác thực callback
       const verification = await this.vnpayService.verifyCallback(callbackData);
 
       if (!verification.isValid) {
@@ -203,13 +193,11 @@ export class PaymentService {
         };
       }
 
-      // Kiểm tra thanh toán thành công
       const isSuccessful = this.vnpayService.isPaymentSuccessful(
         responseCode!,
         transactionStatus!,
       );
 
-      // Tạo/cập nhật payment record
       const payment = await this.createOrUpdateVNPayPayment(
         orderId,
         amount,
@@ -255,7 +243,6 @@ export class PaymentService {
     status: payment_status_enum,
     txnRef: string,
   ): Promise<PaymentWithRelations> {
-    // Tìm payment record đã tồn tại cho order này với VNPay
     const existingPayment = await this.prisma.payment.findFirst({
       where: {
         order_id: orderId,

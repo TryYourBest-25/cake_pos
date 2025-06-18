@@ -10,13 +10,10 @@ import {
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
-// Đồng bộ với payment_status_enum trong schema.prisma
 export enum PaymentStatusEnum {
   PROCESSING = 'PROCESSING',
   PAID = 'PAID',
   CANCELLED = 'CANCELLED',
-  // FAILED = 'FAILED', // Loại bỏ nếu không có trong Prisma enum
-  // REFUNDED = 'REFUNDED', // Loại bỏ nếu không có trong Prisma enum
 }
 
 export class CreatePaymentDto {
@@ -39,9 +36,7 @@ export class CreatePaymentDto {
   @IsNotEmpty()
   @Min(0)
   @Type(() => Number)
-  amount_paid: number; // Sẽ được chuyển thành Decimal trong service
-
-  // status sẽ được service quản lý, không cho phép client gửi
+  amount_paid: number;
 
   @ApiProperty({
     description:
@@ -51,8 +46,5 @@ export class CreatePaymentDto {
   })
   @IsOptional()
   @IsDateString()
-  payment_time?: string; // Sẽ được chuyển thành Date object
-
-  // change_amount sẽ được tính toán và lưu bởi service, không phải là input trực tiếp từ client khi tạo mới.
-  // created_at và updated_at sẽ được Prisma quản lý.
+  payment_time?: string;
 }

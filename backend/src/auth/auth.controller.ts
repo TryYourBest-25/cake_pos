@@ -52,10 +52,13 @@ export class AuthController {
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 ngày
     });
 
-    // Chỉ trả về access token trong response
+    // Gọi getProfile để lấy thông tin đầy đủ của user
+    const userProfile = await this.authService.getProfile(result.user.account_id);
+
+    // Trả về access token và thông tin user đầy đủ
     return {
       access_token: result.access_token,
-      user: result.user,
+      user: userProfile,
     };
   }
 

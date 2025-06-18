@@ -26,7 +26,7 @@ model account {
   created_at    DateTime?  @default(now()) @cake_pos_db.Timestamp(6)
   updated_at    DateTime?  @default(now()) @cake_pos_db.Timestamp(6)
   role          role       @relation(fields: [role_id], references: [role_id], map: "fk_account_role")
-  customer      customer[]
+  customer      customer?
   employee      employee?
   manager       manager?
 }
@@ -45,7 +45,7 @@ model category {
 model customer {
   customer_id        Int             @id @default(autoincrement())
   membership_type_id Int             @cake_pos_db.SmallInt
-  account_id         Int?
+  account_id         Int?            @unique(map: "uk_customer_account_id")
   last_name          String?         @cake_pos_db.VarChar(70)
   first_name         String?         @cake_pos_db.VarChar(70)
   phone              String          @unique(map: "uk_customer_phone") @cake_pos_db.VarChar(15)

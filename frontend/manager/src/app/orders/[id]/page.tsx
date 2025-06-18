@@ -3,21 +3,14 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
-import { ArrowLeft, Package, User, CreditCard, Tag, Clock, Phone, Mail, MapPin } from "lucide-react";
+import { ArrowLeft, Package, User, CreditCard, Tag, Clock, Phone } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+
 
 import { useOrdersStore } from "@/stores/orders";
 
@@ -105,28 +98,10 @@ export default function OrderDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/dashboard">Trang Chủ</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/orders">Đơn Hàng</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>Chi Tiết</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-        
-        <div className="flex items-center justify-center h-96">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-            <p className="mt-2 text-muted-foreground">Đang tải chi tiết đơn hàng...</p>
-          </div>
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-2 text-muted-foreground">Đang tải chi tiết đơn hàng...</p>
         </div>
       </div>
     );
@@ -134,30 +109,12 @@ export default function OrderDetailPage() {
 
   if (!currentOrder) {
     return (
-      <div className="space-y-6">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/dashboard">Trang Chủ</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/orders">Đơn Hàng</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>Chi Tiết</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-        
-        <div className="text-center py-12">
-          <h2 className="text-2xl font-bold text-gray-900">Không tìm thấy đơn hàng</h2>
-          <p className="text-gray-600 mt-2">Đơn hàng này có thể đã bị xóa hoặc không tồn tại.</p>
-          <Button className="mt-4" onClick={() => router.push('/orders')}>
-            Quay lại danh sách đơn hàng
-          </Button>
-        </div>
+      <div className="text-center py-12">
+        <h2 className="text-2xl font-bold text-gray-900">Không tìm thấy đơn hàng</h2>
+        <p className="text-gray-600 mt-2">Đơn hàng này có thể đã bị xóa hoặc không tồn tại.</p>
+        <Button className="mt-4" onClick={() => router.push('/orders')}>
+          Quay lại danh sách đơn hàng
+        </Button>
       </div>
     );
   }
@@ -168,23 +125,6 @@ export default function OrderDetailPage() {
 
   return (
     <div className="space-y-6">
-      {/* Breadcrumb */}
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/dashboard">Trang Chủ</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/orders">Đơn Hàng</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Đơn hàng #{order.id}</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">

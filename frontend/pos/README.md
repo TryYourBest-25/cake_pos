@@ -12,8 +12,7 @@ Cần thiết kế giao diện cho pos
   - Có nút thanh toán.
 - Khi Ấn vào nút thanh toán, sẽ chuyển đến trang thanh toán.
   - Hiển thị tiến trình gồm 3 bước:
-    - xác nhận đơn hàng: gọi api tạo đơn hàng.
-    - thanh toán: gọi api thanh toán.
+    - xác nhận đơn hàng: Xác nhận thông tin đơn hàng, gọi api tạo đơn hàng, nếu ko thì quay lại trang pos.
+    - thanh toán: Xác nhận thông tin thanh toán, gọi api thanh toán.
     - hoàn thành: hiển thị hóa đơn.
     Có thể hủy đơn hàng ở bước thanh toán.
-
