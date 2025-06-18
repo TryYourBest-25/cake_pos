@@ -100,22 +100,6 @@ export class PaymentService {
         include: { order: true, payment_method: true },
       });
 
-      if (newPayment.status === payment_status_enum.PAID) {
-        try {
-          const invoiceData =
-            await this.invoiceService.getInvoiceData(order_id);
-          const invoiceHTML =
-            this.invoiceService.generateInvoiceHTML(invoiceData);
-          console.log(`Hóa đơn đã được tạo cho đơn hàng #${order_id}`);
-
-        } catch (invoiceError) {
-          console.error(
-            `Lỗi khi tạo hóa đơn cho đơn hàng #${order_id}:`,
-            invoiceError,
-          );
-        }
-      }
-
       return newPayment;
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {

@@ -13,6 +13,9 @@
       },
       {
         "include": "firebase-storage/key.json"
+      },
+      {
+        "include": "invoice/templates/**"
       }
     ]
   }
