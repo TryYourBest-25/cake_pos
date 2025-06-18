@@ -16,13 +16,13 @@ import { ReportsModule } from './reports/reports.module';
 import { InvoiceModule } from './invoice/invoice.module';
 import { ProductSizeModule } from './product-size/product-size.module';
 import { CategoryModule } from './category/category.module';
-import { CouponModule } from './coupon/coupon.module';
 import { MembershipTypeModule } from './membership-type/membership-type.module';
 import { OrderModule } from './order/order.module';
 import { PaymentModule } from './payment/payment.module';
 import { PaymentMethodModule } from './payment-method/payment-method.module';
 import { ProductModule } from './product/product.module';
 import { StoreModule } from './store/store.module';
+import { FirebaseStorageModule } from './firebase-storage/firebase-storage.module';
 
 @Module({
   imports: [
@@ -63,7 +63,6 @@ import { StoreModule } from './store/store.module';
     AuthModule,
     AccountModule,
     CategoryModule,
-    CouponModule,
     CustomerModule,
     DiscountModule,
     EmployeeModule,
@@ -78,6 +77,7 @@ import { StoreModule } from './store/store.module';
     StoreModule,
     ReportsModule,
     InvoiceModule,
+    FirebaseStorageModule,
   ],
   controllers: [AppController],
   providers: [AppService],

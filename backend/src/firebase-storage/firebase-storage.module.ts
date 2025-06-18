@@ -9,4 +9,4 @@ import { FirebaseStorageController } from './firebase-storage.controller';
   providers: [FirebaseStorageService],
   exports: [FirebaseStorageService],
 })
-export class FirebaseStorageModule {} 
+export class FirebaseStorageModule {}

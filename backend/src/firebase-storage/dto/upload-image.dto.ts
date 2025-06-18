@@ -23,4 +23,4 @@ export class UploadImageDto {
   @IsString()
   @MaxLength(50)
   folder?: string;
-} 
+}

@@ -13,7 +13,9 @@ import {
 export class ReportsService {
   constructor(private prisma: PrismaService) {}
 
-  async getSalesReport(query: SalesReportQueryDto): Promise<SalesReportResponseDto> {
+  async getSalesReport(
+    query: SalesReportQueryDto,
+  ): Promise<SalesReportResponseDto> {
     const { month, year, employee_id } = query;
     const currentDate = new Date();
     const targetYear = year || currentDate.getFullYear();
@@ -21,7 +23,7 @@ export class ReportsService {
 
     // Tạo filter cho thời gian
     const dateFilter = this.buildDateFilter(targetYear, targetMonth);
-    
+
     // Tạo filter cho nhân viên
     const employeeFilter = employee_id ? { employee_id } : {};
 
@@ -29,12 +31,17 @@ export class ReportsService {
     const summary = await this.getSummaryData(dateFilter, employeeFilter);
 
     // Truy vấn dữ liệu chi tiết
-    const [employeeSales, monthlySales, dailySales, productSales] = await Promise.all([
-      this.getEmployeeSalesData(dateFilter, employeeFilter),
-      !targetMonth ? this.getMonthlySalesData(targetYear, employeeFilter) : undefined,
-      targetMonth ? this.getDailySalesData(targetYear, targetMonth, employeeFilter) : undefined,
-      this.getProductSalesData(dateFilter, employeeFilter),
-    ]);
+    const [employeeSales, monthlySales, dailySales, productSales] =
+      await Promise.all([
+        this.getEmployeeSalesData(dateFilter, employeeFilter),
+        !targetMonth
+          ? this.getMonthlySalesData(targetYear, employeeFilter)
+          : undefined,
+        targetMonth
+          ? this.getDailySalesData(targetYear, targetMonth, employeeFilter)
+          : undefined,
+        this.getProductSalesData(dateFilter, employeeFilter),
+      ]);
 
     const period = this.getPeriodString(targetYear, targetMonth);
 
@@ -84,9 +91,18 @@ export class ReportsService {
     });
 
     const totalOrders = orders.length;
-    const totalRevenue = orders.reduce((sum, order) => sum + (order.final_amount || 0), 0);
-    const totalProductsSold = orders.reduce((sum, order) => 
-      sum + order.order_product.reduce((productSum, product) => productSum + product.quantity, 0), 0
+    const totalRevenue = orders.reduce(
+      (sum, order) => sum + (order.final_amount || 0),
+      0,
+    );
+    const totalProductsSold = orders.reduce(
+      (sum, order) =>
+        sum +
+        order.order_product.reduce(
+          (productSum, product) => productSum + product.quantity,
+          0,
+        ),
+      0,
     );
 
     return {
@@ -96,7 +112,10 @@ export class ReportsService {
     };
   }
 
-  private async getEmployeeSalesData(dateFilter: any, employeeFilter: any): Promise<EmployeeSalesDataDto[]> {
+  private async getEmployeeSalesData(
+    dateFilter: any,
+    employeeFilter: any,
+  ): Promise<EmployeeSalesDataDto[]> {
     const employeeSales = await this.prisma.order.groupBy({
       by: ['employee_id'],
       where: {
@@ -130,8 +149,14 @@ export class ReportsService {
           },
         });
 
-        const totalProductsSold = orders.reduce((sum, order) => 
-          sum + order.order_product.reduce((productSum, product) => productSum + product.quantity, 0), 0
+        const totalProductsSold = orders.reduce(
+          (sum, order) =>
+            sum +
+            order.order_product.reduce(
+              (productSum, product) => productSum + product.quantity,
+              0,
+            ),
+          0,
         );
 
         return {
@@ -141,18 +166,21 @@ export class ReportsService {
           total_revenue: sale._sum.final_amount || 0,
           total_products_sold: totalProductsSold,
         };
-      })
+      }),
     );
 
     return employeeDetails.sort((a, b) => b.total_revenue - a.total_revenue);
   }
 
-  private async getMonthlySalesData(year: number, employeeFilter: any): Promise<MonthlySalesDataDto[]> {
+  private async getMonthlySalesData(
+    year: number,
+    employeeFilter: any,
+  ): Promise<MonthlySalesDataDto[]> {
     const monthlySales: MonthlySalesDataDto[] = [];
 
     for (let month = 1; month <= 12; month++) {
       const dateFilter = this.buildDateFilter(year, month);
-      
+
       const orders = await this.prisma.order.findMany({
         where: {
           ...dateFilter,
@@ -165,9 +193,18 @@ export class ReportsService {
       });
 
       const totalOrders = orders.length;
-      const totalRevenue = orders.reduce((sum, order) => sum + (order.final_amount || 0), 0);
-      const totalProductsSold = orders.reduce((sum, order) => 
-        sum + order.order_product.reduce((productSum, product) => productSum + product.quantity, 0), 0
+      const totalRevenue = orders.reduce(
+        (sum, order) => sum + (order.final_amount || 0),
+        0,
+      );
+      const totalProductsSold = orders.reduce(
+        (sum, order) =>
+          sum +
+          order.order_product.reduce(
+            (productSum, product) => productSum + product.quantity,
+            0,
+          ),
+        0,
       );
 
       monthlySales.push({
@@ -182,14 +219,18 @@ export class ReportsService {
     return monthlySales;
   }
 
-  private async getDailySalesData(year: number, month: number, employeeFilter: any): Promise<DailySalesDataDto[]> {
+  private async getDailySalesData(
+    year: number,
+    month: number,
+    employeeFilter: any,
+  ): Promise<DailySalesDataDto[]> {
     const daysInMonth = new Date(year, month, 0).getDate();
     const dailySales: DailySalesDataDto[] = [];
 
     for (let day = 1; day <= daysInMonth; day++) {
       const startDate = new Date(year, month - 1, day, 0, 0, 0);
       const endDate = new Date(year, month - 1, day, 23, 59, 59);
-      
+
       const dateFilter = {
         order_time: {
           gte: startDate,
@@ -209,9 +250,18 @@ export class ReportsService {
       });
 
       const totalOrders = orders.length;
-      const totalRevenue = orders.reduce((sum, order) => sum + (order.final_amount || 0), 0);
-      const totalProductsSold = orders.reduce((sum, order) => 
-        sum + order.order_product.reduce((productSum, product) => productSum + product.quantity, 0), 0
+      const totalRevenue = orders.reduce(
+        (sum, order) => sum + (order.final_amount || 0),
+        0,
+      );
+      const totalProductsSold = orders.reduce(
+        (sum, order) =>
+          sum +
+          order.order_product.reduce(
+            (productSum, product) => productSum + product.quantity,
+            0,
+          ),
+        0,
       );
 
       dailySales.push({
@@ -227,7 +277,10 @@ export class ReportsService {
     return dailySales;
   }
 
-  private async getProductSalesData(dateFilter: any, employeeFilter: any): Promise<ProductSalesDataDto[]> {
+  private async getProductSalesData(
+    dateFilter: any,
+    employeeFilter: any,
+  ): Promise<ProductSalesDataDto[]> {
     const productSales = await this.prisma.order_product.groupBy({
       by: ['product_price_id'],
       where: {
@@ -272,10 +325,15 @@ export class ReportsService {
           },
         });
 
-        const revenue = orders.reduce((sum, order) => 
-          sum + order.order_product.reduce((productSum, product) => 
-            productSum + (product.quantity * (productPrice?.price || 0)), 0
-          ), 0
+        const revenue = orders.reduce(
+          (sum, order) =>
+            sum +
+            order.order_product.reduce(
+              (productSum, product) =>
+                productSum + product.quantity * (productPrice?.price || 0),
+              0,
+            ),
+          0,
         );
 
         return {
@@ -284,11 +342,11 @@ export class ReportsService {
           quantity_sold: sale._sum.quantity || 0,
           revenue: revenue,
         };
-      })
+      }),
     );
 
     return productDetails
-      .filter(product => product.quantity_sold > 0)
+      .filter((product) => product.quantity_sold > 0)
       .sort((a, b) => b.quantity_sold - a.quantity_sold);
   }
 

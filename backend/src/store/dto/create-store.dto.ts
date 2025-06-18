@@ -1,4 +1,12 @@
-import { IsString, IsNotEmpty, MaxLength, IsEmail, Matches, IsDateString, IsOptional } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  MaxLength,
+  IsEmail,
+  Matches,
+  IsDateString,
+  IsOptional,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger'; // For Swagger documentation
 
 export class CreateStoreDto {
@@ -41,7 +49,9 @@ export class CreateStoreDto {
   })
   @IsString() // Sẽ được Prisma chuyển đổi thành DateTime
   @IsNotEmpty()
-  @Matches(/^([01]\\d|2[0-3]):([0-5]\\d)(:([0-5]\\d))?$/, { message: 'Thời gian mở cửa không hợp lệ. Định dạng HH:mm hoặc HH:mm:ss' })
+  @Matches(/^([01]\\d|2[0-3]):([0-5]\\d)(:([0-5]\\d))?$/, {
+    message: 'Thời gian mở cửa không hợp lệ. Định dạng HH:mm hoặc HH:mm:ss',
+  })
   opening_time: string; // Dạng string 'HH:mm:ss' hoặc 'HH:mm'
 
   @ApiProperty({
@@ -51,7 +61,9 @@ export class CreateStoreDto {
   })
   @IsString() // Sẽ được Prisma chuyển đổi thành DateTime
   @IsNotEmpty()
-  @Matches(/^([01]\\d|2[0-3]):([0-5]\\d)(:([0-5]\\d))?$/, { message: 'Thời gian đóng cửa không hợp lệ. Định dạng HH:mm hoặc HH:mm:ss' })
+  @Matches(/^([01]\\d|2[0-3]):([0-5]\\d)(:([0-5]\\d))?$/, {
+    message: 'Thời gian đóng cửa không hợp lệ. Định dạng HH:mm hoặc HH:mm:ss',
+  })
   closing_time: string; // Dạng string 'HH:mm:ss' hoặc 'HH:mm'
 
   @ApiProperty({
@@ -83,4 +95,4 @@ export class CreateStoreDto {
   tax_code: string;
 
   // created_at và updated_at sẽ tự động được quản lý bởi Prisma
-} 
+}

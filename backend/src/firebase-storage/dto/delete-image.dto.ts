@@ -10,4 +10,4 @@ export class DeleteImageDto {
   @IsString()
   @IsUrl()
   imageUrl: string;
-} 
+}

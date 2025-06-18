@@ -1,12 +1,30 @@
-import { IsString, IsNotEmpty, MaxLength, IsOptional, IsEnum, IsPhoneNumber, MinLength } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  MaxLength,
+  IsOptional,
+  IsEnum,
+  IsPhoneNumber,
+  MinLength,
+  IsIn,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { gender_enum } from '../../generated/prisma/client';
 
 export class CreateCustomerDto {
-  @ApiPropertyOptional({
-    description: 'Họ và tên đệm của khách hàng',
-    example: 'Trần Văn',
-    maxLength: 70,
+  @ApiProperty({
+    description: 'Số điện thoại khách hàng (bắt buộc)',
+    example: '0123456789',
+    type: String,
+  })
+  @IsNotEmpty({ message: 'Số điện thoại không được để trống' })
+  @IsString({ message: 'Số điện thoại phải là chuỗi ký tự' })
+  phone: string;
+
+  @ApiProperty({
+    description: 'Họ của khách hàng',
+    example: 'Nguyễn',
+    required: false,
     type: String,
   })
   @IsOptional()
@@ -14,10 +32,10 @@ export class CreateCustomerDto {
   @MaxLength(70, { message: 'Họ không được vượt quá 70 ký tự' })
   last_name?: string;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     description: 'Tên của khách hàng',
-    example: 'Minh',
-    maxLength: 70,
+    example: 'Văn A',
+    required: false,
     type: String,
   })
   @IsOptional()
@@ -26,30 +44,23 @@ export class CreateCustomerDto {
   first_name?: string;
 
   @ApiProperty({
-    description: 'Số điện thoại của khách hàng',
-    example: '+84901234567',
-    maxLength: 15,
+    description: 'Giới tính của khách hàng',
+    example: 'MALE',
+    required: false,
+    enum: ['MALE', 'FEMALE', 'OTHER'],
     type: String,
   })
-  @IsString({ message: 'Số điện thoại phải là chuỗi ký tự' })
-  @IsNotEmpty({ message: 'Số điện thoại không được để trống' })
-  @IsPhoneNumber('VN', { message: 'Số điện thoại không đúng định dạng' })
-  @MaxLength(15, { message: 'Số điện thoại không được vượt quá 15 ký tự' })
-  phone: string;
-
-  @ApiPropertyOptional({
-    description: 'Giới tính của khách hàng',
-    example: 'male',
-    enum: gender_enum,
-    enumName: 'gender_enum',
-  })
   @IsOptional()
-  @IsEnum(gender_enum, { message: 'Giới tính phải là male hoặc female' })
-  gender?: gender_enum;
+  @IsIn(['MALE', 'FEMALE', 'OTHER'], {
+    message: 'Giới tính phải là MALE, FEMALE hoặc OTHER',
+  })
+  gender?: 'MALE' | 'FEMALE' | 'OTHER';
 
-  @ApiPropertyOptional({
-    description: 'Tên đăng nhập cho tài khoản khách hàng (tùy chọn)',
-    example: 'customer_user',
+  @ApiProperty({
+    description:
+      'Tên đăng nhập cho tài khoản (tối thiểu 3 ký tự, không bắt buộc)',
+    example: 'customer123',
+    required: false,
     minLength: 3,
     type: String,
   })
@@ -57,4 +68,4 @@ export class CreateCustomerDto {
   @MinLength(3, { message: 'Tên đăng nhập phải có ít nhất 3 ký tự' })
   @IsOptional()
   username?: string;
-} 
+}

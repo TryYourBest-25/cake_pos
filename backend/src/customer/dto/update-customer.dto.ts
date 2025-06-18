@@ -1,4 +1,11 @@
-import { IsString, IsOptional, MaxLength, IsEnum, IsPhoneNumber, MinLength } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  MaxLength,
+  IsEnum,
+  IsPhoneNumber,
+  MinLength,
+} from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { gender_enum } from '../../generated/prisma/client';
 
@@ -57,4 +64,4 @@ export class UpdateCustomerDto {
   @IsString({ message: 'Tên đăng nhập phải là chuỗi ký tự' })
   @MinLength(3, { message: 'Tên đăng nhập phải có ít nhất 3 ký tự' })
   username?: string;
-} 
+}

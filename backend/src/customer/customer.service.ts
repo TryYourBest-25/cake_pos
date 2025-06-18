@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AccountService } from '../account/account.service';
 import { customer, Prisma, gender_enum } from '../generated/prisma/client';
@@ -7,6 +12,9 @@ import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { BulkDeleteCustomerDto } from './dto/bulk-delete-customer.dto';
 import { PaginationDto, PaginatedResult } from '../common/dto/pagination.dto';
 import { ROLES } from '../auth/constants/roles.constant';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { CreateAccountDto } from '../account/dto/create-account.dto';
+import { UpdateAccountDto } from '../account/dto/update-account.dto';
 
 @Injectable()
 export class CustomerService {
@@ -27,14 +35,20 @@ export class CustomerService {
         });
 
         if (!lowestMembershipType) {
-          throw new BadRequestException('Không tìm thấy loại thành viên nào trong hệ thống');
+          throw new BadRequestException(
+            'Không tìm thấy loại thành viên nào trong hệ thống',
+          );
         }
 
         const data: Prisma.customerCreateInput = {
           ...customerData,
           phone,
           current_points: lowestMembershipType.required_point, // Set current_points = required_point
-          membership_type: { connect: { membership_type_id: lowestMembershipType.membership_type_id } },
+          membership_type: {
+            connect: {
+              membership_type_id: lowestMembershipType.membership_type_id,
+            },
+          },
         };
 
         // Tạo account nếu có username
@@ -66,7 +80,9 @@ export class CustomerService {
       switch (error.code) {
         case 'P2002':
           const fieldDescription = this.getUniqueConstraintField(error, phone);
-          throw new ConflictException(`Khách hàng đã tồn tại với ${fieldDescription}.`);
+          throw new ConflictException(
+            `Khách hàng đã tồn tại với ${fieldDescription}.`,
+          );
         case 'P2025':
           throw new BadRequestException('Bản ghi liên quan không tồn tại.');
         default:
@@ -79,11 +95,16 @@ export class CustomerService {
   /**
    * Lấy thông tin field bị vi phạm unique constraint
    */
-  private getUniqueConstraintField(error: Prisma.PrismaClientKnownRequestError, phone: string): string {
+  private getUniqueConstraintField(
+    error: Prisma.PrismaClientKnownRequestError,
+    phone: string,
+  ): string {
     if (error.meta && error.meta.target) {
       const target = error.meta.target;
-      const targetString = Array.isArray(target) ? target.join(', ') : String(target);
-      
+      const targetString = Array.isArray(target)
+        ? target.join(', ')
+        : String(target);
+
       if (targetString.includes('phone')) {
         return `số điện thoại '${phone}'`;
       }
@@ -95,10 +116,14 @@ export class CustomerService {
   /**
    * Kiểm tra xem lỗi có liên quan đến MembershipType không
    */
-  private isMembershipTypeError(error: Prisma.PrismaClientKnownRequestError): boolean {
-    return !!(error.meta && 
-              typeof error.meta.cause === 'string' && 
-              error.meta.cause.includes('MembershipType'));
+  private isMembershipTypeError(
+    error: Prisma.PrismaClientKnownRequestError,
+  ): boolean {
+    return !!(
+      error.meta &&
+      typeof error.meta.cause === 'string' &&
+      error.meta.cause.includes('MembershipType')
+    );
   }
 
   /**
@@ -109,12 +134,16 @@ export class CustomerService {
       where: { name: ROLES.CUSTOMER },
     });
     if (!customerRole) {
-      throw new BadRequestException('Vai trò CUSTOMER không tồn tại trong hệ thống');
+      throw new BadRequestException(
+        'Vai trò CUSTOMER không tồn tại trong hệ thống',
+      );
     }
     return customerRole.role_id;
   }
 
-  async findAll(paginationDto: PaginationDto): Promise<PaginatedResult<customer>> {
+  async findAll(
+    paginationDto: PaginationDto,
+  ): Promise<PaginatedResult<customer>> {
     const { page = 1, limit = 10 } = paginationDto;
     const skip = (page - 1) * limit;
 
@@ -145,7 +174,7 @@ export class CustomerService {
   async findOne(id: number): Promise<customer | null> {
     const customerDetails = await this.prisma.customer.findUnique({
       where: { customer_id: id },
-      include: { 
+      include: {
         account: {
           select: {
             account_id: true,
@@ -157,7 +186,7 @@ export class CustomerService {
             created_at: true,
             updated_at: true,
             role: true,
-          }
+          },
         },
         membership_type: true,
       },
@@ -170,12 +199,15 @@ export class CustomerService {
 
   async findByPhone(phone: string): Promise<customer | null> {
     return this.prisma.customer.findUnique({
-        where: { phone },
-        include: { account: true, membership_type: true },
+      where: { phone },
+      include: { account: true, membership_type: true },
     });
   }
 
-  async update(id: number, updateCustomerDto: UpdateCustomerDto): Promise<customer> {
+  async update(
+    id: number,
+    updateCustomerDto: UpdateCustomerDto,
+  ): Promise<customer> {
     // Loại bỏ hoàn toàn việc cập nhật membership_type_id và current_points
     const data: Prisma.customerUpdateInput = { ...updateCustomerDto };
 
@@ -193,17 +225,25 @@ export class CustomerService {
   /**
    * Xử lý lỗi khi cập nhật customer
    */
-  private handleUpdateError(error: any, id: number, updateDto: UpdateCustomerDto): never {
+  private handleUpdateError(
+    error: any,
+    id: number,
+    updateDto: UpdateCustomerDto,
+  ): never {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       switch (error.code) {
         case 'P2025':
           throw new NotFoundException(`Khách hàng với ID ${id} không tồn tại.`);
         case 'P2002':
           if (updateDto.phone && this.isPhoneConstraintError(error)) {
-            throw new ConflictException(`Khách hàng với số điện thoại '${updateDto.phone}' đã tồn tại.`);
+            throw new ConflictException(
+              `Khách hàng với số điện thoại '${updateDto.phone}' đã tồn tại.`,
+            );
           }
           const field = this.getConstraintField(error);
-          throw new ConflictException(`Vi phạm ràng buộc duy nhất trên: ${field}.`);
+          throw new ConflictException(
+            `Vi phạm ràng buộc duy nhất trên: ${field}.`,
+          );
         default:
           throw new BadRequestException(`Lỗi cơ sở dữ liệu: ${error.message}`);
       }
@@ -214,16 +254,22 @@ export class CustomerService {
   /**
    * Kiểm tra xem lỗi có liên quan đến phone constraint không
    */
-  private isPhoneConstraintError(error: Prisma.PrismaClientKnownRequestError): boolean {
-    return !!(error.meta && 
-              error.meta.target && 
-              String(error.meta.target).includes('phone'));
+  private isPhoneConstraintError(
+    error: Prisma.PrismaClientKnownRequestError,
+  ): boolean {
+    return !!(
+      error.meta &&
+      error.meta.target &&
+      String(error.meta.target).includes('phone')
+    );
   }
 
   /**
    * Lấy thông tin field bị vi phạm constraint
    */
-  private getConstraintField(error: Prisma.PrismaClientKnownRequestError): string {
+  private getConstraintField(
+    error: Prisma.PrismaClientKnownRequestError,
+  ): string {
     if (error.meta && error.meta.target) {
       const target = error.meta.target;
       return Array.isArray(target) ? target.join(', ') : String(target);
@@ -243,7 +289,7 @@ export class CustomerService {
         if (!customerWithAccount) {
           throw new NotFoundException(`Khách hàng với ID ${id} không tồn tại`);
         }
-        
+
         // Xóa customer trước
         const deletedCustomer = await tx.customer.delete({
           where: { customer_id: id },
@@ -251,7 +297,9 @@ export class CustomerService {
 
         // Xóa account nếu có
         if (customerWithAccount.account) {
-          await this.accountService.remove(customerWithAccount.account.account_id);
+          await this.accountService.remove(
+            customerWithAccount.account.account_id,
+          );
         }
 
         return deletedCustomer;
@@ -268,13 +316,15 @@ export class CustomerService {
     if (error instanceof NotFoundException) {
       throw error; // Re-throw NotFoundException đã được xử lý
     }
-    
+
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       switch (error.code) {
         case 'P2025':
           throw new NotFoundException(`Khách hàng với ID ${id} không tồn tại`);
         case 'P2003':
-          throw new ConflictException(`Không thể xóa khách hàng với ID ${id} do tồn tại đơn hàng hoặc dữ liệu liên quan khác.`);
+          throw new ConflictException(
+            `Không thể xóa khách hàng với ID ${id} do tồn tại đơn hàng hoặc dữ liệu liên quan khác.`,
+          );
         default:
           throw new BadRequestException(`Lỗi cơ sở dữ liệu: ${error.message}`);
       }
@@ -300,11 +350,11 @@ export class CustomerService {
           include: { account: true },
         });
 
-        const foundIds = customersWithAccounts.map(c => c.customer_id);
-        const notFoundIds = ids.filter(id => !foundIds.includes(id));
+        const foundIds = customersWithAccounts.map((c) => c.customer_id);
+        const notFoundIds = ids.filter((id) => !foundIds.includes(id));
         const accountIds = customersWithAccounts
-          .filter(c => c.account)
-          .map(c => c.account!.account_id);
+          .filter((c) => c.account)
+          .map((c) => c.account!.account_id);
 
         // Xóa customers bằng deleteMany
         const deleteResult = await tx.customer.deleteMany({
@@ -319,10 +369,12 @@ export class CustomerService {
         }
 
         // Tạo kết quả response
-        const failed: { id: number; reason: string }[] = notFoundIds.map(id => ({
-          id,
-          reason: `Khách hàng với ID ${id} không tồn tại`,
-        }));
+        const failed: { id: number; reason: string }[] = notFoundIds.map(
+          (id) => ({
+            id,
+            reason: `Khách hàng với ID ${id} không tồn tại`,
+          }),
+        );
 
         return {
           deleted: foundIds,
@@ -336,7 +388,7 @@ export class CustomerService {
       });
     } catch (error) {
       // Nếu có lỗi trong transaction, trả về tất cả IDs là failed
-      const failed: { id: number; reason: string }[] = ids.map(id => ({
+      const failed: { id: number; reason: string }[] = ids.map((id) => ({
         id,
         reason: error instanceof Error ? error.message : 'Lỗi không xác định',
       }));
@@ -353,7 +405,10 @@ export class CustomerService {
     }
   }
 
-  async findByMembershipType(membership_type_id: number, paginationDto: PaginationDto): Promise<PaginatedResult<customer>> {
+  async findByMembershipType(
+    membership_type_id: number,
+    paginationDto: PaginationDto,
+  ): Promise<PaginatedResult<customer>> {
     const { page = 1, limit = 10 } = paginationDto;
     const skip = (page - 1) * limit;
 
@@ -382,5 +437,138 @@ export class CustomerService {
         hasPrev: page > 1,
       },
     };
+  }
+
+  async getCustomerAccount(customerId: number) {
+    const customer = await this.prisma.customer.findUnique({
+      where: { customer_id: customerId },
+      include: {
+        account: {
+          select: {
+            account_id: true,
+            username: true,
+            role_id: true,
+            is_active: true,
+            is_locked: true,
+            last_login: true,
+            created_at: true,
+            updated_at: true,
+            role: true,
+          },
+        },
+      },
+    });
+
+    if (!customer) {
+      throw new NotFoundException(
+        `Khách hàng với ID ${customerId} không tồn tại`,
+      );
+    }
+
+    if (!customer.account) {
+      throw new NotFoundException(
+        `Khách hàng với ID ${customerId} không có tài khoản liên kết`,
+      );
+    }
+
+    return customer.account;
+  }
+
+  async createCustomerAccount(
+    customerId: number,
+    createAccountDto: CreateAccountDto,
+  ) {
+    const customer = await this.prisma.customer.findUnique({
+      where: { customer_id: customerId },
+      include: { account: true },
+    });
+
+    if (!customer) {
+      throw new NotFoundException(
+        `Khách hàng với ID ${customerId} không tồn tại`,
+      );
+    }
+
+    if (customer.account) {
+      throw new ConflictException(
+        `Khách hàng với ID ${customerId} đã có tài khoản liên kết`,
+      );
+    }
+
+    // Tạo tài khoản mới
+    const newAccount = await this.accountService.create(createAccountDto);
+
+    // Liên kết tài khoản với khách hàng
+    const updatedCustomer = await this.prisma.customer.update({
+      where: { customer_id: customerId },
+      data: { account_id: newAccount.account_id },
+      include: {
+        account: {
+          select: {
+            account_id: true,
+            username: true,
+            role_id: true,
+            is_active: true,
+            is_locked: true,
+            last_login: true,
+            created_at: true,
+            updated_at: true,
+            role: true,
+          },
+        },
+      },
+    });
+
+    return updatedCustomer.account;
+  }
+
+  async updateCustomerAccount(
+    customerId: number,
+    updateAccountDto: UpdateAccountDto,
+  ) {
+    const customer = await this.prisma.customer.findUnique({
+      where: { customer_id: customerId },
+      include: { account: true },
+    });
+
+    if (!customer) {
+      throw new NotFoundException(
+        `Khách hàng với ID ${customerId} không tồn tại`,
+      );
+    }
+
+    if (!customer.account) {
+      throw new NotFoundException(
+        `Khách hàng với ID ${customerId} không có tài khoản liên kết`,
+      );
+    }
+
+    return this.accountService.update(
+      customer.account.account_id,
+      updateAccountDto,
+    );
+  }
+
+  async lockCustomerAccount(customerId: number, isLocked: boolean) {
+    const customer = await this.prisma.customer.findUnique({
+      where: { customer_id: customerId },
+      include: { account: true },
+    });
+
+    if (!customer) {
+      throw new NotFoundException(
+        `Khách hàng với ID ${customerId} không tồn tại`,
+      );
+    }
+
+    if (!customer.account) {
+      throw new NotFoundException(
+        `Khách hàng với ID ${customerId} không có tài khoản liên kết`,
+      );
+    }
+
+    return this.accountService.update(customer.account.account_id, {
+      is_locked: isLocked,
+    });
   }
 }

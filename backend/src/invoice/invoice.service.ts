@@ -36,7 +36,7 @@ export class InvoiceService {
    * Lấy dữ liệu chi tiết của đơn hàng để tạo hóa đơn
    */
   async getInvoiceData(orderId: number): Promise<InvoiceData> {
-    const order = await this.prisma.order.findUnique({
+    const order = (await this.prisma.order.findUnique({
       where: { order_id: orderId },
       include: {
         customer: true,
@@ -61,24 +61,30 @@ export class InvoiceService {
           },
         },
       },
-    }) as any;
+    })) as any;
 
     if (!order) {
       throw new NotFoundException(`Đơn hàng với ID ${orderId} không tồn tại`);
     }
 
     // Tính tổng discount
-    const totalDiscount = (order.order_discount || []).reduce((sum: number, od: any) => {
-      const discountAmount = od.discount.discount_type === 'PERCENTAGE' 
-        ? (Number(od.discount.discount_value) / 100) * Number(order.total_amount || 0)
-        : Number(od.discount.discount_value);
-      return sum + discountAmount;
-    }, 0);
+    const totalDiscount = (order.order_discount || []).reduce(
+      (sum: number, od: any) => {
+        const discountAmount =
+          od.discount.discount_type === 'PERCENTAGE'
+            ? (Number(od.discount.discount_value) / 100) *
+              Number(order.total_amount || 0)
+            : Number(od.discount.discount_value);
+        return sum + discountAmount;
+      },
+      0,
+    );
 
     // Lấy thông tin payment gần nhất
-    const latestPayment = (order.payment || []).sort((a: any, b: any) => 
-      new Date(b.payment_time || b.created_at || 0).getTime() - 
-      new Date(a.payment_time || a.created_at || 0).getTime()
+    const latestPayment = (order.payment || []).sort(
+      (a: any, b: any) =>
+        new Date(b.payment_time || b.created_at || 0).getTime() -
+        new Date(a.payment_time || a.created_at || 0).getTime(),
     )[0];
 
     const invoiceData: InvoiceData = {
@@ -102,7 +108,9 @@ export class InvoiceService {
       payment_method: latestPayment?.payment_method?.name || 'N/A',
       amount_paid: Number(latestPayment?.amount_paid || 0),
       change_amount: Number(latestPayment?.change_amount || 0),
-      payment_time: new Date(latestPayment?.payment_time || latestPayment?.created_at || new Date()),
+      payment_time: new Date(
+        latestPayment?.payment_time || latestPayment?.created_at || new Date(),
+      ),
       payment_status: latestPayment?.status || 'PENDING',
     };
 
@@ -115,7 +123,7 @@ export class InvoiceService {
   generateInvoiceHTML(invoiceData: InvoiceData): string {
     const template = this.getInvoiceTemplate();
     const compiledTemplate = Handlebars.compile(template);
-    
+
     // Helper functions cho Handlebars
     Handlebars.registerHelper('formatCurrency', (amount: number) => {
       return new Intl.NumberFormat('vi-VN', {
@@ -157,7 +165,7 @@ export class InvoiceService {
     try {
       const page = await browser.newPage();
       await page.setContent(html, { waitUntil: 'networkidle0' });
-      
+
       const pdf = await page.pdf({
         format: 'A4',
         printBackground: true,
@@ -540,4 +548,4 @@ export class InvoiceService {
 </html>
     `;
   }
-} 
+}

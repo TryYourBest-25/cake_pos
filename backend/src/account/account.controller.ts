@@ -1,9 +1,29 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, HttpCode, HttpStatus, UseGuards, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  ParseIntPipe,
+  HttpCode,
+  HttpStatus,
+  UseGuards,
+  Query,
+} from '@nestjs/common';
 import { AccountService } from './account.service';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
 import { PaginationDto, PaginatedResult } from '../common/dto/pagination.dto';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+  ApiBody,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -26,8 +46,14 @@ export class AccountController {
   @ApiResponse({ status: 201, description: 'Account created successfully' })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
-  @ApiResponse({ status: 409, description: 'Conflict (username already exists)' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Conflict (username already exists)',
+  })
   async create(@Body() createAccountDto: CreateAccountDto): Promise<any> {
     // TODO: Consider returning a more specific DTO/ViewModel instead of the full entity
     return this.accountService.create(createAccountDto);
@@ -39,8 +65,13 @@ export class AccountController {
   @ApiOperation({ summary: 'Get all accounts with pagination - Chỉ MANAGER' })
   @ApiResponse({ status: 200, description: 'Paginated list of accounts' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
-  async findAll(@Query() paginationDto: PaginationDto): Promise<PaginatedResult<any>> {
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
+  async findAll(
+    @Query() paginationDto: PaginationDto,
+  ): Promise<PaginatedResult<any>> {
     return this.accountService.findAll(paginationDto);
   }
 
@@ -51,7 +82,10 @@ export class AccountController {
   @ApiParam({ name: 'id', description: 'Account ID', type: Number })
   @ApiResponse({ status: 200, description: 'Account details' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
   @ApiResponse({ status: 404, description: 'Account not found' })
   async findOne(@Param('id', ParseIntPipe) id: number): Promise<any> {
     return this.accountService.findOne(id);
@@ -72,9 +106,15 @@ export class AccountController {
   @ApiResponse({ status: 200, description: 'Account updated successfully' })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
   @ApiResponse({ status: 404, description: 'Account not found' })
-  @ApiResponse({ status: 409, description: 'Conflict (username already exists)' })
+  @ApiResponse({
+    status: 409,
+    description: 'Conflict (username already exists)',
+  })
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateAccountDto: UpdateAccountDto,
@@ -90,7 +130,10 @@ export class AccountController {
   @ApiParam({ name: 'id', description: 'Account ID', type: Number })
   @ApiResponse({ status: 200, description: 'Account deleted successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
   @ApiResponse({ status: 404, description: 'Account not found' })
   async remove(@Param('id', ParseIntPipe) id: number): Promise<any> {
     return this.accountService.remove(id);
@@ -106,8 +149,11 @@ export class AccountController {
   @ApiOperation({ summary: 'Test account controller - Chỉ MANAGER' })
   @ApiResponse({ status: 200, description: 'Test successful' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
   adminTest(): { message: string } {
     return { message: 'Account controller is working!' };
   }
-} 
+}

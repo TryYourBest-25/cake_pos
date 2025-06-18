@@ -1,10 +1,31 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, HttpCode, HttpStatus, UseGuards, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  ParseIntPipe,
+  HttpCode,
+  HttpStatus,
+  UseGuards,
+  Query,
+} from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { BulkDeleteCategoryDto } from './dto/bulk-delete-category.dto';
 import { PaginationDto, PaginatedResult } from '../common/dto/pagination.dto';
 import { category } from '../generated/prisma/client'; // Đã import
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+  ApiBody,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -22,12 +43,24 @@ export class CategoryController {
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a new category - Chỉ MANAGER và STAFF' })
   @ApiBody({ type: CreateCategoryDto })
-  @ApiResponse({ status: 201, description: 'Category created successfully.', type: CreateCategoryDto })
+  @ApiResponse({
+    status: 201,
+    description: 'Category created successfully.',
+    type: CreateCategoryDto,
+  })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
-  @ApiResponse({ status: 409, description: 'Conflict (e.g., name already exists)' })
-  async create(@Body() createCategoryDto: CreateCategoryDto): Promise<category> {
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Conflict (e.g., name already exists)',
+  })
+  async create(
+    @Body() createCategoryDto: CreateCategoryDto,
+  ): Promise<category> {
     return this.categoryService.create(createCategoryDto);
   }
 
@@ -37,7 +70,9 @@ export class CategoryController {
   @ApiOperation({ summary: 'Get all categories with pagination - Tất cả role' })
   @ApiResponse({ status: 200, description: 'Paginated list of categories' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  async findAll(@Query() paginationDto: PaginationDto): Promise<PaginatedResult<category>> {
+  async findAll(
+    @Query() paginationDto: PaginationDto,
+  ): Promise<PaginatedResult<category>> {
     return this.categoryService.findAll(paginationDto);
   }
 
@@ -46,10 +81,16 @@ export class CategoryController {
   @Roles(ROLES.MANAGER, ROLES.STAFF, ROLES.CUSTOMER)
   @ApiOperation({ summary: 'Get a category by ID - Tất cả role' })
   @ApiParam({ name: 'id', description: 'Category ID', type: Number })
-  @ApiResponse({ status: 200, description: 'The category', type: CreateCategoryDto })
+  @ApiResponse({
+    status: 200,
+    description: 'The category',
+    type: CreateCategoryDto,
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 404, description: 'Category not found' })
-  async findOne(@Param('id', ParseIntPipe) id: number): Promise<category | null> {
+  async findOne(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<category | null> {
     return this.categoryService.findOne(id);
   }
 
@@ -59,12 +100,22 @@ export class CategoryController {
   @ApiOperation({ summary: 'Update a category by ID - Chỉ MANAGER và STAFF' })
   @ApiParam({ name: 'id', description: 'Category ID', type: Number })
   @ApiBody({ type: UpdateCategoryDto })
-  @ApiResponse({ status: 200, description: 'Category updated successfully.', type: CreateCategoryDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Category updated successfully.',
+    type: CreateCategoryDto,
+  })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
   @ApiResponse({ status: 404, description: 'Category not found' })
-  @ApiResponse({ status: 409, description: 'Conflict (e.g., name already exists)' })
+  @ApiResponse({
+    status: 409,
+    description: 'Conflict (e.g., name already exists)',
+  })
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateCategoryDto: UpdateCategoryDto,
@@ -72,14 +123,49 @@ export class CategoryController {
     return this.categoryService.update(id, updateCategoryDto);
   }
 
+  @Delete('bulk')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ROLES.MANAGER)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Xóa nhiều danh mục - Chỉ MANAGER',
+    description:
+      'Xóa nhiều danh mục cùng lúc. Các danh mục có sản phẩm sẽ không thể xóa.',
+  })
+  @ApiBody({ type: BulkDeleteCategoryDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Bulk delete hoàn thành với kết quả chi tiết',
+  })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
+  async bulkDelete(@Body() bulkDeleteDto: BulkDeleteCategoryDto): Promise<{
+    deleted: number[];
+    failed: { id: number; reason: string }[];
+    summary: { total: number; success: number; failed: number };
+  }> {
+    return this.categoryService.bulkDelete(bulkDeleteDto);
+  }
+
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(ROLES.MANAGER)
   @ApiOperation({ summary: 'Delete a category by ID - Chỉ MANAGER' })
   @ApiParam({ name: 'id', description: 'Category ID', type: Number })
-  @ApiResponse({ status: 200, description: 'Category deleted successfully.', type: CreateCategoryDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Category deleted successfully.',
+    type: CreateCategoryDto,
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
   @ApiResponse({ status: 404, description: 'Category not found' })
   @ApiResponse({ status: 409, description: 'Conflict (category in use)' })
   async remove(@Param('id', ParseIntPipe) id: number): Promise<category> {
@@ -89,11 +175,16 @@ export class CategoryController {
   @Get('admin/test')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(ROLES.MANAGER)
-  @ApiOperation({ summary: 'Test endpoint for category controller - Chỉ MANAGER' })
+  @ApiOperation({
+    summary: 'Test endpoint for category controller - Chỉ MANAGER',
+  })
   @ApiResponse({ status: 200, description: 'Test successful' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
   adminTest(): { message: string } {
     return { message: 'Category controller is working!' };
   }
-} 
+}

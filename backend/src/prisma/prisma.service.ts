@@ -7,4 +7,3 @@ export class PrismaService extends PrismaClient {
     super();
   }
 }
-

@@ -30,7 +30,7 @@ export class AuthTokenService {
   async refreshToken(refresh_token: string) {
     try {
       const payload = this.jwtService.verify(refresh_token);
-      
+
       // Kiểm tra account vẫn còn active và không bị khóa
       const account = await this.prisma.account.findFirst({
         where: {
@@ -44,13 +44,17 @@ export class AuthTokenService {
       });
 
       if (!account) {
-        throw new UnauthorizedException('Tài khoản không hợp lệ hoặc đã bị khóa');
+        throw new UnauthorizedException(
+          'Tài khoản không hợp lệ hoặc đã bị khóa',
+        );
       }
 
       // Tạo tokens mới
       return this.generateTokens(account);
     } catch (error) {
-      throw new UnauthorizedException('Refresh token không hợp lệ hoặc đã hết hạn');
+      throw new UnauthorizedException(
+        'Refresh token không hợp lệ hoặc đã hết hạn',
+      );
     }
   }
-} 
+}

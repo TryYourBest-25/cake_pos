@@ -1,4 +1,11 @@
-import { IsString, IsNotEmpty, MaxLength, IsEmail, IsPhoneNumber, MinLength } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  MaxLength,
+  IsEmail,
+  IsPhoneNumber,
+  MinLength,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateEmployeeDto {
@@ -69,4 +76,4 @@ export class CreateEmployeeDto {
   @IsNotEmpty({ message: 'Tên đăng nhập không được để trống' })
   @MinLength(3, { message: 'Tên đăng nhập phải có ít nhất 3 ký tự' })
   username: string;
-} 
+}

@@ -23,4 +23,4 @@ export class CreateCategoryDto {
   @IsString({ message: 'Mô tả phải là chuỗi ký tự' })
   @MaxLength(1000, { message: 'Mô tả không được vượt quá 1000 ký tự' })
   description?: string;
-} 
+}

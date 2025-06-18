@@ -3,14 +3,14 @@ import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class BulkDeleteEmployeeDto {
-  @ApiProperty({ 
-    description: 'Danh sách ID của các nhân viên cần xóa', 
+  @ApiProperty({
+    description: 'Danh sách ID của các nhân viên cần xóa',
     example: [1, 2, 3],
-    type: [Number]
+    type: [Number],
   })
   @IsArray()
   @ArrayMinSize(1, { message: 'Danh sách ID không được rỗng' })
   @IsInt({ each: true, message: 'Mỗi ID phải là số nguyên' })
   @Type(() => Number)
   ids: number[];
-} 
+}

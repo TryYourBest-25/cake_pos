@@ -7,6 +7,6 @@ import { PrismaModule } from '../prisma/prisma.module';
   imports: [PrismaModule],
   controllers: [MembershipTypeController],
   providers: [MembershipTypeService],
-  exports: [MembershipTypeService] // Export service nếu cần sử dụng ở module khác
+  exports: [MembershipTypeService], // Export service nếu cần sử dụng ở module khác
 })
-export class MembershipTypeModule {} 
+export class MembershipTypeModule {}

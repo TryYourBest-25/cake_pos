@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AccountService } from '../account/account.service';
 import { manager, Prisma } from '../generated/prisma/client';
@@ -7,6 +12,8 @@ import { UpdateManagerDto } from './dto/update-manager.dto';
 import { BulkDeleteManagerDto } from './dto/bulk-delete-manager.dto';
 import { PaginationDto, PaginatedResult } from '../common/dto/pagination.dto';
 import { ROLES } from '../auth/constants/roles.constant';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class ManagerService {
@@ -64,7 +71,9 @@ export class ManagerService {
       switch (error.code) {
         case 'P2002':
           const fieldDescription = this.getUniqueConstraintField(error, email);
-          throw new ConflictException(`Quản lý đã tồn tại với ${fieldDescription}.`);
+          throw new ConflictException(
+            `Quản lý đã tồn tại với ${fieldDescription}.`,
+          );
         default:
           throw new BadRequestException(`Lỗi cơ sở dữ liệu: ${error.message}`);
       }
@@ -75,7 +84,10 @@ export class ManagerService {
   /**
    * Lấy thông tin field bị vi phạm unique constraint
    */
-  private getUniqueConstraintField(error: Prisma.PrismaClientKnownRequestError, email: string): string {
+  private getUniqueConstraintField(
+    error: Prisma.PrismaClientKnownRequestError,
+    email: string,
+  ): string {
     if (error.meta && error.meta.target) {
       const target = error.meta.target as string[];
       if (target.includes('email')) return `email '${email}'`;
@@ -91,12 +103,16 @@ export class ManagerService {
       where: { name: ROLES.MANAGER },
     });
     if (!managerRole) {
-      throw new BadRequestException('Vai trò MANAGER không tồn tại trong hệ thống');
+      throw new BadRequestException(
+        'Vai trò MANAGER không tồn tại trong hệ thống',
+      );
     }
     return managerRole.role_id;
   }
 
-  async findAll(paginationDto: PaginationDto): Promise<PaginatedResult<manager>> {
+  async findAll(
+    paginationDto: PaginationDto,
+  ): Promise<PaginatedResult<manager>> {
     const { page = 1, limit = 10 } = paginationDto;
     const skip = (page - 1) * limit;
 
@@ -127,7 +143,7 @@ export class ManagerService {
   async findOne(manager_id: number): Promise<manager | null> {
     const mgr = await this.prisma.manager.findUnique({
       where: { manager_id },
-      include: { 
+      include: {
         account: {
           select: {
             account_id: true,
@@ -139,8 +155,8 @@ export class ManagerService {
             created_at: true,
             updated_at: true,
             role: true,
-          }
-        }
+          },
+        },
       },
     });
     if (!mgr) {
@@ -151,15 +167,18 @@ export class ManagerService {
 
   async findByEmail(email: string): Promise<manager | null> {
     return this.prisma.manager.findUnique({
-        where: { email },
-        include: { account: true },
+      where: { email },
+      include: { account: true },
     });
   }
 
-  async update(manager_id: number, updateManagerDto: UpdateManagerDto): Promise<manager> {
+  async update(
+    manager_id: number,
+    updateManagerDto: UpdateManagerDto,
+  ): Promise<manager> {
     // Chỉ cập nhật thông tin manager, không cập nhật account
     const { ...managerData } = updateManagerDto;
-    
+
     const data: Prisma.managerUpdateInput = { ...managerData };
 
     try {
@@ -180,9 +199,13 @@ export class ManagerService {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       switch (error.code) {
         case 'P2025':
-          throw new NotFoundException(`Quản lý với ID ${manager_id} không tồn tại`);
+          throw new NotFoundException(
+            `Quản lý với ID ${manager_id} không tồn tại`,
+          );
         case 'P2002':
-          throw new ConflictException('Không thể cập nhật quản lý, vi phạm ràng buộc duy nhất (ví dụ: email đã tồn tại).');
+          throw new ConflictException(
+            'Không thể cập nhật quản lý, vi phạm ràng buộc duy nhất (ví dụ: email đã tồn tại).',
+          );
         default:
           throw new BadRequestException(`Lỗi cơ sở dữ liệu: ${error.message}`);
       }
@@ -200,9 +223,11 @@ export class ManagerService {
         });
 
         if (!managerWithAccount) {
-          throw new NotFoundException(`Quản lý với ID ${manager_id} không tồn tại`);
+          throw new NotFoundException(
+            `Quản lý với ID ${manager_id} không tồn tại`,
+          );
         }
-        
+
         // Xóa manager trước
         const deletedManager = await tx.manager.delete({
           where: { manager_id },
@@ -210,7 +235,9 @@ export class ManagerService {
 
         // Xóa account liên quan
         if (managerWithAccount.account) {
-          await this.accountService.remove(managerWithAccount.account.account_id);
+          await this.accountService.remove(
+            managerWithAccount.account.account_id,
+          );
         }
 
         return deletedManager;
@@ -227,13 +254,17 @@ export class ManagerService {
     if (error instanceof NotFoundException) {
       throw error; // Re-throw NotFoundException đã được xử lý
     }
-    
+
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       switch (error.code) {
         case 'P2025':
-          throw new NotFoundException(`Quản lý với ID ${manager_id} không tồn tại`);
+          throw new NotFoundException(
+            `Quản lý với ID ${manager_id} không tồn tại`,
+          );
         case 'P2003':
-          throw new ConflictException(`Không thể xóa quản lý với ID ${manager_id} do tồn tại dữ liệu liên quan.`);
+          throw new ConflictException(
+            `Không thể xóa quản lý với ID ${manager_id} do tồn tại dữ liệu liên quan.`,
+          );
         default:
           throw new BadRequestException(`Lỗi cơ sở dữ liệu: ${error.message}`);
       }
@@ -259,11 +290,11 @@ export class ManagerService {
           include: { account: true },
         });
 
-        const foundIds = managersWithAccounts.map(m => m.manager_id);
-        const notFoundIds = ids.filter(id => !foundIds.includes(id));
+        const foundIds = managersWithAccounts.map((m) => m.manager_id);
+        const notFoundIds = ids.filter((id) => !foundIds.includes(id));
         const accountIds = managersWithAccounts
-          .filter(m => m.account)
-          .map(m => m.account!.account_id);
+          .filter((m) => m.account)
+          .map((m) => m.account.account_id);
 
         // Xóa managers bằng deleteMany
         const deleteResult = await tx.manager.deleteMany({
@@ -278,10 +309,12 @@ export class ManagerService {
         }
 
         // Tạo kết quả response
-        const failed: { id: number; reason: string }[] = notFoundIds.map(id => ({
-          id,
-          reason: `Quản lý với ID ${id} không tồn tại`,
-        }));
+        const failed: { id: number; reason: string }[] = notFoundIds.map(
+          (id) => ({
+            id,
+            reason: `Quản lý với ID ${id} không tồn tại`,
+          }),
+        );
 
         return {
           deleted: foundIds,
@@ -295,7 +328,7 @@ export class ManagerService {
       });
     } catch (error) {
       // Nếu có lỗi trong transaction, trả về tất cả IDs là failed
-      const failed: { id: number; reason: string }[] = ids.map(id => ({
+      const failed: { id: number; reason: string }[] = ids.map((id) => ({
         id,
         reason: error instanceof Error ? error.message : 'Lỗi không xác định',
       }));
@@ -310,5 +343,43 @@ export class ManagerService {
         },
       };
     }
+  }
+
+  async lockManagerAccount(managerId: number, isLocked: boolean) {
+    const manager = await this.prisma.manager.findUnique({
+      where: { manager_id: managerId },
+      include: { account: true },
+    });
+
+    if (!manager) {
+      throw new NotFoundException(`Manager với ID ${managerId} không tồn tại`);
+    }
+
+    return this.accountService.update(manager.account.account_id, {
+      is_locked: isLocked,
+    });
+  }
+
+  async updateManagerAccount(managerId: number, accountId: number, updateData: any) {
+    // Kiểm tra manager tồn tại
+    const manager = await this.prisma.manager.findUnique({
+      where: { manager_id: managerId },
+      include: { account: true },
+    });
+
+    if (!manager) {
+      throw new NotFoundException(
+        `Manager với ID ${managerId} không tồn tại`,
+      );
+    }
+
+    // Kiểm tra account thuộc về manager này
+    if (manager.account.account_id !== accountId) {
+      throw new BadRequestException(
+        `Account với ID ${accountId} không thuộc về Manager với ID ${managerId}`,
+      );
+    }
+
+    return this.accountService.update(accountId, updateData);
   }
 }

@@ -7,6 +7,6 @@ import { PrismaModule } from '../prisma/prisma.module';
   imports: [PrismaModule],
   controllers: [AccountController],
   providers: [AccountService],
-  exports: [AccountService]
+  exports: [AccountService],
 })
-export class AccountModule {} 
+export class AccountModule {}

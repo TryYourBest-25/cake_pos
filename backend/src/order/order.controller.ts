@@ -1,10 +1,32 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, HttpCode, HttpStatus, Query, BadRequestException, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  ParseIntPipe,
+  HttpCode,
+  HttpStatus,
+  Query,
+  BadRequestException,
+  UseGuards,
+} from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOrderDto, OrderStatusEnum } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { PaginationDto, PaginatedResult } from '../common/dto/pagination.dto';
 import { order, Prisma } from '../generated/prisma/client'; // Import Prisma namespace for types
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+  ApiQuery,
+  ApiBody,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -22,11 +44,26 @@ export class OrderController {
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a new order - Tất cả role' })
   @ApiBody({ type: CreateOrderDto })
-  @ApiResponse({ status: 201, description: 'Order created successfully.' /*, type: OrderEntity (nếu có) */ })
-  @ApiResponse({ status: 400, description: 'Bad Request (e.g., validation error, no products)' })
+  @ApiResponse({
+    status: 201,
+    description:
+      'Order created successfully.' /*, type: OrderEntity (nếu có) */,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request (e.g., validation error, no products)',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 404, description: 'Not Found (e.g., employee, customer, product_price, or discount not found)' })
-  @ApiResponse({ status: 422, description: 'Unprocessable Entity (e.g., product not active, discount not valid)' })
+  @ApiResponse({
+    status: 404,
+    description:
+      'Not Found (e.g., employee, customer, product_price, or discount not found)',
+  })
+  @ApiResponse({
+    status: 422,
+    description:
+      'Unprocessable Entity (e.g., product not active, discount not valid)',
+  })
   async create(@Body() createOrderDto: CreateOrderDto): Promise<order> {
     return this.orderService.create(createOrderDto);
   }
@@ -34,15 +71,46 @@ export class OrderController {
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(ROLES.MANAGER, ROLES.STAFF)
-  @ApiOperation({ summary: 'Get all orders with pagination and filtering - Chỉ MANAGER và STAFF' })
-  @ApiQuery({ name: 'page', required: false, type: Number, description: 'Page number' })
-  @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Items per page' })
-  @ApiQuery({ name: 'customerId', required: false, type: Number, description: 'Filter by customer ID' })
-  @ApiQuery({ name: 'employeeId', required: false, type: Number, description: 'Filter by employee ID' })
-  @ApiQuery({ name: 'status', required: false, enum: OrderStatusEnum, description: 'Filter by order status' })
+  @ApiOperation({
+    summary:
+      'Get all orders with pagination and filtering - Chỉ MANAGER và STAFF',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Page number',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Items per page',
+  })
+  @ApiQuery({
+    name: 'customerId',
+    required: false,
+    type: Number,
+    description: 'Filter by customer ID',
+  })
+  @ApiQuery({
+    name: 'employeeId',
+    required: false,
+    type: Number,
+    description: 'Filter by employee ID',
+  })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    enum: OrderStatusEnum,
+    description: 'Filter by order status',
+  })
   @ApiResponse({ status: 200, description: 'Paginated list of orders' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
   async findAll(
     @Query() paginationDto: PaginationDto,
     @Query('customerId') customerId?: string,
@@ -61,11 +129,17 @@ export class OrderController {
   @Get(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(ROLES.MANAGER, ROLES.STAFF, ROLES.CUSTOMER)
-  @ApiOperation({ summary: 'Get a specific order by ID - Tất cả role (CUSTOMER chỉ xem order của mình)' })
+  @ApiOperation({
+    summary:
+      'Get a specific order by ID - Tất cả role (CUSTOMER chỉ xem order của mình)',
+  })
   @ApiParam({ name: 'id', description: 'Order ID', type: Number })
   @ApiResponse({ status: 200, description: 'The order details' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
   @ApiResponse({ status: 404, description: 'Order not found' })
   async findOne(@Param('id', ParseIntPipe) id: number): Promise<order> {
     return this.orderService.findOne(id);
@@ -80,14 +154,50 @@ export class OrderController {
   @ApiResponse({ status: 200, description: 'Order updated successfully.' })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
-  @ApiResponse({ status: 404, description: 'Order not found or related entity not found during update' })
-  @ApiResponse({ status: 422, description: 'Unprocessable Entity (e.g., product not active, discount not valid during update)' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Order not found or related entity not found during update',
+  })
+  @ApiResponse({
+    status: 422,
+    description:
+      'Unprocessable Entity (e.g., product not active, discount not valid during update)',
+  })
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateOrderDto: UpdateOrderDto,
   ): Promise<order> {
     return this.orderService.update(id, updateOrderDto);
+  }
+
+  @Patch(':id/cancel')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ROLES.MANAGER, ROLES.STAFF, ROLES.CUSTOMER)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Hủy đơn hàng - Tất cả role',
+    description:
+      'Thay đổi trạng thái đơn hàng thành CANCELLED. CUSTOMER chỉ có thể hủy đơn hàng của mình và chỉ khi đơn hàng ở trạng thái PENDING.',
+  })
+  @ApiParam({ name: 'id', description: 'Order ID', type: Number })
+  @ApiResponse({ status: 200, description: 'Đơn hàng đã được hủy thành công' })
+  @ApiResponse({
+    status: 400,
+    description:
+      'Bad Request - Đơn hàng không thể hủy (đã hoàn thành hoặc đã hủy)',
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Không có quyền hủy đơn hàng này',
+  })
+  @ApiResponse({ status: 404, description: 'Order not found' })
+  async cancelOrder(@Param('id', ParseIntPipe) id: number): Promise<order> {
+    return this.orderService.cancelOrder(id);
   }
 
   @Delete(':id')
@@ -96,9 +206,15 @@ export class OrderController {
   @HttpCode(HttpStatus.OK) // Trả về order đã xóa thay vì 204 No Content
   @ApiOperation({ summary: 'Delete an order by ID - Chỉ MANAGER' })
   @ApiParam({ name: 'id', description: 'Order ID', type: Number })
-  @ApiResponse({ status: 200, description: 'Order deleted successfully (returns the deleted order).' })
+  @ApiResponse({
+    status: 200,
+    description: 'Order deleted successfully (returns the deleted order).',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
   @ApiResponse({ status: 404, description: 'Order not found' })
   // @ApiResponse({ status: 400, description: 'Cannot delete completed order (tùy business logic)' })
   async remove(@Param('id', ParseIntPipe) id: number): Promise<order> {
@@ -108,11 +224,16 @@ export class OrderController {
   @Get('employee/:employeeId')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(ROLES.STAFF, ROLES.MANAGER)
-  @ApiOperation({ summary: 'Lấy đơn hàng theo nhân viên với pagination - STAFF/MANAGER' })
+  @ApiOperation({
+    summary: 'Lấy đơn hàng theo nhân viên với pagination - STAFF/MANAGER',
+  })
   @ApiParam({ name: 'employeeId', description: 'Employee ID', type: Number })
   @ApiResponse({ status: 200, description: 'Danh sách đơn hàng của nhân viên' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
   async findByEmployee(
     @Param('employeeId', ParseIntPipe) employeeId: number,
     @Query() paginationDto: PaginationDto,
@@ -123,15 +244,63 @@ export class OrderController {
   @Get('customer/:customerId')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(ROLES.STAFF, ROLES.MANAGER)
-  @ApiOperation({ summary: 'Lấy đơn hàng theo khách hàng với pagination - STAFF/MANAGER' })
+  @ApiOperation({
+    summary: 'Lấy đơn hàng theo khách hàng với pagination - STAFF/MANAGER',
+  })
   @ApiParam({ name: 'customerId', description: 'Customer ID', type: Number })
-  @ApiResponse({ status: 200, description: 'Danh sách đơn hàng của khách hàng' })
+  @ApiResponse({
+    status: 200,
+    description: 'Danh sách đơn hàng của khách hàng',
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Insufficient permissions' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
   async findByCustomer(
     @Param('customerId', ParseIntPipe) customerId: number,
     @Query() paginationDto: PaginationDto,
   ): Promise<PaginatedResult<order>> {
     return this.orderService.findByCustomer(customerId, paginationDto);
   }
-} 
+
+  @Get('status/:status')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ROLES.MANAGER, ROLES.STAFF)
+  @ApiOperation({
+    summary: 'Lấy đơn hàng theo trạng thái với pagination - MANAGER/STAFF',
+  })
+  @ApiParam({ 
+    name: 'status', 
+    description: 'Order status', 
+    enum: OrderStatusEnum,
+    type: String 
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Page number',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Items per page',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Danh sách đơn hàng theo trạng thái',
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
+  async findByStatus(
+    @Param('status') status: OrderStatusEnum,
+    @Query() paginationDto: PaginationDto,
+  ): Promise<PaginatedResult<order>> {
+    return this.orderService.findByStatus(status, paginationDto);
+  }
+}

@@ -1,5 +1,10 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { ReportsService } from './reports.service';
 import { SalesReportQueryDto } from './dto/sales-report-query.dto';
 import { SalesReportResponseDto } from './dto/sales-report-response.dto';
@@ -19,7 +24,8 @@ export class ReportsController {
   @Roles(ROLES.MANAGER, ROLES.STAFF)
   @ApiOperation({
     summary: 'Lấy báo cáo bán hàng',
-    description: 'Lấy báo cáo bán hàng theo tháng, năm và nhân viên. Dữ liệu phù hợp cho biểu đồ cột, đường, tròn.',
+    description:
+      'Lấy báo cáo bán hàng theo tháng, năm và nhân viên. Dữ liệu phù hợp cho biểu đồ cột, đường, tròn.',
   })
   @ApiResponse({
     status: 200,
@@ -44,7 +50,8 @@ export class ReportsController {
   @Roles(ROLES.MANAGER, ROLES.STAFF)
   @ApiOperation({
     summary: 'Lấy báo cáo bán hàng theo tháng',
-    description: 'Lấy báo cáo bán hàng theo từng tháng trong năm. Phù hợp cho biểu đồ cột và đường.',
+    description:
+      'Lấy báo cáo bán hàng theo từng tháng trong năm. Phù hợp cho biểu đồ cột và đường.',
   })
   @ApiResponse({
     status: 200,
@@ -63,7 +70,8 @@ export class ReportsController {
   @Roles(ROLES.MANAGER, ROLES.STAFF)
   @ApiOperation({
     summary: 'Lấy báo cáo bán hàng theo ngày',
-    description: 'Lấy báo cáo bán hàng theo từng ngày trong tháng. Phù hợp cho biểu đồ đường.',
+    description:
+      'Lấy báo cáo bán hàng theo từng ngày trong tháng. Phù hợp cho biểu đồ đường.',
   })
   @ApiResponse({
     status: 200,
@@ -84,7 +92,8 @@ export class ReportsController {
   @Roles(ROLES.MANAGER)
   @ApiOperation({
     summary: 'Lấy báo cáo bán hàng theo nhân viên',
-    description: 'Lấy báo cáo hiệu suất bán hàng của từng nhân viên. Phù hợp cho biểu đồ cột và tròn.',
+    description:
+      'Lấy báo cáo hiệu suất bán hàng của từng nhân viên. Phù hợp cho biểu đồ cột và tròn.',
   })
   @ApiResponse({
     status: 200,
@@ -101,7 +110,8 @@ export class ReportsController {
   @Roles(ROLES.MANAGER, ROLES.STAFF)
   @ApiOperation({
     summary: 'Lấy báo cáo bán hàng theo sản phẩm',
-    description: 'Lấy báo cáo sản phẩm bán chạy nhất. Phù hợp cho biểu đồ cột và tròn.',
+    description:
+      'Lấy báo cáo sản phẩm bán chạy nhất. Phù hợp cho biểu đồ cột và tròn.',
   })
   @ApiResponse({
     status: 200,

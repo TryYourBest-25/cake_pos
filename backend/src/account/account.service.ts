@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service'; // TODO: Ensure PrismaService exists at this path and is correctly configured.
 import { account, Prisma } from '../generated/prisma/client';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library'; // Import specific error type
@@ -41,16 +46,21 @@ export class AccountService {
         },
       });
     } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) { // Use imported error type
-        if (error.code === 'P2003') { 
-          throw new NotFoundException(`Vai trò với ID ${role_id} không tồn tại.`);
+      if (error instanceof PrismaClientKnownRequestError) {
+        // Use imported error type
+        if (error.code === 'P2003') {
+          throw new NotFoundException(
+            `Vai trò với ID ${role_id} không tồn tại.`,
+          );
         }
       }
       throw error;
     }
   }
 
-  async findAll(paginationDto: PaginationDto): Promise<PaginatedResult<AccountResponse>> {
+  async findAll(
+    paginationDto: PaginationDto,
+  ): Promise<PaginatedResult<AccountResponse>> {
     const { page = 1, limit = 10 } = paginationDto;
     const skip = (page - 1) * limit;
 
@@ -104,7 +114,7 @@ export class AccountService {
         customer: true,
         employee: true,
         manager: true,
-      }
+      },
     });
     if (!acc) {
       throw new NotFoundException(`Tài khoản với ID ${id} không tồn tại`);
@@ -115,56 +125,73 @@ export class AccountService {
   async findByUsername(username: string): Promise<account | null> {
     const acc = await this.prisma.account.findUnique({
       where: { username },
-      include: { 
+      include: {
         role: true,
-      }
+      },
     });
     return acc;
   }
 
-  async update(id: number, updateAccountDto: UpdateAccountDto): Promise<account> {
+  async update(
+    id: number,
+    updateAccountDto: UpdateAccountDto,
+  ): Promise<account> {
     const { password, role_id, ...otherData } = updateAccountDto;
-    
+
     // Không cho phép cập nhật role
     if (role_id !== undefined) {
-      throw new BadRequestException('Không được phép cập nhật vai trò của tài khoản');
-    }
-    
-    const existingAccount = await this.prisma.account.findUnique({ where: { account_id: id } });
-    if (!existingAccount) {
-        throw new NotFoundException(`Tài khoản với ID ${id} không tồn tại`);
+      throw new BadRequestException(
+        'Không được phép cập nhật vai trò của tài khoản',
+      );
     }
 
-    if (updateAccountDto.username && updateAccountDto.username !== existingAccount.username) {
-        const conflictingUser = await this.prisma.account.findUnique({
-            where: { username: updateAccountDto.username },
-        });
-        if (conflictingUser) {
-            throw new ConflictException(`Tên đăng nhập '${updateAccountDto.username}' đã tồn tại.`);
-        }
+    const existingAccount = await this.prisma.account.findUnique({
+      where: { account_id: id },
+    });
+    if (!existingAccount) {
+      throw new NotFoundException(`Tài khoản với ID ${id} không tồn tại`);
     }
-    
+
+    if (
+      updateAccountDto.username &&
+      updateAccountDto.username !== existingAccount.username
+    ) {
+      const conflictingUser = await this.prisma.account.findUnique({
+        where: { username: updateAccountDto.username },
+      });
+      if (conflictingUser) {
+        throw new ConflictException(
+          `Tên đăng nhập '${updateAccountDto.username}' đã tồn tại.`,
+        );
+      }
+    }
+
     const dataToUpdate: Prisma.accountUpdateInput = { ...otherData };
 
     if (password) {
       dataToUpdate.password_hash = await bcrypt.hash(password, 10);
     }
-    
+
     try {
       return await this.prisma.account.update({
         where: { account_id: id },
         data: dataToUpdate,
-        include: { 
-            role: true,
-        }
+        include: {
+          role: true,
+        },
       });
     } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) { // Use imported error type
-        if (error.code === 'P2025') { 
-          throw new NotFoundException(`Tài khoản với ID ${id} không tồn tại để cập nhật.`);
+      if (error instanceof PrismaClientKnownRequestError) {
+        // Use imported error type
+        if (error.code === 'P2025') {
+          throw new NotFoundException(
+            `Tài khoản với ID ${id} không tồn tại để cập nhật.`,
+          );
         }
-        if (error.code === 'P2003' && updateAccountDto.role_id) { 
-             throw new NotFoundException(`Vai trò với ID ${updateAccountDto.role_id} không tồn tại.`);
+        if (error.code === 'P2003' && updateAccountDto.role_id) {
+          throw new NotFoundException(
+            `Vai trò với ID ${updateAccountDto.role_id} không tồn tại.`,
+          );
         }
       }
       throw error;
@@ -177,12 +204,13 @@ export class AccountService {
         where: { account_id: id },
       });
     } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) { // Use imported error type
-        if (error.code === 'P2025') { 
+      if (error instanceof PrismaClientKnownRequestError) {
+        // Use imported error type
+        if (error.code === 'P2025') {
           throw new NotFoundException(`Tài khoản với ID ${id} không tồn tại`);
         }
       }
       throw error;
     }
   }
-} 
+}

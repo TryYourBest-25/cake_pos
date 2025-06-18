@@ -1,47 +1,58 @@
-import { IsInt, Min, IsBoolean, IsOptional, ValidateNested, IsNumber } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsInt,
+  IsBoolean,
+  IsOptional,
+  ValidateNested,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { CreateProductSizeDto } from './create-product-size.dto';
 
 export class CreateProductPriceDto {
+  @ApiProperty({
+    description: 'ID sản phẩm',
+    example: 1,
+    type: Number,
+  })
+  @IsNotEmpty({ message: 'product_id không được để trống' })
+  @IsInt({ message: 'product_id phải là số nguyên' })
+  product_id: number;
+
   @ApiPropertyOptional({
-    description: 'ID của kích thước sản phẩm đã tồn tại',
+    description: 'ID kích thước sản phẩm (nếu sử dụng kích thước có sẵn)',
     example: 1,
     type: Number,
   })
   @IsOptional()
-  @IsInt({ message: 'ID kích thước phải là số nguyên' })
-  @Min(1, { message: 'ID kích thước phải lớn hơn 0' })
-  @Type(() => Number)
+  @IsInt({ message: 'size_id phải là số nguyên' })
   size_id?: number;
 
   @ApiPropertyOptional({
-    description: 'Dữ liệu để tạo kích thước mới (nếu không có size_id)',
+    description: 'Thông tin kích thước mới (nếu tạo kích thước mới)',
     type: CreateProductSizeDto,
   })
   @IsOptional()
-  @ValidateNested({ message: 'Dữ liệu kích thước không hợp lệ' })
+  @ValidateNested()
   @Type(() => CreateProductSizeDto)
   size_data?: CreateProductSizeDto;
 
   @ApiProperty({
-    description: 'Giá của sản phẩm',
-    example: 150000,
+    description: 'Giá sản phẩm (VND)',
+    example: 50000,
     type: Number,
-    minimum: 0,
   })
-  @IsNumber({ maxDecimalPlaces: 2 }, { message: 'Giá phải là số với tối đa 2 chữ số thập phân' })
-  @Min(0, { message: 'Giá phải lớn hơn hoặc bằng 0' })
-  @Type(() => Number)
+  @IsNotEmpty({ message: 'price không được để trống' })
+  @IsInt({ message: 'price phải là số nguyên' })
   price: number;
 
   @ApiPropertyOptional({
-    description: 'Trạng thái kích hoạt của giá',
+    description: 'Trạng thái hoạt động của giá',
     example: true,
-    type: Boolean,
     default: true,
+    type: Boolean,
   })
   @IsOptional()
-  @IsBoolean({ message: 'Trạng thái kích hoạt phải là boolean' })
-  is_active: boolean = true;
-} 
+  @IsBoolean({ message: 'is_active phải là giá trị boolean' })
+  is_active?: boolean;
+}

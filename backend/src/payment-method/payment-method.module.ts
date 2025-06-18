@@ -7,6 +7,6 @@ import { PrismaModule } from '../prisma/prisma.module';
   imports: [PrismaModule],
   controllers: [PaymentMethodController],
   providers: [PaymentMethodService],
-  exports: [PaymentMethodService] // Export service nếu PaymentService cần được inject ở module khác
+  exports: [PaymentMethodService], // Export service nếu PaymentService cần được inject ở module khác
 })
-export class PaymentMethodModule {} 
+export class PaymentMethodModule {}

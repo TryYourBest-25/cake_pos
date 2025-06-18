@@ -1,4 +1,10 @@
-import { IsArray, IsOptional, ValidateNested, IsNumber, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsOptional,
+  ValidateNested,
+  IsNumber,
+  IsString,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CalculateOrderProductDto {
@@ -50,4 +56,4 @@ export interface OrderCalculationResult {
     discount_amount: number;
     max_discount_amount: number;
   }[];
-} 
+}

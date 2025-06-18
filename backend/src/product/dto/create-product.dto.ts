@@ -1,7 +1,18 @@
-import { IsString, IsNotEmpty, MaxLength, IsOptional, IsBoolean, IsInt, Min, ValidateNested, ArrayNotEmpty, ArrayMinSize } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  MaxLength,
+  IsOptional,
+  IsBoolean,
+  IsInt,
+  Min,
+  ValidateNested,
+  ArrayNotEmpty,
+  ArrayMinSize,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { CreateProductPriceDto } from './create-product-price.dto';
+import { CreateProductPriceForNewProductDto } from './create-product-price-for-new-product.dto';
 
 export class CreateProductDto {
   @ApiProperty({
@@ -44,7 +55,9 @@ export class CreateProductDto {
   })
   @IsOptional()
   @IsString({ message: 'Đường dẫn hình ảnh phải là chuỗi ký tự' })
-  @MaxLength(255, { message: 'Đường dẫn hình ảnh không được vượt quá 255 ký tự' })
+  @MaxLength(255, {
+    message: 'Đường dẫn hình ảnh không được vượt quá 255 ký tự',
+  })
   image_path?: string;
 
   @ApiPropertyOptional({
@@ -53,21 +66,20 @@ export class CreateProductDto {
     type: Number,
     minimum: 1,
   })
-  @IsOptional()
   @IsInt({ message: 'ID danh mục phải là số nguyên' })
   @Min(1, { message: 'ID danh mục phải lớn hơn 0' })
   @Type(() => Number)
-  category_id?: number;
+  category_id: number;
 
   @ApiProperty({
     description: 'Danh sách giá cho các kích thước khác nhau của sản phẩm',
-    type: [CreateProductPriceDto],
+    type: [CreateProductPriceForNewProductDto],
     isArray: true,
     minItems: 1,
   })
   @ArrayNotEmpty({ message: 'Danh sách giá không được để trống' })
   @ArrayMinSize(1, { message: 'Sản phẩm phải có ít nhất một giá' })
   @ValidateNested({ each: true, message: 'Dữ liệu giá không hợp lệ' })
-  @Type(() => CreateProductPriceDto)
-  prices: CreateProductPriceDto[]; // Một sản phẩm phải có ít nhất một giá
-} 
+  @Type(() => CreateProductPriceForNewProductDto)
+  prices: CreateProductPriceForNewProductDto[]; // Một sản phẩm phải có ít nhất một giá
+}

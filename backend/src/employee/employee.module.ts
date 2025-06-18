@@ -8,5 +8,6 @@ import { AccountModule } from '../account/account.module';
   imports: [PrismaModule, AccountModule],
   controllers: [EmployeeController],
   providers: [EmployeeService],
+  exports: [EmployeeService],
 })
-export class EmployeeModule {} 
+export class EmployeeModule {}

@@ -163,4 +163,4 @@ export class SalesReportResponseDto {
     type: [ProductSalesDataDto],
   })
   product_sales?: ProductSalesDataDto[];
-} 
+}

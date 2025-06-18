@@ -1,4 +1,8 @@
-import { Injectable, BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { VnpayService } from 'nestjs-vnpay';
 
 export interface VNPayPaymentRequest {
@@ -35,10 +39,10 @@ export class VNPayService {
   async createPaymentUrl(paymentRequest: VNPayPaymentRequest): Promise<string> {
     try {
       const { orderId, amount, orderInfo, returnUrl, ipAddr } = paymentRequest;
-      
+
       // Tạo mã giao dịch duy nhất
       const txnRef = `ORDER_${orderId}_${Date.now()}`;
-      
+
       // Thông tin thanh toán - sử dụng any để tránh lỗi type từ package
       const paymentData: any = {
         vnp_TxnRef: txnRef,
@@ -55,7 +59,9 @@ export class VNPayService {
       return paymentUrl;
     } catch (error) {
       console.error('Error creating VNPay payment URL:', error);
-      throw new InternalServerErrorException('Không thể tạo URL thanh toán VNPay');
+      throw new InternalServerErrorException(
+        'Không thể tạo URL thanh toán VNPay',
+      );
     }
   }
 
@@ -72,7 +78,7 @@ export class VNPayService {
     try {
       // Xác thực chữ ký
       const isValidSignature = this.vnpayService.verifyReturnUrl(callbackData);
-      
+
       if (!isValidSignature) {
         return { isValid: false };
       }
@@ -80,7 +86,7 @@ export class VNPayService {
       // Parse thông tin từ callback
       const orderId = this.extractOrderIdFromTxnRef(callbackData.vnp_TxnRef);
       const amount = parseInt(callbackData.vnp_Amount) / 100; // Chuyển về số tiền thực
-      
+
       return {
         isValid: true,
         orderId,
@@ -97,7 +103,10 @@ export class VNPayService {
   /**
    * Kiểm tra trạng thái thanh toán có thành công không
    */
-  isPaymentSuccessful(responseCode: string, transactionStatus: string): boolean {
+  isPaymentSuccessful(
+    responseCode: string,
+    transactionStatus: string,
+  ): boolean {
     return responseCode === '00' && transactionStatus === '00';
   }
 
@@ -111,7 +120,7 @@ export class VNPayService {
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
     const seconds = String(date.getSeconds()).padStart(2, '0');
-    
+
     return `${year}${month}${day}${hours}${minutes}${seconds}`;
   }
 
@@ -130,4 +139,4 @@ export class VNPayService {
       throw new BadRequestException('Mã giao dịch không hợp lệ');
     }
   }
-} 
+}

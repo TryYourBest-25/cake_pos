@@ -16,10 +16,12 @@ import { InvoiceModule } from '../invoice/invoice.module';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         tmnCode: configService.get<string>('VNPAY_TMN_CODE') || 'your_tmn_code',
-        secureSecret: configService.get<string>('VNPAY_SECRET_KEY') || 'your_secret_key',
-        vnpayHost: configService.get<string>('VNPAY_HOST') || 'https://sandbox.vnpayment.vn',
+        secureSecret:
+          configService.get<string>('VNPAY_SECRET_KEY') || 'your_secret_key',
+        vnpayHost:
+          configService.get<string>('VNPAY_HOST') ||
+          'https://sandbox.vnpayment.vn',
         testMode: configService.get<boolean>('VNPAY_TEST_MODE') !== false, // Default to test mode
-
       }),
       inject: [ConfigService],
     }),
@@ -28,4 +30,4 @@ import { InvoiceModule } from '../invoice/invoice.module';
   providers: [PaymentService, VNPayService],
   exports: [PaymentService, VNPayService], // Export services nếu cần sử dụng ở module khác
 })
-export class PaymentModule {} 
+export class PaymentModule {}

@@ -1,7 +1,16 @@
-import { Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Decimal } from '@prisma/client/runtime/library';
-import { CalculateOrderDto, OrderCalculationResult, CalculateOrderProductDto, CalculateOrderDiscountDto } from './dto/calculate-order.dto';
+import {
+  CalculateOrderDto,
+  OrderCalculationResult,
+  CalculateOrderProductDto,
+  CalculateOrderDiscountDto,
+} from './dto/calculate-order.dto';
 
 @Injectable()
 export class OrderCalculationService {
@@ -10,20 +19,26 @@ export class OrderCalculationService {
   /**
    * Tính toán chi tiết giá tiền cho order mà không tạo order thực sự
    */
-  async calculateOrder(calculateOrderDto: CalculateOrderDto): Promise<OrderCalculationResult> {
+  async calculateOrder(
+    calculateOrderDto: CalculateOrderDto,
+  ): Promise<OrderCalculationResult> {
     const { products, discounts } = calculateOrderDto;
 
     // 1. Tính tổng tiền từ products
     const productCalculation = await this.calculateProductsTotal(products);
-    
+
     // 2. Tính discount
     const discountCalculation = await this.calculateDiscounts(
-      discounts || [], 
-      productCalculation.total_amount
+      discounts || [],
+      productCalculation.total_amount,
     );
 
     // 3. Tính final amount
-    const final_amount = Math.max(0, productCalculation.total_amount - discountCalculation.total_discount_applied);
+    const final_amount = Math.max(
+      0,
+      productCalculation.total_amount -
+        discountCalculation.total_discount_applied,
+    );
 
     return {
       total_amount: productCalculation.total_amount,
@@ -39,7 +54,9 @@ export class OrderCalculationService {
    */
   async calculateProductsTotal(products: CalculateOrderProductDto[]) {
     if (!products || products.length === 0) {
-      throw new UnprocessableEntityException('Order must contain at least one product.');
+      throw new UnprocessableEntityException(
+        'Order must contain at least one product.',
+      );
     }
 
     let total_amount = 0;
@@ -62,11 +79,15 @@ export class OrderCalculationService {
       });
 
       if (!productPriceInfo) {
-        throw new NotFoundException(`Giá sản phẩm với ID ${productDto.product_price_id} không tồn tại.`);
+        throw new NotFoundException(
+          `Giá sản phẩm với ID ${productDto.product_price_id} không tồn tại.`,
+        );
       }
 
       if (!productPriceInfo.is_active) {
-        throw new UnprocessableEntityException(`Giá sản phẩm với ID ${productDto.product_price_id} is not active.`);
+        throw new UnprocessableEntityException(
+          `Giá sản phẩm với ID ${productDto.product_price_id} is not active.`,
+        );
       }
 
       const unit_price = Number(productPriceInfo.price);
@@ -92,7 +113,10 @@ export class OrderCalculationService {
   /**
    * Tính tổng discount áp dụng
    */
-  async calculateDiscounts(discounts: CalculateOrderDiscountDto[], total_amount: number) {
+  async calculateDiscounts(
+    discounts: CalculateOrderDiscountDto[],
+    total_amount: number,
+  ) {
     let total_discount_applied = 0;
     const discountDetails: Array<{
       discount_id: number;
@@ -117,31 +141,41 @@ export class OrderCalculationService {
       });
 
       if (!discountInfo) {
-        throw new NotFoundException(`Giảm giá với ID ${discountDto.discount_id} không tồn tại.`);
+        throw new NotFoundException(
+          `Giảm giá với ID ${discountDto.discount_id} không tồn tại.`,
+        );
       }
 
       // Kiểm tra tính hợp lệ của discount
       if (!discountInfo.is_active) {
-        throw new UnprocessableEntityException(`Discount '${discountInfo.name}' is not active.`);
+        throw new UnprocessableEntityException(
+          `Discount '${discountInfo.name}' is not active.`,
+        );
       }
 
       const now = new Date();
       if (now > new Date(discountInfo.valid_until)) {
-        throw new UnprocessableEntityException(`Discount '${discountInfo.name}' has expired.`);
+        throw new UnprocessableEntityException(
+          `Discount '${discountInfo.name}' has expired.`,
+        );
       }
 
       if (discountInfo.valid_from && now < new Date(discountInfo.valid_from)) {
-        throw new UnprocessableEntityException(`Discount '${discountInfo.name}' is not yet valid.`);
+        throw new UnprocessableEntityException(
+          `Discount '${discountInfo.name}' is not yet valid.`,
+        );
       }
 
       if (totalAmountDecimal.lessThan(discountInfo.min_required_order_value)) {
         throw new UnprocessableEntityException(
-          `Tổng đơn hàng (${total_amount}) không đạt giá trị tối thiểu yêu cầu (${discountInfo.min_required_order_value}) cho giảm giá '${discountInfo.name}'.`
+          `Tổng đơn hàng (${total_amount}) không đạt giá trị tối thiểu yêu cầu (${discountInfo.min_required_order_value}) cho giảm giá '${discountInfo.name}'.`,
         );
       }
 
       // Tính discount amount
-      const discountPercentage = new Decimal(discountInfo.discount_value).dividedBy(100);
+      const discountPercentage = new Decimal(
+        discountInfo.discount_value,
+      ).dividedBy(100);
       let discountAmount = totalAmountDecimal.times(discountPercentage);
 
       // Áp dụng max discount amount
@@ -171,7 +205,9 @@ export class OrderCalculationService {
   /**
    * Tính lại giá cho order hiện có (dùng cho update)
    */
-  async recalculateExistingOrder(orderId: number): Promise<OrderCalculationResult> {
+  async recalculateExistingOrder(
+    orderId: number,
+  ): Promise<OrderCalculationResult> {
     const order = await this.prisma.order.findUnique({
       where: { order_id: orderId },
       include: {
@@ -198,16 +234,20 @@ export class OrderCalculationService {
     }
 
     // Chuyển đổi dữ liệu order hiện có thành DTO
-    const products: CalculateOrderProductDto[] = order.order_product.map(op => ({
-      product_price_id: op.product_price_id,
-      quantity: op.quantity,
-      option: op.option || undefined,
-    }));
+    const products: CalculateOrderProductDto[] = order.order_product.map(
+      (op) => ({
+        product_price_id: op.product_price_id,
+        quantity: op.quantity,
+        option: op.option || undefined,
+      }),
+    );
 
-    const discounts: CalculateOrderDiscountDto[] = order.order_discount.map(od => ({
-      discount_id: od.discount_id,
-    }));
+    const discounts: CalculateOrderDiscountDto[] = order.order_discount.map(
+      (od) => ({
+        discount_id: od.discount_id,
+      }),
+    );
 
     return this.calculateOrder({ products, discounts });
   }
-} 
+}

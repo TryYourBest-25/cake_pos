@@ -31,17 +31,6 @@ Table category {
   Note: 'This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments'
 }
 
-Table coupon {
-  coupon_id Int [pk, increment]
-  coupon String [unique, not null]
-  description String
-  created_at DateTime [default: `now()`]
-  updated_at DateTime [default: `now()`]
-  discount discount
-
-  Note: 'This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments'
-}
-
 Table customer {
   customer_id Int [pk, increment]
   membership_type_id Int [not null]
@@ -64,7 +53,7 @@ Table discount {
   discount_id Int [pk, increment]
   name String [unique, not null]
   description String
-  coupon_id Int [unique, not null]
+  coupon_code String [unique, not null]
   discount_value Decimal [not null]
   min_required_order_value Int [not null]
   max_discount_amount Int [not null]
@@ -77,7 +66,6 @@ Table discount {
   is_active Boolean [not null, default: true]
   created_at DateTime [default: `now()`]
   updated_at DateTime [default: `now()`]
-  coupon coupon [not null]
   order_discount order_discount [not null]
 
   Note: 'This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
@@ -216,14 +204,14 @@ Table payment_method {
 
 Table product {
   product_id Int [pk, increment]
-  category_id Int
+  category_id Int [not null]
   name String [unique, not null]
   description String
   is_signature Boolean [default: false]
   image_path String
   created_at DateTime [default: `now()`]
   updated_at DateTime [default: `now()`]
-  category category
+  category category [not null]
   product_price product_price [not null]
 
   Note: 'This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments'
@@ -316,8 +304,6 @@ Ref: account.role_id > role.role_id
 Ref: customer.account_id > account.account_id
 
 Ref: customer.membership_type_id > membership_type.membership_type_id
-
-Ref: discount.coupon_id - coupon.coupon_id
 
 Ref: employee.account_id - account.account_id
 

@@ -1,7 +1,23 @@
-import { Injectable, NotFoundException, BadRequestException, ConflictException, InternalServerErrorException, UnprocessableEntityException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  ConflictException,
+  InternalServerErrorException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Prisma, order, order_status_enum, product_price, discount as DiscountModel } from '../generated/prisma/client';
-import { CreateOrderDto, OrderStatusEnum as OrderStatusDtoEnum } from './dto/create-order.dto';
+import {
+  Prisma,
+  order,
+  order_status_enum,
+  product_price,
+  discount as DiscountModel,
+} from '../generated/prisma/client';
+import {
+  CreateOrderDto,
+  OrderStatusEnum as OrderStatusDtoEnum,
+} from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { PaginationDto, PaginatedResult } from '../common/dto/pagination.dto';
 import { Decimal } from '@prisma/client/runtime/library';
@@ -14,21 +30,33 @@ export class OrderService {
   // CREATE ORDER
   // ==================================
   async create(createOrderDto: CreateOrderDto): Promise<order> {
-    const { employee_id, customer_id, products, discounts, customize_note } = createOrderDto;
+    const { employee_id, customer_id, products, discounts, customize_note } =
+      createOrderDto;
 
     // 1. Validate Employee
-    const employee = await this.prisma.employee.findUnique({ where: { employee_id } });
-    if (!employee) throw new NotFoundException(`Nhân viên với ID ${employee_id} không tồn tại.`);
+    const employee = await this.prisma.employee.findUnique({
+      where: { employee_id },
+    });
+    if (!employee)
+      throw new NotFoundException(
+        `Nhân viên với ID ${employee_id} không tồn tại.`,
+      );
 
     // 2. Validate Customer (if provided)
     if (customer_id) {
-      const customer = await this.prisma.customer.findUnique({ where: { customer_id } });
-      if (!customer) throw new NotFoundException(`Khách hàng với ID ${customer_id} không tồn tại.`);
+      const customer = await this.prisma.customer.findUnique({
+        where: { customer_id },
+      });
+      if (!customer)
+        throw new NotFoundException(
+          `Khách hàng với ID ${customer_id} không tồn tại.`,
+        );
     }
 
     // 3. Process Products and Calculate total_amount
     let calculatedTotalAmount = new Decimal(0);
-    const orderProductCreateInputs: Prisma.order_productCreateWithoutOrderInput[] = [];
+    const orderProductCreateInputs: Prisma.order_productCreateWithoutOrderInput[] =
+      [];
 
     if (!products || products.length === 0) {
       throw new BadRequestException('Order must contain at least one product.');
@@ -39,16 +67,24 @@ export class OrderService {
         where: { product_price_id: productDto.product_price_id },
       });
       if (!productPriceInfo) {
-        throw new NotFoundException(`Giá sản phẩm với ID ${productDto.product_price_id} không tồn tại.`);
+        throw new NotFoundException(
+          `Giá sản phẩm với ID ${productDto.product_price_id} không tồn tại.`,
+        );
       }
       if (!productPriceInfo.is_active) {
-        throw new UnprocessableEntityException(`ProductPrice with ID ${productDto.product_price_id} is not active.`);
+        throw new UnprocessableEntityException(
+          `ProductPrice with ID ${productDto.product_price_id} is not active.`,
+        );
       }
-      calculatedTotalAmount = calculatedTotalAmount.plus(new Decimal(productPriceInfo.price).times(productDto.quantity));
+      calculatedTotalAmount = calculatedTotalAmount.plus(
+        new Decimal(productPriceInfo.price).times(productDto.quantity),
+      );
       orderProductCreateInputs.push({
         quantity: productDto.quantity,
         option: productDto.option,
-        product_price: { connect: { product_price_id: productDto.product_price_id } },
+        product_price: {
+          connect: { product_price_id: productDto.product_price_id },
+        },
       });
     }
 
@@ -56,7 +92,8 @@ export class OrderService {
     // Đây là phần phức tạp, cần logic chi tiết về cách áp dụng discount (thứ tự, loại, điều kiện)
     // Tạm thời, giả sử discount_value là số tiền giảm trực tiếp trên total_amount
     let calculatedFinalAmount = new Decimal(calculatedTotalAmount);
-    const orderDiscountCreateInputs: Prisma.order_discountCreateWithoutOrderInput[] = [];
+    const orderDiscountCreateInputs: Prisma.order_discountCreateWithoutOrderInput[] =
+      [];
     let totalDiscountApplied = new Decimal(0);
 
     if (discounts && discounts.length > 0) {
@@ -65,27 +102,45 @@ export class OrderService {
           where: { discount_id: discountDto.discount_id },
         });
         if (!discountInfo) {
-          throw new NotFoundException(`Giảm giá với ID ${discountDto.discount_id} không tồn tại.`);
+          throw new NotFoundException(
+            `Giảm giá với ID ${discountDto.discount_id} không tồn tại.`,
+          );
         }
-        if (!discountInfo.is_active || new Date() > new Date(discountInfo.valid_until) || (discountInfo.valid_from && new Date() < new Date(discountInfo.valid_from))){
-            throw new UnprocessableEntityException(`Discount ID ${discountInfo.discount_id} ('${discountInfo.name}') is not valid or active at this time.`);
+        if (
+          !discountInfo.is_active ||
+          new Date() > new Date(discountInfo.valid_until) ||
+          (discountInfo.valid_from &&
+            new Date() < new Date(discountInfo.valid_from))
+        ) {
+          throw new UnprocessableEntityException(
+            `Discount ID ${discountInfo.discount_id} ('${discountInfo.name}') is not valid or active at this time.`,
+          );
         }
-        if (calculatedTotalAmount.lessThan(discountInfo.min_required_order_value)) {
-            throw new UnprocessableEntityException(`Order total (${calculatedTotalAmount}) does not meet minimum required value (${discountInfo.min_required_order_value}) for discount '${discountInfo.name}'.`);
+        if (
+          calculatedTotalAmount.lessThan(discountInfo.min_required_order_value)
+        ) {
+          throw new UnprocessableEntityException(
+            `Order total (${calculatedTotalAmount}) does not meet minimum required value (${discountInfo.min_required_order_value}) for discount '${discountInfo.name}'.`,
+          );
         }
 
         // Logic tính discount_amount cho percentage
         // discountInfo.discount_value là Decimal(4,1) ví dụ 10.5 (nghĩa là 10.5%)
-        const discountPercentage = new Decimal(discountInfo.discount_value).dividedBy(100); // ví dụ: 10.5 -> 0.105
-        let currentDiscountAmount = calculatedTotalAmount.times(discountPercentage);
+        const discountPercentage = new Decimal(
+          discountInfo.discount_value,
+        ).dividedBy(100); // ví dụ: 10.5 -> 0.105
+        let currentDiscountAmount =
+          calculatedTotalAmount.times(discountPercentage);
 
         // Áp dụng max_discount_amount
         const maxDiscount = new Decimal(discountInfo.max_discount_amount);
         if (currentDiscountAmount.greaterThan(maxDiscount)) {
           currentDiscountAmount = maxDiscount;
         }
-        
-        calculatedFinalAmount = calculatedFinalAmount.minus(currentDiscountAmount);
+
+        calculatedFinalAmount = calculatedFinalAmount.minus(
+          currentDiscountAmount,
+        );
         totalDiscountApplied = totalDiscountApplied.plus(currentDiscountAmount);
 
         orderDiscountCreateInputs.push({
@@ -94,7 +149,8 @@ export class OrderService {
         });
       }
     }
-    if (calculatedFinalAmount.lessThan(0)) calculatedFinalAmount = new Decimal(0);
+    if (calculatedFinalAmount.lessThan(0))
+      calculatedFinalAmount = new Decimal(0);
 
     // 5. Create Order data
     const orderData: Prisma.orderCreateInput = {
@@ -106,22 +162,28 @@ export class OrderService {
       employee: { connect: { employee_id } },
       ...(customer_id && { customer: { connect: { customer_id } } }),
       order_product: { create: orderProductCreateInputs },
-      ...(orderDiscountCreateInputs.length > 0 && { order_discount: { create: orderDiscountCreateInputs } }),
+      ...(orderDiscountCreateInputs.length > 0 && {
+        order_discount: { create: orderDiscountCreateInputs },
+      }),
     };
 
     try {
       return await this.prisma.order.create({
         data: orderData,
-        include: { 
-            customer: true, 
-            employee: true, 
-            order_product: { include: { product_price: {include: {product_size: true, product:true}} } }, 
-            order_discount: { include: { discount: true } },
-            payment: true 
-        }
+        include: {
+          customer: true,
+          employee: true,
+          order_product: {
+            include: {
+              product_price: { include: { product_size: true, product: true } },
+            },
+          },
+          order_discount: { include: { discount: true } },
+          payment: true,
+        },
       });
     } catch (error) {
-      console.error("Error creating order:", error);
+      console.error('Error creating order:', error);
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         // Handle specific Prisma errors if necessary
       }
@@ -138,7 +200,7 @@ export class OrderService {
       customerId?: number;
       employeeId?: number;
       status?: OrderStatusDtoEnum;
-    }
+    },
   ): Promise<PaginatedResult<order>> {
     const { page = 1, limit = 10 } = paginationDto;
     const skip = (page - 1) * limit;
@@ -154,13 +216,6 @@ export class OrderService {
         take: limit,
         where,
         orderBy: { order_id: 'desc' },
-        include: { 
-          customer: true, 
-          employee: true, 
-          order_product: { include: { product_price: {include: {product_size: true, product:true}} } }, 
-          order_discount: { include: { discount: true } },
-          payment: true 
-        },
       }),
       this.prisma.order.count({ where }),
     ]);
@@ -184,11 +239,15 @@ export class OrderService {
     const order = await this.prisma.order.findUnique({
       where: { order_id: id },
       include: include || {
-        customer: true, 
-        employee: true, 
-        order_product: { include: { product_price: {include: {product_size: true, product:true}} } }, 
+        customer: true,
+        employee: true,
+        order_product: {
+          include: {
+            product_price: { include: { product_size: true, product: true } },
+          },
+        },
         order_discount: { include: { discount: true } },
-        payment: true 
+        payment: true,
       },
     });
     if (!order) {
@@ -203,13 +262,16 @@ export class OrderService {
   async update(id: number, updateOrderDto: UpdateOrderDto): Promise<order> {
     const existingOrder = await this.findOne(id); // Checks existence and fetches current state
 
-    const { employee_id, customer_id, products, discounts, customize_note } = updateOrderDto;
-    
+    const { employee_id, customer_id, products, discounts, customize_note } =
+      updateOrderDto;
+
     // Start with data that can be directly updated
     const dataToUpdate: Prisma.orderUpdateInput = {
       ...(employee_id && { employee: { connect: { employee_id } } }),
-      ...(customer_id !== undefined && { 
-          customer: customer_id ? { connect: { customer_id } } : { disconnect: true } 
+      ...(customer_id !== undefined && {
+        customer: customer_id
+          ? { connect: { customer_id } }
+          : { disconnect: true },
       }), // Allow setting customer_id to null
       ...(customize_note !== undefined && { customize_note }),
       // status không được cập nhật trực tiếp từ client, chỉ thông qua business logic
@@ -217,105 +279,178 @@ export class OrderService {
 
     // Transaction for product/discount updates and final amount recalculation
     return this.prisma.$transaction(async (tx) => {
-        let newTotalAmount = new Decimal(existingOrder.total_amount || 0);
-        let newFinalAmount = new Decimal(existingOrder.final_amount || 0);
+      let newTotalAmount = new Decimal(existingOrder.total_amount || 0);
+      let newFinalAmount = new Decimal(existingOrder.final_amount || 0);
 
-        // Handle product updates: Delete existing and create new if `products` array is provided
-        if (products !== undefined) {
-            await tx.order_product.deleteMany({ where: { order_id: id } });
-            newTotalAmount = new Decimal(0);
-            if (products.length > 0) {
-                const newOrderProductCreateInputs: Prisma.order_productCreateWithoutOrderInput[] = [];
-                for (const productDto of products) {
-                    const productPriceInfo = await tx.product_price.findUnique({ 
-                        where: { product_price_id: productDto.product_price_id }
-                    });
-                    if (!productPriceInfo) throw new NotFoundException(`Giá sản phẩm với ID ${productDto.product_price_id} không tồn tại.`);
-                    if (!productPriceInfo.is_active) throw new UnprocessableEntityException(`ProductPrice ID ${productDto.product_price_id} is not active.`);
-                    newTotalAmount = newTotalAmount.plus(new Decimal(productPriceInfo.price).times(productDto.quantity));
-                    newOrderProductCreateInputs.push({
-                        quantity: productDto.quantity, 
-                        option: productDto.option,
-                        product_price: { connect: { product_price_id: productDto.product_price_id } }
-                    });
-                }
-                dataToUpdate.order_product = { create: newOrderProductCreateInputs };
-            } else {
-                 dataToUpdate.order_product = { deleteMany: {} }; // Remove all products if empty array sent
-            }
-            dataToUpdate.total_amount = newTotalAmount.toNumber();
-        } else {
-            // If products not in DTO, total amount remains as is (or could be recalculated from existing products if needed)
-            newTotalAmount = new Decimal(existingOrder.total_amount || 0); 
-        }
-
-        // Handle discount updates: Delete existing and create new if `discounts` array is provided
-        // This also means recalculating final_amount based on newTotalAmount and new discounts
-        newFinalAmount = new Decimal(newTotalAmount); // Start final amount from potentially new total amount
-        if (discounts !== undefined) {
-            await tx.order_discount.deleteMany({ where: { order_id: id } });
-            let totalDiscountAppliedOnUpdate = new Decimal(0);
-            if (discounts.length > 0) {
-                const newOrderDiscountCreateInputs: Prisma.order_discountCreateWithoutOrderInput[] = [];
-                for (const discountDto of discounts) {
-                    const discountInfo = await tx.discount.findUnique({ 
-                        where: { discount_id: discountDto.discount_id }
-                    });
-                    if (!discountInfo) throw new NotFoundException(`Giảm giá với ID ${discountDto.discount_id} không tồn tại.`);
-                    if (!discountInfo.is_active || new Date() > new Date(discountInfo.valid_until) || (discountInfo.valid_from && new Date() < new Date(discountInfo.valid_from))){
-                        throw new UnprocessableEntityException(`Discount ID ${discountInfo.discount_id} ('${discountInfo.name}') is not valid or active at this time.`);
-                    }
-                    if (newTotalAmount.lessThan(discountInfo.min_required_order_value)) {
-                        throw new UnprocessableEntityException(`Order total (${newTotalAmount}) does not meet minimum required value (${discountInfo.min_required_order_value}) for discount '${discountInfo.name}'.`);
-                    }
-                    
-                    // Logic tính discount_amount cho percentage (trong update)
-                    const discountPercentageUpdate = new Decimal(discountInfo.discount_value).dividedBy(100);
-                    let currentDiscountAmountUpdate = newTotalAmount.times(discountPercentageUpdate);
-
-                    const maxDiscountUpdate = new Decimal(discountInfo.max_discount_amount);
-                    if (currentDiscountAmountUpdate.greaterThan(maxDiscountUpdate)) {
-                        currentDiscountAmountUpdate = maxDiscountUpdate;
-                    }
-
-                    newFinalAmount = newFinalAmount.minus(currentDiscountAmountUpdate);
-                    totalDiscountAppliedOnUpdate = totalDiscountAppliedOnUpdate.plus(currentDiscountAmountUpdate);
-                    newOrderDiscountCreateInputs.push({
-                        discount_amount: currentDiscountAmountUpdate.toNumber(),
-                        discount: { connect: { discount_id: discountDto.discount_id } }
-                    });
-                }
-                dataToUpdate.order_discount = { create: newOrderDiscountCreateInputs };
-            } else {
-                 dataToUpdate.order_discount = { deleteMany: {} }; // Remove all discounts if empty array sent
-            }
-        } else {
-            // If discounts not in DTO, recalculate final amount from newTotalAmount and existing discounts
-            const existingDiscounts = await tx.order_discount.findMany({ 
-                where: { order_id: id }, 
-                include: { discount: true }
+      // Handle product updates: Delete existing and create new if `products` array is provided
+      if (products !== undefined) {
+        await tx.order_product.deleteMany({ where: { order_id: id } });
+        newTotalAmount = new Decimal(0);
+        if (products.length > 0) {
+          const newOrderProductCreateInputs: Prisma.order_productCreateWithoutOrderInput[] =
+            [];
+          for (const productDto of products) {
+            const productPriceInfo = await tx.product_price.findUnique({
+              where: { product_price_id: productDto.product_price_id },
             });
-            for (const od of existingDiscounts) {
-                // Simplified recalculation, assumes discount_amount stored is still valid.
-                // Realistically, should re-evaluate each discount based on newTotalAmount and its rules.
-                newFinalAmount = newFinalAmount.minus(od.discount_amount);
-            }
+            if (!productPriceInfo)
+              throw new NotFoundException(
+                `Giá sản phẩm với ID ${productDto.product_price_id} không tồn tại.`,
+              );
+            if (!productPriceInfo.is_active)
+              throw new UnprocessableEntityException(
+                `ProductPrice ID ${productDto.product_price_id} is not active.`,
+              );
+            newTotalAmount = newTotalAmount.plus(
+              new Decimal(productPriceInfo.price).times(productDto.quantity),
+            );
+            newOrderProductCreateInputs.push({
+              quantity: productDto.quantity,
+              option: productDto.option,
+              product_price: {
+                connect: { product_price_id: productDto.product_price_id },
+              },
+            });
+          }
+          dataToUpdate.order_product = { create: newOrderProductCreateInputs };
+        } else {
+          dataToUpdate.order_product = { deleteMany: {} }; // Remove all products if empty array sent
         }
-        if (newFinalAmount.lessThan(0)) newFinalAmount = new Decimal(0);
-        dataToUpdate.final_amount = newFinalAmount.toNumber();
+        dataToUpdate.total_amount = newTotalAmount.toNumber();
+      } else {
+        // If products not in DTO, total amount remains as is (or could be recalculated from existing products if needed)
+        newTotalAmount = new Decimal(existingOrder.total_amount || 0);
+      }
 
-        // Update the order itself
-        return tx.order.update({
-            where: { order_id: id },
-            data: dataToUpdate,
-            include: { 
-                customer: true, 
-                employee: true, 
-                order_product: { include: { product_price: {include: {product_size: true, product: true}} } }, 
-                order_discount: { include: { discount: true } },
-                payment: true
+      // Handle discount updates: Delete existing and create new if `discounts` array is provided
+      // This also means recalculating final_amount based on newTotalAmount and new discounts
+      newFinalAmount = new Decimal(newTotalAmount); // Start final amount from potentially new total amount
+      if (discounts !== undefined) {
+        await tx.order_discount.deleteMany({ where: { order_id: id } });
+        let totalDiscountAppliedOnUpdate = new Decimal(0);
+        if (discounts.length > 0) {
+          const newOrderDiscountCreateInputs: Prisma.order_discountCreateWithoutOrderInput[] =
+            [];
+          for (const discountDto of discounts) {
+            const discountInfo = await tx.discount.findUnique({
+              where: { discount_id: discountDto.discount_id },
+            });
+            if (!discountInfo)
+              throw new NotFoundException(
+                `Giảm giá với ID ${discountDto.discount_id} không tồn tại.`,
+              );
+            if (
+              !discountInfo.is_active ||
+              new Date() > new Date(discountInfo.valid_until) ||
+              (discountInfo.valid_from &&
+                new Date() < new Date(discountInfo.valid_from))
+            ) {
+              throw new UnprocessableEntityException(
+                `Discount ID ${discountInfo.discount_id} ('${discountInfo.name}') is not valid or active at this time.`,
+              );
             }
+            if (
+              newTotalAmount.lessThan(discountInfo.min_required_order_value)
+            ) {
+              throw new UnprocessableEntityException(
+                `Order total (${newTotalAmount}) does not meet minimum required value (${discountInfo.min_required_order_value}) for discount '${discountInfo.name}'.`,
+              );
+            }
+
+            // Logic tính discount_amount cho percentage (trong update)
+            const discountPercentageUpdate = new Decimal(
+              discountInfo.discount_value,
+            ).dividedBy(100);
+            let currentDiscountAmountUpdate = newTotalAmount.times(
+              discountPercentageUpdate,
+            );
+
+            const maxDiscountUpdate = new Decimal(
+              discountInfo.max_discount_amount,
+            );
+            if (currentDiscountAmountUpdate.greaterThan(maxDiscountUpdate)) {
+              currentDiscountAmountUpdate = maxDiscountUpdate;
+            }
+
+            newFinalAmount = newFinalAmount.minus(currentDiscountAmountUpdate);
+            totalDiscountAppliedOnUpdate = totalDiscountAppliedOnUpdate.plus(
+              currentDiscountAmountUpdate,
+            );
+            newOrderDiscountCreateInputs.push({
+              discount_amount: currentDiscountAmountUpdate.toNumber(),
+              discount: { connect: { discount_id: discountDto.discount_id } },
+            });
+          }
+          dataToUpdate.order_discount = {
+            create: newOrderDiscountCreateInputs,
+          };
+        } else {
+          dataToUpdate.order_discount = { deleteMany: {} }; // Remove all discounts if empty array sent
+        }
+      } else {
+        // If discounts not in DTO, recalculate final amount from newTotalAmount and existing discounts
+        const existingDiscounts = await tx.order_discount.findMany({
+          where: { order_id: id },
+          include: { discount: true },
         });
+        for (const od of existingDiscounts) {
+          // Simplified recalculation, assumes discount_amount stored is still valid.
+          // Realistically, should re-evaluate each discount based on newTotalAmount and its rules.
+          newFinalAmount = newFinalAmount.minus(od.discount_amount);
+        }
+      }
+      if (newFinalAmount.lessThan(0)) newFinalAmount = new Decimal(0);
+      dataToUpdate.final_amount = newFinalAmount.toNumber();
+
+      // Update the order itself
+      return tx.order.update({
+        where: { order_id: id },
+        data: dataToUpdate,
+        include: {
+          customer: true,
+          employee: true,
+          order_product: {
+            include: {
+              product_price: { include: { product_size: true, product: true } },
+            },
+          },
+          order_discount: { include: { discount: true } },
+          payment: true,
+        },
+      });
+    });
+  }
+
+  // ==================================
+  // CANCEL ORDER
+  // ==================================
+  async cancelOrder(id: number): Promise<order> {
+    const existingOrder = await this.findOne(id);
+
+    // Kiểm tra trạng thái hiện tại có thể hủy không
+    if (existingOrder.status === order_status_enum.CANCELLED) {
+      throw new BadRequestException('Đơn hàng đã được hủy trước đó');
+    }
+
+    if (existingOrder.status === order_status_enum.COMPLETED) {
+      throw new BadRequestException('Không thể hủy đơn hàng đã hoàn thành');
+    }
+
+    // Cập nhật trạng thái thành CANCELLED
+    return this.prisma.order.update({
+      where: { order_id: id },
+      data: { status: order_status_enum.CANCELLED },
+      include: {
+        customer: true,
+        employee: true,
+        order_product: {
+          include: {
+            product_price: { include: { product_size: true, product: true } },
+          },
+        },
+        order_discount: { include: { discount: true } },
+        payment: true,
+      },
     });
   }
 
@@ -327,15 +462,18 @@ export class OrderService {
     // Prisma onDelete: Cascade should handle related order_product, order_discount, payment
     // If status is COMPLETED or has payments, may prevent deletion based on business rules.
     if (orderToDelete.status === order_status_enum.COMPLETED) {
-        // throw new BadRequestException("Cannot delete a completed order.");
+      // throw new BadRequestException("Cannot delete a completed order.");
     }
     // Check for payments might be needed here depending on rules.
 
     await this.prisma.order.delete({ where: { order_id: id } });
-    return orderToDelete; 
+    return orderToDelete;
   }
 
-  async findByEmployee(employee_id: number, paginationDto: PaginationDto): Promise<PaginatedResult<order>> {
+  async findByEmployee(
+    employee_id: number,
+    paginationDto: PaginationDto,
+  ): Promise<PaginatedResult<order>> {
     const { page = 1, limit = 10 } = paginationDto;
     const skip = (page - 1) * limit;
 
@@ -366,7 +504,10 @@ export class OrderService {
     };
   }
 
-  async findByCustomer(customer_id: number, paginationDto: PaginationDto): Promise<PaginatedResult<order>> {
+  async findByCustomer(
+    customer_id: number,
+    paginationDto: PaginationDto,
+  ): Promise<PaginatedResult<order>> {
     const { page = 1, limit = 10 } = paginationDto;
     const skip = (page - 1) * limit;
 
@@ -396,4 +537,38 @@ export class OrderService {
       },
     };
   }
-} 
+
+  async findByStatus(
+    status: OrderStatusDtoEnum,
+    paginationDto: PaginationDto,
+  ): Promise<PaginatedResult<order>> {
+    const { page = 1, limit = 10 } = paginationDto;
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await Promise.all([
+      this.prisma.order.findMany({
+        where: { status: status as order_status_enum },
+        skip,
+        take: limit,
+        orderBy: { order_id: 'desc' },
+      }),
+      this.prisma.order.count({
+        where: { status: status as order_status_enum },
+      }),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+    };
+  }
+}

@@ -29,22 +29,6 @@ CREATE TRIGGER protect_order_status_update_trigger
     BEFORE UPDATE ON "order"
     FOR EACH ROW EXECUTE FUNCTION protect_order_status_update();
 
--- Trigger bảo vệ xóa đơn hàng khi đã hoàn thành
-CREATE OR REPLACE FUNCTION protect_order_status_delete()
-RETURNS TRIGGER AS $$
-BEGIN
-    -- Không cho phép xóa đơn hàng đã hoàn thành
-    IF OLD.status = 'COMPLETED' THEN
-        RAISE EXCEPTION 'Không thể xóa đơn hàng đã hoàn thành' USING ERRCODE = '45000';
-    END IF;
-    
-    RETURN OLD;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER protect_order_status_delete_trigger
-    BEFORE DELETE ON "order"
-    FOR EACH ROW EXECUTE FUNCTION protect_order_status_delete();
 
 -- ================================================================================================================
 -- TRIGGER BẢO VỆ TRẠNG THÁI THANH TOÁN
@@ -66,23 +50,6 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER protect_payment_status_update_trigger
     BEFORE UPDATE ON payment
     FOR EACH ROW EXECUTE FUNCTION protect_payment_status_update();
-
--- Trigger bảo vệ xóa thanh toán khi đã hoàn tất
-CREATE OR REPLACE FUNCTION protect_payment_status_delete()
-RETURNS TRIGGER AS $$
-BEGIN
-    -- Không cho phép xóa thanh toán đã hoàn tất
-    IF OLD.status = 'PAID' THEN
-        RAISE EXCEPTION 'Không thể xóa thanh toán đã hoàn tất' USING ERRCODE = '45000';
-    END IF;
-    
-    RETURN OLD;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER protect_payment_status_delete_trigger
-    BEFORE DELETE ON payment
-    FOR EACH ROW EXECUTE FUNCTION protect_payment_status_delete();
 
 -- ================================================================================================================
 -- TRIGGER BẢO VỆ CHI TIẾT ĐƠN HÀNG VÀ GIẢM GIÁ
@@ -245,3 +212,87 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER auto_cancel_processing_payments_trigger
     AFTER UPDATE ON "order"
     FOR EACH ROW EXECUTE FUNCTION auto_cancel_processing_payments();
+
+-- ================================================================================================================
+-- TRIGGER CỘNG ĐIỂM VÀ CẬP NHẬT SỐ LẦN SỬ DỤNG KHUYẾN MÃI
+-- ================================================================================================================
+
+-- Trigger tự động cộng điểm cho khách hàng và tăng số lần sử dụng khuyến mãi khi đơn hàng COMPLETED
+CREATE OR REPLACE FUNCTION reward_customer_and_update_discount_usage()
+RETURNS TRIGGER AS $$
+DECLARE
+    discount_record RECORD;
+BEGIN
+    -- Kiểm tra nếu đơn hàng được cập nhật thành COMPLETED
+    IF NEW.status = 'COMPLETED' AND (OLD.status IS NULL OR OLD.status != 'COMPLETED') THEN
+        
+        -- 1. Cộng điểm cho khách hàng (nếu có customer_id)
+        IF NEW.customer_id IS NOT NULL THEN
+            UPDATE customer 
+            SET current_points = COALESCE(current_points, 0) + 1,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE customer_id = NEW.customer_id;
+        END IF;
+        
+        -- 2. Tăng số lần sử dụng cho tất cả chương trình khuyến mãi được áp dụng trong đơn hàng
+        FOR discount_record IN 
+            SELECT DISTINCT d.discount_id 
+            FROM discount d
+            INNER JOIN order_discount od ON d.discount_id = od.discount_id
+            WHERE od.order_id = NEW.order_id
+        LOOP
+            UPDATE discount 
+            SET current_uses = COALESCE(current_uses, 0) + 1,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE discount_id = discount_record.discount_id;
+        END LOOP;
+        
+    END IF;
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER reward_customer_and_update_discount_usage_trigger
+    AFTER UPDATE ON "order"
+    FOR EACH ROW EXECUTE FUNCTION reward_customer_and_update_discount_usage();
+
+-- Trigger tự động cộng điểm cho khách hàng và tăng số lần sử dụng khuyến mãi khi thêm đơn hàng COMPLETED mới
+CREATE OR REPLACE FUNCTION reward_customer_and_update_discount_usage_insert()
+RETURNS TRIGGER AS $$
+DECLARE
+    discount_record RECORD;
+BEGIN
+    -- Kiểm tra nếu đơn hàng mới được thêm với trạng thái COMPLETED
+    IF NEW.status = 'COMPLETED' THEN
+        
+        -- 1. Cộng điểm cho khách hàng (nếu có customer_id)
+        IF NEW.customer_id IS NOT NULL THEN
+            UPDATE customer 
+            SET current_points = COALESCE(current_points, 0) + 1,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE customer_id = NEW.customer_id;
+        END IF;
+        
+        -- 2. Tăng số lần sử dụng cho tất cả chương trình khuyến mãi được áp dụng trong đơn hàng
+        FOR discount_record IN 
+            SELECT DISTINCT d.discount_id 
+            FROM discount d
+            INNER JOIN order_discount od ON d.discount_id = od.discount_id
+            WHERE od.order_id = NEW.order_id
+        LOOP
+            UPDATE discount 
+            SET current_uses = COALESCE(current_uses, 0) + 1,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE discount_id = discount_record.discount_id;
+        END LOOP;
+        
+    END IF;
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER reward_customer_and_update_discount_usage_insert_trigger
+    AFTER INSERT ON "order"
+    FOR EACH ROW EXECUTE FUNCTION reward_customer_and_update_discount_usage_insert();

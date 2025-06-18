@@ -1,4 +1,11 @@
-import { IsInt, IsNotEmpty, Min, IsOptional, IsString, IsUrl } from 'class-validator';
+import {
+  IsInt,
+  IsNotEmpty,
+  Min,
+  IsOptional,
+  IsString,
+  IsUrl,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -10,21 +17,21 @@ export class CreateVNPayPaymentDto {
   @Type(() => Number)
   orderId: number;
 
-  @ApiProperty({ 
-    description: 'Thông tin mô tả đơn hàng', 
+  @ApiProperty({
+    description: 'Thông tin mô tả đơn hàng',
     example: 'Thanh toan don hang #1 - Banh kem socola',
-    required: false 
+    required: false,
   })
   @IsOptional()
   @IsString()
   orderInfo?: string;
 
-  @ApiProperty({ 
-    description: 'URL trả về sau khi thanh toán', 
+  @ApiProperty({
+    description: 'URL trả về sau khi thanh toán',
     example: 'http://localhost:3001/payment/vnpay/callback',
-    required: false 
+    required: false,
   })
   @IsOptional()
   @IsUrl()
   returnUrl?: string;
-} 
+}

@@ -13,4 +13,4 @@ export class RegisterDto {
   @IsNumber()
   @IsNotEmpty()
   role_id: number;
-} 
+}

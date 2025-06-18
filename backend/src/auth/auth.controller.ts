@@ -1,12 +1,28 @@
-import { Controller, Post, Body, Get, UseGuards, Request, HttpCode, HttpStatus, Res, Req, UnauthorizedException } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  Patch,
+  UseGuards,
+  Request,
+  HttpCode,
+  HttpStatus,
+  Res,
+  Req,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Response, Request as ExpressRequest } from 'express';
 import { AuthService } from './auth.service';
 import { AuthTokenService } from './auth-token.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -22,9 +38,12 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  async login(@Body() loginDto: LoginDto, @Res({ passthrough: true }) res: Response) {
+  async login(
+    @Body() loginDto: LoginDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const result = await this.authService.login(loginDto);
-    
+
     // Set refresh token as HTTP-only cookie
     res.cookie('refresh_token', result.refresh_token, {
       httpOnly: true,
@@ -51,23 +70,46 @@ export class AuthController {
 
   @Get('profile')
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Lấy thông tin profile của user hiện tại' })
+  @ApiResponse({ status: 200, description: 'Thông tin profile của user' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'User không tồn tại' })
   async getProfile(@CurrentUser() user: any) {
-    return {
-      user,
-    };
+    return this.authService.getProfile(user.account_id);
+  }
+
+  @Patch('profile')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Cập nhật thông tin profile của user hiện tại' })
+  @ApiBody({ type: UpdateProfileDto })
+  @ApiResponse({ status: 200, description: 'Cập nhật profile thành công' })
+  @ApiResponse({ status: 400, description: 'Bad Request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'User không tồn tại' })
+  @ApiResponse({ status: 409, description: 'Conflict (username, email hoặc phone đã tồn tại)' })
+  async updateProfile(
+    @CurrentUser() user: any,
+    @Body() updateProfileDto: UpdateProfileDto,
+  ) {
+    return this.authService.updateProfile(user.account_id, updateProfileDto);
   }
 
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  async refreshToken(@Req() req: ExpressRequest, @Res({ passthrough: true }) res: Response) {
+  async refreshToken(
+    @Req() req: ExpressRequest,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     const refresh_token = req.cookies.refresh_token;
-    
+
     if (!refresh_token) {
       throw new UnauthorizedException('Refresh token không tìm thấy');
     }
 
     const result = await this.authTokenService.refreshToken(refresh_token);
-    
+
     // Set refresh token mới vào cookie
     res.cookie('refresh_token', result.refresh_token, {
       httpOnly: true,
@@ -96,4 +138,4 @@ export class AuthController {
   async test() {
     return { message: 'Auth controller is working!' };
   }
-} 
+}

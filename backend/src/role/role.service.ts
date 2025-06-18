@@ -61,4 +61,4 @@ export class RoleService {
       where: { role_id: id },
     });
   }
-} 
+}

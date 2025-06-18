@@ -1,4 +1,11 @@
-import { IsString, IsNotEmpty, MaxLength, IsInt, Min, IsOptional } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  MaxLength,
+  IsInt,
+  Min,
+  IsOptional,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateProductSizeDto {
@@ -21,4 +28,4 @@ export class CreateProductSizeDto {
   @IsString()
   @MaxLength(255)
   description?: string;
-} 
+}

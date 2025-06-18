@@ -32,4 +32,4 @@ export class SalesReportQueryDto {
   @Type(() => Number)
   @IsInt({ message: 'Employee ID phải là số nguyên' })
   employee_id?: number;
-} 
+}
