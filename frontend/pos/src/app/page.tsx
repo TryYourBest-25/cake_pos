@@ -7,18 +7,22 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function HomePage() {
-  const { user, isAuthenticated, logout } = useAuthStore();
+  const { user, isAuthenticated, logout, isHydrated } = useAuthStore();
   const router = useRouter();
 
   useEffect(() => {
+    // Wait for hydration to complete before redirecting
+    if (!isHydrated) return;
+    
     if (!isAuthenticated) {
       router.push("/login");
     } else {
       router.push("/pos");
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, router, isHydrated]);
 
-  if (!isAuthenticated) {
+  // Show loading while hydrating or redirecting
+  if (!isHydrated || !isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>

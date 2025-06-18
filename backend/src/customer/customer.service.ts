@@ -200,7 +200,7 @@ export class CustomerService {
   async findByPhone(phone: string): Promise<customer | null> {
     return this.prisma.customer.findUnique({
       where: { phone },
-      include: { account: true, membership_type: true },
+      include: { membership_type: true },
     });
   }
 

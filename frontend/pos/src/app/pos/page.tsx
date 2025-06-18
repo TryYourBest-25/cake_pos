@@ -1,16 +1,19 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, ShoppingCart, User, Plus, Minus } from "lucide-react";
+import { Search, ShoppingCart, User, Plus, Minus, Crown, Gift, Tag, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { usePOSStore } from "@/stores/pos";
-import { categoryService } from "@/lib/services/category-service";
-import { productService } from "@/lib/services/product-service";
-import { Category, Product, ProductPrice } from "@/types";
+import { usePOSData } from "@/hooks/use-pos-data";
+import { ProductDetailDialog } from "@/components/pos/product-detail-dialog";
+import { CustomerSearchDialog } from "@/components/pos/customer-search-dialog";
+import { CouponDialog } from "@/components/pos/coupon-dialog";
+import { AuthGuard } from "@/components/auth/auth-guard";
+import { Product, POSCustomer } from "@/types";
 
 // Category icons mapping
 const categoryIcons: Record<string, string> = {
@@ -27,138 +30,65 @@ const categoryIcons: Record<string, string> = {
 
 export default function POSPage() {
   const {
-    categories,
     selectedCategoryId,
     cart,
     searchQuery,
-    isLoadingCategories,
-    isLoadingProducts,
-    setCategories,
+    appliedDiscounts,
     setSelectedCategoryId,
-    setProducts,
-    setAllProducts,
     setSearchQuery,
-    setIsLoadingCategories,
-    setIsLoadingProducts,
-    addToCart,
     updateCartItemQuantity,
     removeFromCart,
+    removeDiscount,
     getCartTotal,
-    getCartItemCount,
+    getTotalDiscount,
+    getFinalTotal,
     getFilteredProducts
   } = usePOSStore();
 
-  const [customer] = useState({ name: "James Anderson", phone: "0123456789" });
-  const [activeProducts, setActiveProducts] = useState<(Product & { activePrice?: ProductPrice })[]>([]);
+  // Use optimized data hook
+  const { categories, products, isLoadingCategories, isLoadingProducts } = usePOSData();
 
-  // Load categories on mount
-  useEffect(() => {
-    const loadCategories = async () => {
-      try {
-        setIsLoadingCategories(true);
-        const result = await categoryService.getAll({ limit: 100 });
-        setCategories(result.data);
-        
-        // Set first category as selected if none selected
-        if (!selectedCategoryId && result.data.length > 0) {
-          setSelectedCategoryId(result.data[0].category_id);
-        }
-      } catch (error) {
-        console.error('Lỗi khi tải danh mục:', error);
-      } finally {
-        setIsLoadingCategories(false);
-      }
-    };
+  const [customer, setCustomer] = useState<POSCustomer | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [isProductDialogOpen, setIsProductDialogOpen] = useState(false);
+  const [isCustomerDialogOpen, setIsCustomerDialogOpen] = useState(false);
+  const [isCouponDialogOpen, setIsCouponDialogOpen] = useState(false);
 
-    loadCategories();
-  }, []);
+  const handleProductClick = (product: Product) => {
+    setSelectedProduct(product);
+    setIsProductDialogOpen(true);
+  };
 
-  // Load all products on mount
-  useEffect(() => {
-    const loadAllProducts = async () => {
-      try {
-        setIsLoadingProducts(true);
-        const result = await productService.getAll({ limit: 100 });
-        setAllProducts(result.data);
-      } catch (error) {
-        console.error('Lỗi khi tải tất cả sản phẩm:', error);
-      } finally {
-        setIsLoadingProducts(false);
-      }
-    };
+  const closeProductDialog = () => {
+    setIsProductDialogOpen(false);
+    setSelectedProduct(null);
+  };
 
-    loadAllProducts();
-  }, []);
+  const handleCustomerSelect = (newCustomer: POSCustomer) => {
+    setCustomer(newCustomer);
+  };
 
-  // Load products by category
-  useEffect(() => {
-    if (!selectedCategoryId) return;
+  const openCustomerDialog = () => {
+    setIsCustomerDialogOpen(true);
+  };
 
-    const loadProductsByCategory = async () => {
-      try {
-        setIsLoadingProducts(true);
-        const result = await productService.getByCategory(selectedCategoryId, { limit: 100 });
-        setProducts(result.data);
-      } catch (error) {
-        console.error('Lỗi khi tải sản phẩm theo danh mục:', error);
-      } finally {
-        setIsLoadingProducts(false);
-      }
-    };
+  const closeCustomerDialog = () => {
+    setIsCustomerDialogOpen(false);
+  };
 
-    loadProductsByCategory();
-  }, [selectedCategoryId]);
+  const openCouponDialog = () => {
+    setIsCouponDialogOpen(true);
+  };
 
-  // Load product prices for filtered products
-  useEffect(() => {
-    const loadProductPrices = async () => {
-      const filteredProducts = getFilteredProducts();
-      const productsWithPrices = await Promise.all(
-        filteredProducts.map(async (product) => {
-          try {
-            const prices = await productService.getProductPrices(product.product_id);
-            const activePrice = prices.find(p => p.is_active);
-            return { ...product, activePrice };
-          } catch (error) {
-            console.error(`Lỗi khi tải giá sản phẩm ${product.product_id}:`, error);
-            return product;
-          }
-        })
-      );
-      setActiveProducts(productsWithPrices);
-    };
-
-    const filteredProducts = getFilteredProducts();
-    if (filteredProducts.length > 0) {
-      loadProductPrices();
-    }
-  }, [getFilteredProducts()]);
-
-  const handleAddToCart = (product: Product & { activePrice?: ProductPrice }) => {
-    if (!product.activePrice) {
-      console.error('Sản phẩm không có giá active');
-      return;
-    }
-
-    addToCart({
-      product_price_id: product.activePrice.product_price_id,
-      product: {
-        product_id: product.product_id,
-        name: product.name,
-        image_path: product.image_path
-      },
-      product_size: product.activePrice.product_size || {
-        size_id: product.activePrice.size_id,
-        name: 'Standard',
-        unit: 'pcs'
-      },
-      price: product.activePrice.price
-    });
+  const closeCouponDialog = () => {
+    setIsCouponDialogOpen(false);
   };
 
   const subtotal = getCartTotal();
-  const tax = subtotal * 0.1;
-  const total = subtotal + tax;
+  const discountAmount = getTotalDiscount();
+  const afterDiscount = subtotal - discountAmount;
+  const tax = afterDiscount * 0.1;
+  const total = afterDiscount + tax;
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', {
@@ -177,8 +107,23 @@ export default function POSPage() {
     return categoryIcons[categoryName] || "📦";
   };
 
+  // Get minimum price of a product
+  const getMinPrice = (product: Product) => {
+    if (!product.product_price || product.product_price.length === 0) {
+      return null;
+    }
+    
+    const activePrices = product.product_price.filter(price => price.is_active);
+    if (activePrices.length === 0) {
+      return null;
+    }
+    
+    return Math.min(...activePrices.map(price => price.price));
+  };
+
   return (
-    <div className="flex h-screen bg-gray-50">
+    <AuthGuard>
+      <div className="flex h-screen bg-gray-50">
       {/* Sidebar - Categories */}
       <div className="w-64 bg-white shadow-sm border-r">
         <div className="p-4">
@@ -217,7 +162,15 @@ export default function POSPage() {
                         : 'text-gray-600 hover:bg-gray-50'
                     }`}
                   >
-                    <span className="text-lg">{getCategoryIcon(category.name)}</span>
+                    {(category as any).firstProductImage ? (
+                      <img 
+                        src={(category as any).firstProductImage} 
+                        alt={category.name}
+                        className="w-6 h-6 object-cover rounded"
+                      />
+                    ) : (
+                      <span className="text-lg">{getCategoryIcon(category.name)}</span>
+                    )}
                     <span className="font-medium">{category.name}</span>
                   </button>
                 ))}
@@ -263,7 +216,7 @@ export default function POSPage() {
             </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {activeProducts.map((product) => (
+              {getFilteredProducts().map((product) => (
                 <Card key={product.product_id} className="cursor-pointer hover:shadow-md transition-shadow">
                   <CardContent className="p-4">
                     <div className="text-center">
@@ -279,23 +232,26 @@ export default function POSPage() {
                         )}
                       </div>
                       <h3 className="font-medium text-sm mb-2 line-clamp-2">{product.name}</h3>
-                      {product.activePrice ? (
-                        <>
-                          <p className="text-lg font-bold text-blue-600 mb-3">
-                            {formatPrice(product.activePrice.price)}
-                          </p>
-                          <Button 
-                            onClick={() => handleAddToCart(product)}
-                            className="w-full"
-                            size="sm"
-                          >
-                            <Plus className="w-4 h-4 mr-1" />
-                            Thêm
-                          </Button>
-                        </>
-                      ) : (
-                        <p className="text-sm text-gray-500 mb-3">Chưa có giá</p>
-                      )}
+                      <div className="mb-3">
+                        {getMinPrice(product) ? (
+                          <>
+                            <p className="text-sm font-semibold text-blue-600 mb-1">
+                              Từ {formatPrice(getMinPrice(product)!)}
+                            </p>
+                            <p className="text-xs text-gray-500">Xem chi tiết để chọn size</p>
+                          </>
+                        ) : (
+                          <p className="text-sm text-gray-500">Chưa có giá</p>
+                        )}
+                      </div>
+                      <Button 
+                        onClick={() => handleProductClick(product)}
+                        className="w-full"
+                        size="sm"
+                      >
+                        <Plus className="w-4 h-4 mr-1" />
+                        Thêm
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -311,22 +267,64 @@ export default function POSPage() {
           <h2 className="text-lg font-semibold mb-4">Đơn hàng</h2>
           
           {/* Customer Info */}
-          <Card className="mb-4">
+          <Card className="mb-4 cursor-pointer hover:bg-gray-50 transition-colors" onClick={openCustomerDialog}>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm">Thông tin khách hàng</CardTitle>
+              <CardTitle className="text-sm flex items-center justify-between">
+                Thông tin khách hàng
+                <Search className="w-4 h-4 text-gray-400" />
+              </CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                  <span className="text-blue-600 font-semibold text-xs">
-                    {getInitials(customer.name)}
-                  </span>
+              {customer ? (
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                      <span className="text-blue-600 font-semibold text-xs">
+                        {getInitials(customer.name)}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="font-medium text-sm">{customer.name}</p>
+                      <p className="text-xs text-gray-500">{customer.phone}</p>
+                      {customer.isGuest && (
+                        <p className="text-xs text-blue-600">Khách mới</p>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Membership Info */}
+                  {customer.membership_type && (
+                    <div className="bg-gray-50 rounded-lg p-3 border">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <Crown className="w-4 h-4 text-yellow-500" />
+                        <span className="text-sm font-medium text-gray-700">Hạng thành viên</span>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-sm font-semibold text-blue-600">
+                          {customer.membership_type.type}
+                        </p>
+                        <div className="flex items-center justify-between text-xs text-gray-600">
+                          <span>Giảm giá: {customer.membership_type.discount_value}%</span>
+                          <div className="flex items-center space-x-1">
+                            <Gift className="w-3 h-3" />
+                            <span>{customer.current_points || 0} điểm</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <div>
-                  <p className="font-medium text-sm">{customer.name}</p>
-                  <p className="text-xs text-gray-500">{customer.phone}</p>
+              ) : (
+                <div className="flex items-center space-x-3 text-gray-500">
+                  <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                    <User className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm">Chưa chọn khách hàng</p>
+                    <p className="text-xs">Nhấn để tìm kiếm hoặc thêm khách hàng</p>
+                  </div>
                 </div>
-              </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -416,6 +414,22 @@ export default function POSPage() {
           </div>
         )}
       </div>
+
+      {/* Product Detail Dialog */}
+      <ProductDetailDialog
+        product={selectedProduct}
+        isOpen={isProductDialogOpen}
+        onClose={closeProductDialog}
+      />
+
+      {/* Customer Search Dialog */}
+      <CustomerSearchDialog
+        isOpen={isCustomerDialogOpen}
+        onClose={closeCustomerDialog}
+        onSelectCustomer={handleCustomerSelect}
+        currentCustomer={customer || undefined}
+      />
     </div>
+    </AuthGuard>
   );
 } 

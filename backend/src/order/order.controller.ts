@@ -16,6 +16,7 @@ import {
 import { OrderService } from './order.service';
 import { CreateOrderDto, OrderStatusEnum } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
+import { ValidateDiscountDto } from './dto/validate-discount.dto';
 import { PaginationDto, PaginatedResult } from '../common/dto/pagination.dto';
 import { order, Prisma } from '../generated/prisma/client'; // Import Prisma namespace for types
 import {
@@ -302,5 +303,65 @@ export class OrderController {
     @Query() paginationDto: PaginationDto,
   ): Promise<PaginatedResult<order>> {
     return this.orderService.findByStatus(status, paginationDto);
+  }
+
+  @Post('validate-discounts')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(ROLES.MANAGER, ROLES.STAFF, ROLES.CUSTOMER)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Kiểm tra tính hợp lệ của các discount cho đơn hàng - Tất cả role',
+    description: 'Validate xem các discount có thể áp dụng cho đơn hàng không, bao gồm kiểm tra điều kiện khách hàng, membership, và giới hạn sử dụng',
+  })
+  @ApiBody({ type: ValidateDiscountDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Kết quả validation các discount với thông tin chi tiết',
+    schema: {
+      type: 'object',
+      properties: {
+        valid_discounts: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              discount_id: { type: 'number' },
+              discount_name: { type: 'string' },
+              discount_amount: { type: 'number' },
+              reason: { type: 'string' },
+            },
+          },
+        },
+        invalid_discounts: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              discount_id: { type: 'number' },
+              discount_name: { type: 'string' },
+              reason: { type: 'string' },
+            },
+          },
+        },
+        summary: {
+          type: 'object',
+          properties: {
+            total_checked: { type: 'number' },
+            valid_count: { type: 'number' },
+            invalid_count: { type: 'number' },
+            total_discount_amount: { type: 'number' },
+          },
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 400, description: 'Bad Request - Validation error' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Insufficient permissions',
+  })
+  async validateDiscounts(@Body() validateDiscountDto: ValidateDiscountDto) {
+    return this.orderService.validateDiscounts(validateDiscountDto);
   }
 }

@@ -162,7 +162,20 @@ class ApiClient {
     }
 
     try {
-      return await response.json();
+      const text = await response.text();
+      
+      // Nếu response rỗng, trả về null
+      if (!text || text.trim() === '') {
+        return null as T;
+      }
+      
+      // Nếu response là "null", trả về null
+      if (text.trim() === 'null') {
+        return null as T;
+      }
+      
+      // Parse JSON bình thường
+      return JSON.parse(text);
     } catch (error) {
       throw new ApiError("Phản hồi không hợp lệ từ server", response.status);
     }

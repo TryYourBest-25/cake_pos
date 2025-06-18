@@ -176,6 +176,12 @@ export class ProductService {
         skip,
         take: limit,
         orderBy: { product_id: 'desc' },
+        include: {
+          category: true,
+          product_price: {
+            orderBy: { price: 'asc' },
+          },
+        },
       }),
       this.prisma.product.count(),
     ]);
@@ -372,6 +378,12 @@ export class ProductService {
         skip,
         take: limit,
         orderBy: { product_id: 'desc' },
+        include: {
+          category: true,
+          product_price: {
+            orderBy: { price: 'asc' },
+          },
+        },
       }),
       this.prisma.product.count({
         where: { category_id },

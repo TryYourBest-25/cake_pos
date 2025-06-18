@@ -2,7 +2,8 @@
 
 import * as React from "react";
 import { usePathname } from "next/navigation";
-import { Search, Bell, User, Settings, LogOut, Menu } from "lucide-react";
+import { Search, Bell, User, LogOut, Menu, Store } from "lucide-react";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -47,7 +48,8 @@ const breadcrumbMap: Record<string, string> = {
   "/orders/completed": "Đã Hoàn Thành",
   "/orders/cancelled": "Đã Hủy",
   "/reports": "Báo cáo",
-  "/settings": "Cài đặt",
+  "/profile": "Thông tin cá nhân",
+  "/store-info": "Thông tin cửa hàng",
 };
 
 function generateBreadcrumbs(pathname: string) {
@@ -183,13 +185,17 @@ export function Header({ onMenuClick, className }: HeaderProps) {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <User className="mr-2 h-4 w-4" />
-                <span>Hồ sơ</span>
+              <DropdownMenuItem asChild>
+                <Link href="/profile">
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Hồ sơ</span>
+                </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Settings className="mr-2 h-4 w-4" />
-                <span>Cài đặt</span>
+              <DropdownMenuItem asChild>
+                <Link href="/store-info">
+                  <Store className="mr-2 h-4 w-4" />
+                  <span>Cài đặt cửa hàng</span>
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem>

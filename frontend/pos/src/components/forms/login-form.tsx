@@ -20,7 +20,7 @@ interface LoginFormProps {
   redirectTo?: string;
 }
 
-export function LoginForm({ onSuccess, redirectTo = "/" }: LoginFormProps) {
+export function LoginForm({ onSuccess, redirectTo = "/pos" }: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const { login, isLoading } = useAuthStore();
   const router = useRouter();

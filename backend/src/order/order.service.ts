@@ -19,6 +19,7 @@ import {
   OrderStatusEnum as OrderStatusDtoEnum,
 } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
+import { ValidateDiscountDto } from './dto/validate-discount.dto';
 import { PaginationDto, PaginatedResult } from '../common/dto/pagination.dto';
 import { Decimal } from '@prisma/client/runtime/library';
 
@@ -98,53 +99,23 @@ export class OrderService {
 
     if (discounts && discounts.length > 0) {
       for (const discountDto of discounts) {
-        const discountInfo = await this.prisma.discount.findUnique({
-          where: { discount_id: discountDto.discount_id },
-        });
-        if (!discountInfo) {
-          throw new NotFoundException(
-            `Giảm giá với ID ${discountDto.discount_id} không tồn tại.`,
-          );
-        }
-        if (
-          !discountInfo.is_active ||
-          new Date() > new Date(discountInfo.valid_until) ||
-          (discountInfo.valid_from &&
-            new Date() < new Date(discountInfo.valid_from))
-        ) {
-          throw new UnprocessableEntityException(
-            `Discount ID ${discountInfo.discount_id} ('${discountInfo.name}') is not valid or active at this time.`,
-          );
-        }
-        if (
-          calculatedTotalAmount.lessThan(discountInfo.min_required_order_value)
-        ) {
-          throw new UnprocessableEntityException(
-            `Order total (${calculatedTotalAmount}) does not meet minimum required value (${discountInfo.min_required_order_value}) for discount '${discountInfo.name}'.`,
-          );
-        }
-
-        // Logic tính discount_amount cho percentage
-        // discountInfo.discount_value là Decimal(4,1) ví dụ 10.5 (nghĩa là 10.5%)
-        const discountPercentage = new Decimal(
-          discountInfo.discount_value,
-        ).dividedBy(100); // ví dụ: 10.5 -> 0.105
-        let currentDiscountAmount =
-          calculatedTotalAmount.times(discountPercentage);
-
-        // Áp dụng max_discount_amount
-        const maxDiscount = new Decimal(discountInfo.max_discount_amount);
-        if (currentDiscountAmount.greaterThan(maxDiscount)) {
-          currentDiscountAmount = maxDiscount;
-        }
-
-        calculatedFinalAmount = calculatedFinalAmount.minus(
-          currentDiscountAmount,
+        const validationResult = await this.validateSingleDiscount(
+          discountDto.discount_id,
+          calculatedTotalAmount.toNumber(),
+          products.length,
+          customer_id,
         );
+
+        if (!validationResult.is_valid) {
+          throw new UnprocessableEntityException(validationResult.reason);
+        }
+
+        const currentDiscountAmount = new Decimal(validationResult.discount_amount);
+        calculatedFinalAmount = calculatedFinalAmount.minus(currentDiscountAmount);
         totalDiscountApplied = totalDiscountApplied.plus(currentDiscountAmount);
 
         orderDiscountCreateInputs.push({
-          discount_amount: currentDiscountAmount.toNumber(), // Prisma schema order_discount.discount_amount là Int
+          discount_amount: currentDiscountAmount.toNumber(),
           discount: { connect: { discount_id: discountDto.discount_id } },
         });
       }
@@ -274,15 +245,12 @@ export class OrderService {
           : { disconnect: true },
       }), // Allow setting customer_id to null
       ...(customize_note !== undefined && { customize_note }),
-      // status không được cập nhật trực tiếp từ client, chỉ thông qua business logic
     };
 
-    // Transaction for product/discount updates and final amount recalculation
     return this.prisma.$transaction(async (tx) => {
       let newTotalAmount = new Decimal(existingOrder.total_amount || 0);
       let newFinalAmount = new Decimal(existingOrder.final_amount || 0);
 
-      // Handle product updates: Delete existing and create new if `products` array is provided
       if (products !== undefined) {
         await tx.order_product.deleteMany({ where: { order_id: id } });
         newTotalAmount = new Decimal(0);
@@ -394,7 +362,6 @@ export class OrderService {
           include: { discount: true },
         });
         for (const od of existingDiscounts) {
-          // Simplified recalculation, assumes discount_amount stored is still valid.
           // Realistically, should re-evaluate each discount based on newTotalAmount and its rules.
           newFinalAmount = newFinalAmount.minus(od.discount_amount);
         }
@@ -569,6 +536,196 @@ export class OrderService {
         hasNext: page < totalPages,
         hasPrev: page > 1,
       },
+    };
+  }
+
+  // ==================================
+  // DISCOUNT VALIDATION
+  // ==================================
+  async validateDiscounts(validateDiscountDto: ValidateDiscountDto): Promise<{
+    valid_discounts: Array<{
+      discount_id: number;
+      discount_name: string;
+      discount_amount: number;
+      reason: string;
+    }>;
+    invalid_discounts: Array<{
+      discount_id: number;
+      discount_name: string;
+      reason: string;
+    }>;
+    summary: {
+      total_checked: number;
+      valid_count: number;
+      invalid_count: number;
+      total_discount_amount: number;
+    };
+  }> {
+    const { customer_id, discount_ids, total_amount, product_count } = validateDiscountDto;
+    
+    const valid_discounts: Array<{
+      discount_id: number;
+      discount_name: string;
+      discount_amount: number;
+      reason: string;
+    }> = [];
+    const invalid_discounts: Array<{
+      discount_id: number;
+      discount_name: string;
+      reason: string;
+    }> = [];
+    let total_discount_amount = 0;
+
+    for (const discount_id of discount_ids) {
+      const validationResult = await this.validateSingleDiscount(
+        discount_id,
+        total_amount,
+        product_count,
+        customer_id,
+      );
+
+      if (validationResult.is_valid) {
+        valid_discounts.push({
+          discount_id,
+          discount_name: validationResult.discount_name,
+          discount_amount: validationResult.discount_amount,
+          reason: validationResult.reason,
+        });
+        total_discount_amount += validationResult.discount_amount;
+      } else {
+        invalid_discounts.push({
+          discount_id,
+          discount_name: validationResult.discount_name,
+          reason: validationResult.reason,
+        });
+      }
+    }
+
+    return {
+      valid_discounts,
+      invalid_discounts,
+      summary: {
+        total_checked: discount_ids.length,
+        valid_count: valid_discounts.length,
+        invalid_count: invalid_discounts.length,
+        total_discount_amount,
+      },
+    };
+  }
+
+  private async validateSingleDiscount(
+    discount_id: number,
+    total_amount: number,
+    product_count: number,
+    customer_id?: number,
+  ): Promise<{
+    is_valid: boolean;
+    discount_name: string;
+    discount_amount: number;
+    reason: string;
+  }> {
+    // 1. Kiểm tra discount tồn tại
+    const discountInfo = await this.prisma.discount.findUnique({
+      where: { discount_id },
+    });
+
+    if (!discountInfo) {
+      return {
+        is_valid: false,
+        discount_name: '',
+        discount_amount: 0,
+        reason: `Giảm giá với ID ${discount_id} không tồn tại.`,
+      };
+    }
+
+    // 2. Kiểm tra discount có active và trong thời hạn không
+    const currentDate = new Date();
+    if (
+      !discountInfo.is_active ||
+      currentDate > new Date(discountInfo.valid_until) ||
+      (discountInfo.valid_from && currentDate < new Date(discountInfo.valid_from))
+    ) {
+      return {
+        is_valid: false,
+        discount_name: discountInfo.name,
+        discount_amount: 0,
+        reason: `Discount '${discountInfo.name}' không còn hiệu lực hoặc chưa đến thời gian áp dụng.`,
+      };
+    }
+
+    // 3. Kiểm tra tổng tiền đơn hàng có đạt yêu cầu tối thiểu không
+    if (total_amount < discountInfo.min_required_order_value) {
+      return {
+        is_valid: false,
+        discount_name: discountInfo.name,
+        discount_amount: 0,
+        reason: `Đơn hàng (${total_amount.toLocaleString('vi-VN')}đ) chưa đạt giá trị tối thiểu (${discountInfo.min_required_order_value.toLocaleString('vi-VN')}đ) để áp dụng discount '${discountInfo.name}'.`,
+      };
+    }
+
+    // 4. Kiểm tra số lượng sản phẩm tối thiểu (nếu có)
+    if (discountInfo.min_required_product && product_count < discountInfo.min_required_product) {
+      return {
+        is_valid: false,
+        discount_name: discountInfo.name,
+        discount_amount: 0,
+        reason: `Đơn hàng có ${product_count} sản phẩm, cần tối thiểu ${discountInfo.min_required_product} sản phẩm để áp dụng discount '${discountInfo.name}'.`,
+      };
+    }
+
+    // 5. Kiểm tra giới hạn sử dụng tổng thể (nếu có)
+    if (discountInfo.max_uses && discountInfo.current_uses && discountInfo.current_uses >= discountInfo.max_uses) {
+      return {
+        is_valid: false,
+        discount_name: discountInfo.name,
+        discount_amount: 0,
+        reason: `Discount '${discountInfo.name}' đã đạt giới hạn sử dụng tối đa (${discountInfo.max_uses} lần).`,
+      };
+    }
+
+    // 6. Kiểm tra giới hạn sử dụng per customer (nếu có khách hàng và có giới hạn)
+    if (customer_id && discountInfo.max_uses_per_customer) {
+      const customerUsageCount = await this.prisma.order_discount.count({
+        where: {
+          discount_id,
+          order: {
+            customer_id,
+            status: {
+              in: [order_status_enum.PROCESSING, order_status_enum.COMPLETED],
+            },
+          },
+        },
+      });
+
+      if (customerUsageCount >= discountInfo.max_uses_per_customer) {
+        return {
+          is_valid: false,
+          discount_name: discountInfo.name,
+          discount_amount: 0,
+          reason: `Khách hàng đã sử dụng discount '${discountInfo.name}' đạt giới hạn tối đa (${discountInfo.max_uses_per_customer} lần).`,
+        };
+      }
+    }
+
+    // 7. Kiểm tra membership type của customer (nếu có)
+    // Nếu membership hết hạn, chỉ đơn giản không áp dụng lợi ích membership
+    // nhưng vẫn có thể áp dụng discount thông thường
+
+    // 8. Tính toán số tiền giảm giá
+    const discountPercentage = new Decimal(discountInfo.discount_value).dividedBy(100);
+    let discountAmount = new Decimal(total_amount).times(discountPercentage);
+
+    // Áp dụng giới hạn max_discount_amount
+    const maxDiscountAmount = new Decimal(discountInfo.max_discount_amount);
+    if (discountAmount.greaterThan(maxDiscountAmount)) {
+      discountAmount = maxDiscountAmount;
+    }
+
+    return {
+      is_valid: true,
+      discount_name: discountInfo.name,
+      discount_amount: discountAmount.toNumber(),
+      reason: `Có thể áp dụng discount '${discountInfo.name}' với số tiền giảm ${discountAmount.toNumber().toLocaleString('vi-VN')}đ.`,
     };
   }
 }

@@ -24,15 +24,16 @@ export interface CartItem {
 
 // Customer types for POS
 export interface POSCustomer {
-  customer_id: number;
-  first_name?: string;
-  last_name?: string;
+  name: string;
   phone: string;
-  current_points?: number;
+  isGuest?: boolean;
+  customer_id?: number;
   membership_type?: {
     type: string;
     discount_value: number;
+    required_point: number;
   };
+  current_points?: number;
 }
 
 // Order types for POS

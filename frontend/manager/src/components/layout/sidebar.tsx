@@ -19,11 +19,7 @@ import {
   CheckCircle,
   Clock,
   XCircle,
-  Gift,
-  Percent,
-  Ticket,
-  Store,
-  Settings
+  Gift
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -111,22 +107,6 @@ const navItems: NavItem[] = [
     title: "Báo Cáo",
     href: "/reports",
     icon: BarChart3,
-  },
-  {
-    title: "Cài Đặt",
-    icon: Settings,
-    children: [
-      {
-        title: "Thông Tin Cá Nhân",
-        href: "/profile",
-        icon: User,
-      },
-      {
-        title: "Thông Tin Cửa Hàng",
-        href: "/store-info",
-        icon: Store,
-      },
-    ],
   },
 ];
 

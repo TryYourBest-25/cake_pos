@@ -17,13 +17,10 @@ export class ProductService {
       if (pagination?.page) params.page = pagination.page;
       if (pagination?.limit) params.limit = pagination.limit;
       
-      console.log('🔍 ProductService.getAll - Request params:', params);
       const response = await apiClient.get(this.BASE_URL, params) as any;
-      console.log('✅ ProductService.getAll - Response:', response);
       
       // Check response structure
       if (!response || !response.data) {
-        console.error('❌ Invalid response structure:', response);
         throw new Error('Cấu trúc phản hồi không hợp lệ');
       }
 
@@ -39,25 +36,16 @@ export class ProductService {
         }
       };
     } catch (error: any) {
-      console.error('❌ Lỗi khi lấy danh sách sản phẩm:', {
-        message: error.message,
-        status: error.status,
-        response: error.response,
-        stack: error.stack
-      });
       throw new Error(error.message || 'Không thể lấy danh sách sản phẩm');
     }
   }
 
   static async getById(id: number): Promise<Product> {
     try {
-      console.log(`🔍 ProductService.getById(${id})`);
       const response = await apiClient.get(`${this.BASE_URL}/${id}`) as any;
-      console.log(`✅ ProductService.getById(${id}) - Response:`, response);
       
       // Check response structure
       if (!response) {
-        console.error('❌ Invalid response structure:', response);
         throw new Error('Cấu trúc phản hồi không hợp lệ');
       }
 
@@ -65,12 +53,6 @@ export class ProductService {
       const data = response.data || response;
       return transformProduct(data);
     } catch (error: any) {
-      console.error(`❌ Lỗi khi lấy sản phẩm ${id}:`, {
-        message: error.message,
-        status: error.status,
-        response: error.response,
-        stack: error.stack
-      });
       throw new Error(error.message || 'Không thể lấy thông tin sản phẩm');
     }
   }
@@ -81,13 +63,10 @@ export class ProductService {
       if (pagination?.page) params.page = pagination.page;
       if (pagination?.limit) params.limit = pagination.limit;
       
-      console.log(`🔍 ProductService.getByCategory(${categoryId}) - Request params:`, params);
       const response = await apiClient.get(`${this.BASE_URL}/category/${categoryId}`, params) as any;
-      console.log(`✅ ProductService.getByCategory(${categoryId}) - Response:`, response);
       
       // Check response structure
       if (!response || !response.data) {
-        console.error('❌ Invalid response structure:', response);
         throw new Error('Cấu trúc phản hồi không hợp lệ');
       }
 
@@ -103,25 +82,16 @@ export class ProductService {
         }
       };
     } catch (error: any) {
-      console.error(`❌ Lỗi khi lấy sản phẩm theo danh mục ${categoryId}:`, {
-        message: error.message,
-        status: error.status,
-        response: error.response,
-        stack: error.stack
-      });
       throw new Error(error.message || 'Không thể lấy sản phẩm theo danh mục');
     }
   }
 
   static async getProductPrices(productId: number): Promise<ProductPrice[]> {
     try {
-      console.log(`🔍 ProductService.getProductPrices(${productId})`);
-      const response = await apiClient.get(`${this.BASE_URL}/${productId}/prices`) as any;
-      console.log(`✅ ProductService.getProductPrices(${productId}) - Response:`, response);
+        const response = await apiClient.get(`${this.BASE_URL}/${productId}/prices`) as any;
       
       // Check response structure
       if (!response) {
-        console.error('❌ Invalid response structure:', response);
         return [];
       }
 
@@ -129,12 +99,6 @@ export class ProductService {
       const data = Array.isArray(response) ? response : (response.data || []);
       return data.map(transformProductPrice);
     } catch (error: any) {
-      console.error(`❌ Lỗi khi lấy giá sản phẩm ${productId}:`, {
-        message: error.message,
-        status: error.status,
-        response: error.response,
-        stack: error.stack
-      });
       throw new Error(error.message || 'Không thể lấy giá sản phẩm');
     }
   }

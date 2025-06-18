@@ -5,44 +5,22 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ef5dec76-6049-4938-8b0f-72cdaa7b5451" name="Changes" comment="Cập nhật và cải thiện cấu trúc mã nguồn, bao gồm việc loại bỏ các dòng trống thừa và cải thiện định dạng trong các file DTO và module">
-      <change afterPath="$PROJECT_DIR$/.idea/shelf/Changes.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/shelf/Changes/shelved.patch" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/eslint.config.mjs" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/eslint.config.mjs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/pnpm-lock.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/src/app/globals.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/app/globals.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/src/app/login/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/app/login/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/src/app/users/customers/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/app/users/customers/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/src/app/users/employees/[id]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/app/users/employees/[id]/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/src/app/users/employees/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/app/users/employees/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/src/app/users/managers/[id]/edit/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/app/users/managers/[id]/edit/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/src/app/users/managers/[id]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/app/users/managers/[id]/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/src/app/users/managers/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/app/users/managers/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/src/app/users/membership-types/[id]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/app/users/membership-types/[id]/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/src/app/users/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/app/users/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/src/components/forms/create-customer-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/components/forms/create-customer-dialog.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/src/components/forms/create-employee-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/components/forms/create-employee-dialog.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/src/components/forms/create-manager-form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/components/forms/create-manager-form.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/src/components/forms/login-form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/components/forms/login-form.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/order/order.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/order/order.controller.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/order/order.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/order/order.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/product/product.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/product/product.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/src/app/profile/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/app/profile/page.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/manager/src/components/layout/header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/components/layout/header.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/manager/src/components/layout/sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/components/layout/sidebar.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/src/lib/api-client.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/lib/api-client.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/src/lib/services/customer-service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/lib/services/customer-service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/src/lib/services/employee-service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/lib/services/employee-service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/src/lib/services/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/lib/services/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/src/lib/services/manager-service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/lib/services/manager-service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/src/lib/services/membership-type-service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/lib/services/membership-type-service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/src/lib/services/order-service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/lib/services/order-service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/src/types/api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/types/api.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/pos/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/pos/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/pos/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/pos/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/pos/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/pos/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/pos/src/app/globals.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/pos/src/app/globals.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/pos/src/app/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/pos/src/app/layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/pos/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/pos/pnpm-lock.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/pos/src/app/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/pos/src/app/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/pos/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/pos/tsconfig.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/pos/src/app/pos/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/pos/src/app/pos/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/pos/src/components/forms/login-form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/pos/src/components/forms/login-form.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/pos/src/lib/services/product-service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/pos/src/lib/services/product-service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/pos/src/stores/auth.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/pos/src/stores/auth.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/pos/src/stores/pos.ts" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/pos/src/types/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/pos/src/types/index.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
