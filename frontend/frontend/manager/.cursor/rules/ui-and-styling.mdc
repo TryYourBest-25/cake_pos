@@ -1,0 +1,12 @@
+---
+description: Defines UI and styling guidelines, recommending the use of Shadcn UI, Radix, and Tailwind Aria, as well as responsive design practices.
+globs: **/*.{js,**/*.ts,**/*.jsx,**/*.tsx
+alwaysApply: false
+---
+- Use Shadcn UI, Radix, and Tailwind Aria for components and styling.
+- Implement responsive design with Tailwind CSS; use a desktop-first approach.
+- Prefer navigation page for edit, update data, dialog for create new data.
+- Not nullable fields should be mark as required.
+- Form should be placeholder example by vietnamese for fields.
+- Have a breadcrumb for navigation page.
+- Shadcn sonner for toast notification.
