@@ -12,7 +12,11 @@ export { managerService } from './manager-service';
 export { employeeService } from './employee-service';
 export { customerService } from './customer-service';
 export { membershipTypeService } from './membership-type-service';
+export { discountService } from './discount-service';
 export { authService } from './auth-service';
+export * from './reports-service';
+export { profileService } from './profile-service';
+export { storeService } from './store-service';
 
 // Service types
 export type { 
@@ -20,6 +24,7 @@ export type {
   Employee,
   Customer,
   MembershipType,
+  Discount,
   CreateManagerDto,
   UpdateManagerDto,
   CreateEmployeeDto,
@@ -28,5 +33,7 @@ export type {
   UpdateCustomerDto,
   CreateMembershipTypeDto,
   UpdateMembershipTypeDto,
+  CreateDiscountDto,
+  UpdateDiscountDto,
   PaginatedResponse
 } from '@/types/api'; 

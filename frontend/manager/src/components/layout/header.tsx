@@ -37,8 +37,15 @@ const breadcrumbMap: Record<string, string> = {
   "/users/managers": "Quản lý viên",
   "/users/employees": "Nhân viên",
   "/users/customers": "Khách hàng",
+  "/users/membership-types": "Loại thành viên",
   "/products": "Sản phẩm",
+  "/products/categories": "Danh mục sản phẩm",
+  "/products/product-sizes": "Kích thước sản phẩm",
+  "/promotions": "Chương trình khuyến mãi",
   "/orders": "Đơn hàng",
+  "/orders/processing": "Đang Xử Lý",
+  "/orders/completed": "Đã Hoàn Thành",
+  "/orders/cancelled": "Đã Hủy",
   "/reports": "Báo cáo",
   "/settings": "Cài đặt",
 };
@@ -60,7 +67,29 @@ function generateBreadcrumbs(pathname: string) {
   let currentPath = "";
   for (let i = 0; i < segments.length; i++) {
     currentPath += `/${segments[i]}`;
-    const label = breadcrumbMap[currentPath];
+    let label = breadcrumbMap[currentPath];
+    
+    // Handle dynamic routes
+    if (!label) {
+      // Check for dynamic routes patterns
+      if (currentPath.match(/^\/products\/categories\/\d+$/)) {
+        label = "Chi tiết danh mục";
+      } else if (currentPath.match(/^\/products\/\d+$/)) {
+        label = "Chi tiết sản phẩm";
+      } else if (currentPath.match(/^\/users\/managers\/\d+$/)) {
+        label = "Chi tiết quản lý";
+      } else if (currentPath.match(/^\/users\/employees\/\d+$/)) {
+        label = "Chi tiết nhân viên";
+      } else if (currentPath.match(/^\/users\/customers\/\d+$/)) {
+        label = "Chi tiết khách hàng";
+      } else if (currentPath.match(/^\/users\/membership-types\/\d+$/)) {
+        label = "Chi tiết loại thành viên";
+      } else if (currentPath.match(/^\/promotions\/\d+$/)) {
+        label = "Chi tiết khuyến mãi";
+      } else if (currentPath.match(/^\/orders\/\d+$/)) {
+        label = "Chi tiết đơn hàng";
+      }
+    }
     
     if (label) {
       breadcrumbs.push({

@@ -18,13 +18,17 @@ import {
   Ruler,
   CheckCircle,
   Clock,
-  XCircle
+  XCircle,
+  Gift,
+  Percent,
+  Ticket,
+  Store,
+  Settings
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface NavItem {
@@ -66,35 +70,35 @@ const navItems: NavItem[] = [
     icon: Package,
     children: [
       {
-        title: "Sản phẩm",
-        href: "/products",
-        icon: Package,
-      },
-      {
         title: "Danh mục",
-        href: "/categories",
+        href: "/products/categories",
         icon: Tag,
       },
       {
         title: "Kích thước sản phẩm",
-        href: "/product-sizes",
+        href: "/products/product-sizes",
         icon: Ruler,
       },
     ],
+  },
+  {
+    title: "Khuyến Mãi", 
+    href: "/promotions",
+    icon: Gift,
   },
   {
     title: "Đơn Hàng",
     icon: ShoppingCart,
     children: [
       {
-        title: "Đã Hoàn Thành",
-        href: "/orders/completed",
-        icon: CheckCircle,
-      },
-      {
         title: "Đang Xử Lý",
         href: "/orders/processing",
         icon: Clock,
+      },
+      {
+        title: "Đã Hoàn Thành",
+        href: "/orders/completed",
+        icon: CheckCircle,
       },
       {
         title: "Đã Hủy",
@@ -107,6 +111,22 @@ const navItems: NavItem[] = [
     title: "Báo Cáo",
     href: "/reports",
     icon: BarChart3,
+  },
+  {
+    title: "Cài Đặt",
+    icon: Settings,
+    children: [
+      {
+        title: "Thông Tin Cá Nhân",
+        href: "/profile",
+        icon: User,
+      },
+      {
+        title: "Thông Tin Cửa Hàng",
+        href: "/store-info",
+        icon: Store,
+      },
+    ],
   },
 ];
 

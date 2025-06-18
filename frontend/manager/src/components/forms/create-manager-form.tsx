@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -16,7 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
+
 import { 
   createManagerSchema,
   CreateManagerFormData
@@ -230,7 +230,7 @@ export function CreateManagerForm({
               </h3>
               <div className="mt-2 text-sm text-blue-700">
                 <p>
-                  Mật khẩu mặc định sẽ là <strong>"12345678"</strong> - quản lý có thể đổi sau khi đăng nhập lần đầu.
+                  Mật khẩu mặc định sẽ là <strong>&ldquo;12345678&rdquo;</strong> - quản lý có thể đổi sau khi đăng nhập lần đầu.
                 </p>
               </div>
             </div>

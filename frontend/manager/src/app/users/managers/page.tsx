@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, MoreHorizontal, Edit, Trash2, Eye, ArrowUpDown, Loader2, X } from "lucide-react";
+import { Plus, MoreHorizontal, Trash2, Eye, ArrowUpDown, Loader2, X } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
 import { toast } from "sonner";
 
@@ -39,7 +39,6 @@ import { CreateManagerForm } from "@/components/forms/create-manager-form";
 import { Manager } from "@/types/api";
 import { CreateManagerFormData } from "@/lib/validations/manager";
 import { useManagersStore } from "@/stores/managers";
-import { useUIStore } from "@/stores/ui";
 
 function formatDate(date: Date): string {
   return new Intl.DateTimeFormat("vi-VN", {

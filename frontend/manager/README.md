@@ -10,24 +10,34 @@
 #### Sidebar Navigation (Menu Bên)
 - **Dashboard** - Tổng quan và thống kê
 - **Người Dùng**:
-  - Quản lý: Danh sách quản lý
-    - Chi tiết người dùng
-  - Nhân viên: Danh sách nhân viên
-    - Chi tiết nhân viên
-  - Khách Hàng: Danh sách khách hàng
-    - Chi tiết khách hàng
+  - Trang chủ Người Dùng: Tổng quan và điều hướng (/users)
+  - Quản Lý (/users/managers):
+    - Danh sách quản lý với tìm kiếm, sắp xếp, bulk actions
+    - Chi tiết quản lý (/users/managers/[id]) - Xem và chỉnh sửa thông tin
+    - Tạo mới: Dialog form trực tiếp từ danh sách
+    - Xóa: AlertDialog confirmation
+  - Nhân Viên (/users/employees):
+    - Danh sách nhân viên với tìm kiếm, sắp xếp, bulk actions
+    - Chi tiết nhân viên (/users/employees/[id]) - Xem và chỉnh sửa thông tin
+    - Tạo mới: Dialog form trực tiếp từ danh sách
+    - Xóa: AlertDialog confirmation
+  - Khách Hàng (/users/customers):
+    - Danh sách khách hàng với tìm kiếm, sắp xếp, bulk actions  
+    - Chi tiết khách hàng (/users/customers/[id]) - Xem thông tin
+    - Tạo mới: Dialog form trực tiếp từ danh sách
+    - Xóa: AlertDialog confirmation
+  - Loại Thành Viên (/users/membership-types):
+    - Chi tiết loại thành viên (/users/membership-types/[id]) - Xem và chỉnh sửa
 - **Sản Phẩm**
-  - Sản phẩm: Danh sách sản phẩm
-    - Chi tiết sản phẩm
   - Danh mục: Danh mục sản phẩm
-    - Chi tiết danh mục sản phẩm
+    - Chi tiết danh mục sản phẩm: Hiển thị các sản phẩm dạng card.
   - Kích thước sản phẩm: Danh sách kích thước sản phẩm
-    - Chi tiết kích thước sản phẩm
+    - Chi tiết kích thước sản phẩm: Hiển thị các sản phẩm dạng card.
 - **Khuyến mãi**
   - Chương trình khuyến mãi: Danh sách chương trình khuyến mãi
     - Chi tiết chương trình khuyến mãi
-  - Chương trình thành viên: Danh sách chương trình thành viên
-    - Chi tiết chương trình thành viên
+  - Mã giảm giá: Danh sách mã giảm giá
+    - Chi tiết mã giảm giá
 - **Đơn Hàng**:
   - Đã Hoàn Thành: Danh sách đơn hàng đã hoàn thành
   - Đang Xử Lý: Danh sách đơn hàng đang xử lý
@@ -80,8 +90,52 @@
 └─────────────────────────────────────────────────────────┘
 ```
 
+#### Quản Lý Người Dùng (✅ Đã Triển Khai)
+
+**Trang Chủ Người Dùng (/users)**
+- Tổng quan thống kê: Số lượng quản lý, nhân viên, khách hàng
+- Cards điều hướng với icon và mô tả cho từng loại người dùng
+- Hoạt động gần đây: Timeline các hoạt động liên quan đến người dùng
+- Responsive design với hover effects và transitions
+
+**Quản Lý (/users/managers)**
+- DataTable với đầy đủ tính năng: search, sort, pagination
+- Bulk selection và bulk delete với confirmation
+- Tạo mới: Dialog form với validation (Zod)
+- Xem chi tiết: Navigate đến trang detail với breadcrumb
+- Chỉnh sửa: Inline editing trong trang detail
+- Xóa: AlertDialog confirmation với loading states
+- Avatar hiển thị với fallback initials
+- Badge trạng thái hoạt động
+- Format ngày tháng theo locale Việt Nam
+
+**Nhân Viên (/users/employees)**
+- Tương tự như Quản Lý với các tính năng:
+- DataTable với search và filter theo tên, email, phone, position
+- Create Employee Dialog với form validation
+- Chi tiết nhân viên với các section thông tin
+- Bulk operations (select all, delete multiple)
+- Loading states và error handling
+- Toast notifications cho actions
+
+**Khách Hàng (/users/customers)**
+- DataTable với search functionality
+- Customer profiles với purchase history
+- Tạo mới qua dialog form
+- Chi tiết khách hàng (view-only)
+- Bulk delete operations
+- Membership type integration
+
+**Loại Thành Viên (/users/membership-types)**
+- Chi tiết loại thành viên với inline editing
+- Form validation cho discount value, required points
+- Toggle active/inactive status
+- Date picker cho validity period
+- Currency formatting (VND)
+- Switch components cho boolean fields
+
 #### Quản Lý Sản Phẩm
-- **Danh sách sản phẩm**: Table với search, filter, pagination
+- **Danh sách sản phẩm**: Table với search, filter, pagination  
 - **Form thêm/sửa**: Upload hình ảnh, rich text editor cho mô tả
 - **Quản lý danh mục**: Tree structure với drag & drop
 - **Quản lý kho**: Real-time inventory tracking
@@ -153,13 +207,23 @@
 - **Feedback**: Alert, Toast, Modal, Tooltip
 - **Navigation**: Breadcrumb, Pagination, Tabs
 
-### 5. Quy Tắc UI/UX và Tương Tác
+### 5. Quy Tắc UI/UX và Tương Tác (✅ Đã Áp Dụng)
 
 #### Quy Tắc Chung
-- **Thêm mới**: Luôn sử dụng Dialog/Modal để tạo mới item
-- **Chỉnh sửa**: Luôn điều hướng đến trang chi tiết riêng biệt
-- **Xóa**: Luôn hiển thị confirmation dialog trước khi xóa
-- **Cập nhật**: Luôn hiển thị confirmation dialog trước khi cập nhật dữ liệu quan trọng
+- **Thêm mới**: ✅ Luôn sử dụng Dialog/Modal để tạo mới item
+- **Chỉnh sửa**: ✅ Luôn điều hướng đến trang chi tiết riêng biệt
+- **Xóa**: ✅ Luôn hiển thị confirmation dialog trước khi xóa
+- **Cập nhật**: ✅ Luôn hiển thị confirmation dialog trước khi cập nhật dữ liệu quan trọng
+
+#### Patterns Đã Triển Khai trong Mục Người Dùng
+- **DataTable Pattern**: Search, sort, pagination, bulk selection
+- **Dialog Forms**: Create Manager/Employee/Customer với validation
+- **Detail Pages**: Breadcrumb navigation, inline editing, section layout
+- **Confirmation Dialogs**: AlertDialog cho delete operations
+- **Toast Notifications**: Success/error feedback với Sonner
+- **Loading States**: Skeleton screens, spinner buttons, loading overlays
+- **Responsive Design**: Mobile-first với Tailwind CSS
+- **Accessibility**: ARIA labels, keyboard navigation, screen reader support
 
 #### Patterns Tương Tác
 ```
@@ -249,14 +313,18 @@ src/
 
 ### 9. Roadmap Phát Triển
 
-#### Phase 1 (MVP)
-- [ ] Authentication & Authorization
-- [ ] Dashboard cơ bản
+#### Phase 1 (MVP) 
+- [x] Authentication & Authorization
+- [x] Dashboard cơ bản
+- [x] **Quản lý Người Dùng hoàn chỉnh**:
+  - [x] Quản Lý (Managers) - CRUD đầy đủ
+  - [x] Nhân Viên (Employees) - CRUD đầy đủ  
+  - [x] Khách Hàng (Customers) - CRUD đầy đủ
+  - [x] Loại Thành Viên (Membership Types) - View/Edit
 - [ ] Quản lý sản phẩm
 - [ ] Quản lý đơn hàng cơ bản
 
 #### Phase 2
-- [ ] Quản lý khách hàng
 - [ ] Báo cáo nâng cao
 - [ ] Mobile app (React Native)
 - [ ] API cho third-party

@@ -4,9 +4,6 @@ import {
   BackendCustomerResponse,
   BackendPaginatedResponse,
   transformCustomerResponse,
-  CreateCustomerDto, 
-  UpdateCustomerDto,
-  BulkDeleteCustomerDto,
   PaginatedResponse 
 } from "@/types/api";
 import { 

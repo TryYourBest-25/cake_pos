@@ -5,9 +5,6 @@ import {
   BackendPaginatedResponse,
   BulkDeleteResponse,
   transformManagerResponse,
-  CreateManagerDto, 
-  UpdateManagerDto,
-  BulkDeleteManagerDto,
   PaginatedResponse 
 } from "@/types/api";
 import { 

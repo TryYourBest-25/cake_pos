@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, MoreHorizontal, Edit, Trash2, Eye, ArrowUpDown, Phone, CreditCard, Calendar, Users, Crown, Trash } from "lucide-react";
+import { Plus, MoreHorizontal, Trash2, Eye, ArrowUpDown, Phone, CreditCard, Calendar, Users, Crown, Trash } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   DropdownMenu,
@@ -27,7 +27,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DataTable } from "@/components/ui/data-table";
 import { AuthGuard } from "@/components/auth/auth-guard";
 import { CreateCustomerDialog } from "@/components/forms/create-customer-dialog";
@@ -35,7 +34,6 @@ import { CreateMembershipTypeDialog } from "@/components/forms/create-membership
 import { Customer, MembershipType } from "@/types/api";
 import { useCustomerStore } from "@/stores/customers";
 import { useMembershipTypeStore } from "@/stores/membership-types";
-import { toast } from "sonner";
 
 
 

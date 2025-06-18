@@ -56,15 +56,21 @@ class ApiClient {
   /**
    * Lấy headers mặc định với auth token
    */
-  private getHeaders(): HeadersInit {
+  private getHeaders(isFormData: boolean = false): HeadersInit {
     const token = typeof window !== 'undefined' 
       ? localStorage.getItem("auth_token") 
       : null;
     
-    return {
-      "Content-Type": "application/json",
+    const headers: HeadersInit = {
       ...(token && { Authorization: `Bearer ${token}` }),
     };
+
+    // Không set Content-Type cho FormData, để browser tự set với boundary
+    if (!isFormData) {
+      headers["Content-Type"] = "application/json";
+    }
+
+    return headers;
   }
 
   /**
@@ -241,11 +247,12 @@ class ApiClient {
    */
   async post<T>(endpoint: string, data?: any): Promise<T> {
     const url = new URL(this.baseURL + endpoint);
+    const isFormData = data instanceof FormData;
 
     const makeRequest = () => this.fetchWithRetry(url.toString(), {
       method: "POST",
-      headers: this.getHeaders(),
-      body: data ? JSON.stringify(data) : undefined,
+      headers: this.getHeaders(isFormData),
+      body: isFormData ? data : (data ? JSON.stringify(data) : undefined),
     });
 
     const response = await makeRequest();

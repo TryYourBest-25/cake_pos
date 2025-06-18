@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { 
   Plus, 
-  Search, 
   MoreHorizontal, 
   Trash2, 
   Users, 
@@ -17,19 +16,12 @@ import { ColumnDef } from "@tanstack/react-table";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,13 +29,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -421,7 +408,7 @@ export default function EmployeesPage() {
             <AlertDialogHeader>
               <AlertDialogTitle>Xác nhận xóa nhân viên</AlertDialogTitle>
               <AlertDialogDescription>
-                Bạn có chắc chắn muốn xóa nhân viên "{selectedEmployee?.name}"? 
+                Bạn có chắc chắn muốn xóa nhân viên &ldquo;{selectedEmployee?.name}&rdquo;? 
                 Hành động này không thể hoàn tác.
               </AlertDialogDescription>
             </AlertDialogHeader>

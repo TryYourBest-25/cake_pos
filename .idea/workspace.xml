@@ -4,15 +4,45 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ef5dec76-6049-4938-8b0f-72cdaa7b5451" name="Changes" comment="Add .gitignore and package-lock.json for frontend&#10;&#10;Introduced a .gitignore file to exclude unnecessary files such as node_modules, build artifacts, and environment files. Added a package-lock.json file to lock dependencies for consistent builds. These changes set up the basic project structure for the frontend.">
+    <list default="true" id="ef5dec76-6049-4938-8b0f-72cdaa7b5451" name="Changes" comment="Cập nhật và cải thiện cấu trúc mã nguồn, bao gồm việc loại bỏ các dòng trống thừa và cải thiện định dạng trong các file DTO và module">
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/Changes.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/shelf/Changes/shelved.patch" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/customer/dto/create-customer.dto.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/customer/dto/create-customer.dto.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/eslint.config.mjs" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/eslint.config.mjs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/pnpm-lock.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/pnpm-lock.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/src/app/globals.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/app/globals.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/src/app/login/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/app/login/page.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/manager/src/app/users/customers/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/app/users/customers/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/src/app/users/employees/[id]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/app/users/employees/[id]/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/src/app/users/employees/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/app/users/employees/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/src/app/users/managers/[id]/edit/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/app/users/managers/[id]/edit/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/src/app/users/managers/[id]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/app/users/managers/[id]/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/src/app/users/managers/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/app/users/managers/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/src/app/users/membership-types/[id]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/app/users/membership-types/[id]/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/src/app/users/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/app/users/page.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/manager/src/components/forms/create-customer-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/components/forms/create-customer-dialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/src/components/forms/create-employee-dialog.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/components/forms/create-employee-dialog.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/src/components/forms/create-manager-form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/components/forms/create-manager-form.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/src/components/forms/login-form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/components/forms/login-form.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/src/components/layout/header.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/components/layout/header.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/src/components/layout/sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/components/layout/sidebar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/src/lib/api-client.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/lib/api-client.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/manager/src/lib/services/customer-service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/lib/services/customer-service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/src/lib/validations/customer.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/lib/validations/customer.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/src/lib/validations/membership-type.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/lib/validations/membership-type.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/src/lib/services/employee-service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/lib/services/employee-service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/src/lib/services/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/lib/services/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/src/lib/services/manager-service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/lib/services/manager-service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/src/lib/services/membership-type-service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/lib/services/membership-type-service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/src/lib/services/order-service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/lib/services/order-service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/src/types/api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/types/api.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/pos/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/pos/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/pos/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/pos/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/pos/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/pos/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/pos/src/app/globals.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/pos/src/app/globals.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/pos/src/app/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/pos/src/app/layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/pos/src/app/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/pos/src/app/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/pos/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/pos/tsconfig.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -148,6 +178,9 @@
       <workItem from="1749738446092" duration="17000" />
       <workItem from="1749964105174" duration="11629000" />
       <workItem from="1750034948886" duration="8174000" />
+      <workItem from="1750124111328" duration="7637000" />
+      <workItem from="1750208293647" duration="3392000" />
+      <workItem from="1750226730722" duration="3458000" />
     </task>
     <task id="LOCAL-00001" summary="Remove all project files and configurations&#10;&#10;This commit deletes all source code, dependencies, configurations, and project assets. It effectively cleans up the repository, leaving no traces of the previous Next.js project or related files.">
       <option name="closed" value="true" />
@@ -165,7 +198,15 @@
       <option name="project" value="LOCAL" />
       <updated>1747115174554</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Cập nhật và cải thiện cấu trúc mã nguồn, bao gồm việc loại bỏ các dòng trống thừa và cải thiện định dạng trong các file DTO và module">
+      <option name="closed" value="true" />
+      <created>1750228103331</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1750228103331</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -202,6 +243,7 @@
     <MESSAGE value="Initial commit from Create Next App" />
     <MESSAGE value="Remove all project files and configurations&#10;&#10;This commit deletes all source code, dependencies, configurations, and project assets. It effectively cleans up the repository, leaving no traces of the previous Next.js project or related files." />
     <MESSAGE value="Add .gitignore and package-lock.json for frontend&#10;&#10;Introduced a .gitignore file to exclude unnecessary files such as node_modules, build artifacts, and environment files. Added a package-lock.json file to lock dependencies for consistent builds. These changes set up the basic project structure for the frontend." />
-    <option name="LAST_COMMIT_MESSAGE" value="Add .gitignore and package-lock.json for frontend&#10;&#10;Introduced a .gitignore file to exclude unnecessary files such as node_modules, build artifacts, and environment files. Added a package-lock.json file to lock dependencies for consistent builds. These changes set up the basic project structure for the frontend." />
+    <MESSAGE value="Cập nhật và cải thiện cấu trúc mã nguồn, bao gồm việc loại bỏ các dòng trống thừa và cải thiện định dạng trong các file DTO và module" />
+    <option name="LAST_COMMIT_MESSAGE" value="Cập nhật và cải thiện cấu trúc mã nguồn, bao gồm việc loại bỏ các dòng trống thừa và cải thiện định dạng trong các file DTO và module" />
   </component>
 </project>

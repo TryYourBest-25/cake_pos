@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Manager } from "@/types/api";
-import { managerApi } from "@/lib/api";
+import { managerService } from "@/lib/services/manager-service";
 import { EditManagerForm } from "@/components/forms/edit-manager-form";
 import { UpdateManagerFormData } from "@/lib/validations/manager";
 
@@ -30,7 +30,7 @@ export default function EditManagerPage() {
   const loadManager = async () => {
     try {
       setIsLoading(true);
-      const response = await managerApi.getById(managerId);
+      const response = await managerService.getById(managerId);
       setManager(response);
     } catch (error) {
       console.error("Lỗi tải thông tin quản lý:", error);
@@ -38,8 +38,13 @@ export default function EditManagerPage() {
       // Fallback to mock data for development
       setManager({
         id: managerId,
+        accountId: 1,
         name: "Nguyễn Văn An",
+        firstName: "An",
+        lastName: "Nguyễn Văn",
         email: "an.nguyen@company.com",
+        phone: "0123456789",
+        gender: "MALE",
         avatar: "/avatars/01.png",
         isActive: true,
         createdAt: new Date("2024-01-15T10:30:00"),
@@ -56,7 +61,7 @@ export default function EditManagerPage() {
     
     try {
       setIsSubmitting(true);
-      await managerApi.update(manager.id, data);
+      await managerService.update(manager.id, data);
       toast.success("Cập nhật quản lý thành công!");
       router.push(`/users/managers/${manager.id}`);
     } catch (error) {
@@ -90,11 +95,13 @@ export default function EditManagerPage() {
 
   // Convert manager data to form data format
   const defaultValues: UpdateManagerFormData = {
-    name: manager.name,
+    first_name: manager.firstName,
+    last_name: manager.lastName,
     email: manager.email,
+    phone: manager.phone,
+    gender: manager.gender || undefined,
+    username: manager.username,
     password: "", // Password field will be optional for updates
-    isActive: manager.isActive,
-    permissions: manager.permissions || []
   };
 
   return (

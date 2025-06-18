@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
@@ -247,7 +246,7 @@ export function CreateEmployeeDialog({
                   </h3>
                   <div className="mt-2 text-sm text-blue-700">
                     <p>
-                      Mật khẩu mặc định sẽ là <strong>"12345678"</strong> - nhân viên có thể đổi sau khi đăng nhập lần đầu.
+                      Mật khẩu mặc định sẽ là <strong>&ldquo;12345678&rdquo;</strong> - nhân viên có thể đổi sau khi đăng nhập lần đầu.
                     </p>
                   </div>
                 </div>
