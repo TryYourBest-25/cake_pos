@@ -1,5 +1,5 @@
 import { CartItem, Category, Product, POSCustomer } from '@/types';
-import { POSState, AppliedDiscount } from './types';
+import { POSState, MembershipDiscount } from './types';
 import { Discount } from '@/lib/services/discount-service';
 
 export function createPOSActions(set: any, get: () => POSState) {
@@ -10,7 +10,26 @@ export function createPOSActions(set: any, get: () => POSState) {
     setProducts: (products: Product[]) => set({ products }),
     setAllProducts: (products: Product[]) => set({ allProducts: products }),
     setSearchQuery: (query: string) => set({ searchQuery: query }),
-    setSelectedCustomer: (customer: POSCustomer | null) => set({ selectedCustomer: customer }),
+    setSelectedCustomer: (customer: POSCustomer | null) => {
+      // Tính toán membership discount nếu có
+      let membershipDiscount: MembershipDiscount | null = null;
+      
+      if (customer?.membership_type && customer.membership_type.discount_value > 0) {
+        const cartTotal = get().getCartTotal();
+        const membershipDiscountAmount = (cartTotal * customer.membership_type.discount_value) / 100;
+        
+        if (membershipDiscountAmount > 0) {
+          membershipDiscount = {
+            membershipType: customer.membership_type.type,
+            discountPercentage: customer.membership_type.discount_value,
+            discountAmount: membershipDiscountAmount,
+            customerName: customer.name
+          };
+        }
+      }
+      
+      set({ selectedCustomer: customer, membershipDiscount });
+    },
     setIsLoadingCategories: (loading: boolean) => set({ isLoadingCategories: loading }),
     setIsLoadingProducts: (loading: boolean) => set({ isLoadingProducts: loading }),
     
@@ -19,14 +38,14 @@ export function createPOSActions(set: any, get: () => POSState) {
       const { cart } = get();
       const existingItem = cart.find(cartItem => cartItem.product_price_id === item.product_price_id);
       
+      let updatedCart;
       if (existingItem) {
         // Update quantity if item already exists
-        const updatedCart = cart.map(cartItem =>
+        updatedCart = cart.map(cartItem =>
           cartItem.product_price_id === item.product_price_id
             ? { ...cartItem, quantity: cartItem.quantity + 1, total: (cartItem.quantity + 1) * cartItem.price }
             : cartItem
         );
-        set({ cart: updatedCart });
       } else {
         // Add new item
         const newItem: CartItem = {
@@ -34,32 +53,78 @@ export function createPOSActions(set: any, get: () => POSState) {
           quantity: 1,
           total: item.price
         };
-        set({ cart: [...cart, newItem] });
+        updatedCart = [...cart, newItem];
       }
+      
+      set({ cart: updatedCart });
+      
+      // Recalculate membership discount if customer has membership
+      get().recalculateMembershipDiscount();
     },
     
     removeFromCart: (productPriceId: number) => {
       const { cart } = get();
-      set({ cart: cart.filter(item => item.product_price_id !== productPriceId) });
+      const updatedCart = cart.filter(item => item.product_price_id !== productPriceId);
+      set({ cart: updatedCart });
+      
+      // Recalculate membership discount if customer has membership
+      get().recalculateMembershipDiscount();
     },
     
     updateCartItemQuantity: (productPriceId: number, quantity: number) => {
       const { cart } = get();
+      let updatedCart;
+      
       if (quantity <= 0) {
         // Remove item if quantity is 0 or less
-        set({ cart: cart.filter(item => item.product_price_id !== productPriceId) });
+        updatedCart = cart.filter(item => item.product_price_id !== productPriceId);
       } else {
         // Update quantity and total
-        const updatedCart = cart.map(item =>
+        updatedCart = cart.map(item =>
           item.product_price_id === productPriceId
             ? { ...item, quantity, total: quantity * item.price }
             : item
         );
-        set({ cart: updatedCart });
       }
+      
+      set({ cart: updatedCart });
+      
+      // Recalculate membership discount if customer has membership
+      get().recalculateMembershipDiscount();
     },
     
-    clearCart: () => set({ cart: [] }),
+    clearCart: () => {
+      set({ cart: [], membershipDiscount: null });
+    },
+
+    // Membership discount methods
+    recalculateMembershipDiscount: () => {
+      const { selectedCustomer } = get();
+      
+      if (!selectedCustomer?.membership_type || selectedCustomer.membership_type.discount_value <= 0) {
+        set({ membershipDiscount: null });
+        return;
+      }
+      
+      const cartTotal = get().getCartTotal();
+      const membershipDiscountAmount = (cartTotal * selectedCustomer.membership_type.discount_value) / 100;
+      
+      if (membershipDiscountAmount > 0) {
+        const membershipDiscount: MembershipDiscount = {
+          membershipType: selectedCustomer.membership_type.type,
+          discountPercentage: selectedCustomer.membership_type.discount_value,
+          discountAmount: membershipDiscountAmount,
+          customerName: selectedCustomer.name
+        };
+        set({ membershipDiscount });
+      } else {
+        set({ membershipDiscount: null });
+      }
+    },
+
+    clearMembershipDiscount: () => {
+      set({ membershipDiscount: null });
+    },
     
     // Computed values
     getCartTotal: () => {
@@ -87,11 +152,17 @@ export function createPOSActions(set: any, get: () => POSState) {
       return filteredProducts;
     },
 
-    // New discount actions
+    // Regular discount actions (chỉ cho discounts gửi tới backend)
     setCouponCode: (code: string) => set({ couponCode: code }),
     
     applyDiscount: (discount: Discount, discountAmount: number, reason: string) => {
       const { appliedDiscounts } = get();
+      
+      // Chỉ cho phép regular discounts (không phải membership)
+      if (reason === 'membership') {
+        console.warn('Membership discounts should not be added as regular discounts');
+        return;
+      }
       
       // Check if discount already applied
       const existingIndex = appliedDiscounts.findIndex(
@@ -122,14 +193,23 @@ export function createPOSActions(set: any, get: () => POSState) {
     
     clearDiscounts: () => set({ appliedDiscounts: [] }),
     
-    getTotalDiscount: () => {
+    // Discount calculation methods
+    getRegularDiscountTotal: () => {
       return get().appliedDiscounts.reduce((total, applied) => total + applied.discount_amount, 0);
+    },
+
+    getMembershipDiscountAmount: () => {
+      return get().membershipDiscount?.discountAmount || 0;
+    },
+    
+    getTotalDiscount: () => {
+      return get().getRegularDiscountTotal() + get().getMembershipDiscountAmount();
     },
     
     getFinalTotal: () => {
       const cartTotal = get().getCartTotal();
-      const discountTotal = get().getTotalDiscount();
-      return Math.max(0, cartTotal - discountTotal);
+      const totalDiscount = get().getTotalDiscount();
+      return Math.max(0, cartTotal - totalDiscount);
     },
     
     getProductCount: () => {

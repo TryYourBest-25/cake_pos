@@ -14,11 +14,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
-import { CreateOrderDto, OrderStatusEnum } from './dto/create-order.dto';
+import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { ValidateDiscountDto } from './dto/validate-discount.dto';
 import { PaginationDto, PaginatedResult } from '../common/dto/pagination.dto';
-import { order, Prisma } from '../generated/prisma/client'; // Import Prisma namespace for types
+import { order, Prisma, order_status_enum } from '../generated/prisma/client'; // Import Prisma namespace for types
+import { ORDER_STATUS_VALUES } from '../common/constants/enums';
 import {
   ApiTags,
   ApiOperation,
@@ -103,8 +104,8 @@ export class OrderController {
   @ApiQuery({
     name: 'status',
     required: false,
-    enum: OrderStatusEnum,
-    description: 'Filter by order status',
+    type: String,
+    description: 'Filter by order status (PROCESSING, CANCELLED, COMPLETED)',
   })
   @ApiResponse({ status: 200, description: 'Paginated list of orders' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -116,7 +117,7 @@ export class OrderController {
     @Query() paginationDto: PaginationDto,
     @Query('customerId') customerId?: string,
     @Query('employeeId') employeeId?: string,
-    @Query('status') status?: OrderStatusEnum,
+    @Query('status') status?: order_status_enum,
   ): Promise<PaginatedResult<order>> {
     const filters = {
       ...(customerId && { customerId: parseInt(customerId, 10) }),
@@ -273,8 +274,7 @@ export class OrderController {
   })
   @ApiParam({ 
     name: 'status', 
-    description: 'Order status', 
-    enum: OrderStatusEnum,
+    description: 'Order status (PROCESSING, CANCELLED, COMPLETED)', 
     type: String 
   })
   @ApiQuery({
@@ -299,7 +299,7 @@ export class OrderController {
     description: 'Forbidden - Insufficient permissions',
   })
   async findByStatus(
-    @Param('status') status: OrderStatusEnum,
+    @Param('status') status: order_status_enum,
     @Query() paginationDto: PaginationDto,
   ): Promise<PaginatedResult<order>> {
     return this.orderService.findByStatus(status, paginationDto);

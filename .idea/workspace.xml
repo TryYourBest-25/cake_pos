@@ -5,16 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ef5dec76-6049-4938-8b0f-72cdaa7b5451" name="Changes" comment="Cập nhật và cải thiện cấu trúc mã nguồn, bao gồm việc loại bỏ các dòng trống thừa và cải thiện định dạng trong các file DTO và module">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/nest-cli.json" beforeDir="false" afterPath="$PROJECT_DIR$/backend/nest-cli.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/invoice/invoice.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/invoice/invoice.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/invoice/invoice.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/invoice/invoice.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/payment/payment.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/payment/payment.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/store/store.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/store/store.module.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/src/app/orders/[id]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/app/orders/[id]/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/src/lib/services/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/lib/services/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/manager/src/types/api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/types/api.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/order/order.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/order/order.service.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/pos/src/app/checkout/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/pos/src/app/checkout/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/pos/src/app/pos/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/pos/src/app/pos/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/pos/src/stores/pos/actions.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/pos/src/stores/pos/actions.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/pos/src/stores/pos/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/pos/src/stores/pos/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/pos/src/stores/pos/types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/pos/src/stores/pos/types.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -112,8 +108,8 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Docker.compose-dev.yml: Compose Deployment" />
       <item itemvalue="Docker.compose-dev.yml.cake_pos_db: Compose Deployment" />
+      <item itemvalue="Docker.compose-dev.yml: Compose Deployment" />
     </list>
     <recent_temporary>
       <list>
@@ -153,6 +149,7 @@
       <workItem from="1750124111328" duration="7637000" />
       <workItem from="1750208293647" duration="3392000" />
       <workItem from="1750226730722" duration="3458000" />
+      <workItem from="1750299216514" duration="3865000" />
     </task>
     <task id="LOCAL-00001" summary="Remove all project files and configurations&#10;&#10;This commit deletes all source code, dependencies, configurations, and project assets. It effectively cleans up the repository, leaving no traces of the previous Next.js project or related files.">
       <option name="closed" value="true" />

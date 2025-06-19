@@ -15,14 +15,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import { CreateOrderProductDto } from './create-order-product.dto';
 import { CreateOrderDiscountDto } from './create-order-discount.dto';
 
-// Enum này nên được import từ Prisma client hoặc một file enum chung nếu có
-// Giả định lấy từ schema.prisma
-export enum OrderStatusEnum {
-  PROCESSING = 'PROCESSING',
-  CANCELLED = 'CANCELLED',
-  COMPLETED = 'COMPLETED',
-}
-
 export class CreateOrderDto {
   @ApiProperty({ description: 'ID của nhân viên tạo đơn', example: 1 })
   @IsInt()

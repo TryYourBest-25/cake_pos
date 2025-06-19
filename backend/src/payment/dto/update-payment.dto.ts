@@ -1,5 +1,5 @@
 import { PartialType } from '@nestjs/swagger'; // Hoặc '@nestjs/mapped-types'
-import { CreatePaymentDto, PaymentStatusEnum } from './create-payment.dto';
+import { CreatePaymentDto } from './create-payment.dto';
 import {
   IsOptional,
   IsEnum,

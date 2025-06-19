@@ -14,10 +14,7 @@ import {
   product_price,
   discount as DiscountModel,
 } from '../generated/prisma/client';
-import {
-  CreateOrderDto,
-  OrderStatusEnum as OrderStatusDtoEnum,
-} from './dto/create-order.dto';
+import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { ValidateDiscountDto } from './dto/validate-discount.dto';
 import { PaginationDto, PaginatedResult } from '../common/dto/pagination.dto';
@@ -115,7 +112,6 @@ export class OrderService {
         calculatedFinalAmount = calculatedFinalAmount.minus(membershipDiscountAmount);
         totalDiscountApplied = totalDiscountApplied.plus(membershipDiscountAmount);
         
-        console.log(`Áp dụng giảm giá membership ${membershipType.type}: ${membershipDiscountAmount.toNumber()} VND (${membershipType.discount_value}%)`);
       }
     }
 
@@ -146,12 +142,11 @@ export class OrderService {
     if (calculatedFinalAmount.lessThan(0))
       calculatedFinalAmount = new Decimal(0);
 
-    // 5. Create Order data
     const orderData: Prisma.orderCreateInput = {
       order_time: new Date(),
-      total_amount: calculatedTotalAmount.toNumber(), // Prisma schema là Int
-      final_amount: calculatedFinalAmount.toNumber(), // Prisma schema là Int
-      status: order_status_enum.PROCESSING, // Mặc định là PROCESSING
+      total_amount: calculatedTotalAmount.toNumber(), 
+      final_amount: calculatedFinalAmount.toNumber(), 
+      status: order_status_enum.PROCESSING, 
       customize_note: customize_note,
       employee: { connect: { employee_id } },
       ...(customer_id && { customer: { connect: { customer_id } } }),
@@ -193,7 +188,7 @@ export class OrderService {
     filters?: {
       customerId?: number;
       employeeId?: number;
-      status?: OrderStatusDtoEnum;
+      status?: order_status_enum;
     },
   ): Promise<PaginatedResult<order>> {
     const { page = 1, limit = 10 } = paginationDto;
@@ -529,7 +524,7 @@ export class OrderService {
   }
 
   async findByStatus(
-    status: OrderStatusDtoEnum,
+    status: order_status_enum,
     paginationDto: PaginationDto,
   ): Promise<PaginatedResult<order>> {
     const { page = 1, limit = 10 } = paginationDto;

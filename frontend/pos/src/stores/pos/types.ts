@@ -1,5 +1,5 @@
 import { Category, Product, CartItem, POSCustomer } from '@/types';
-import { Discount, ValidateDiscountResponse } from '@/lib/services/discount-service';
+import { Discount } from '@/lib/services/discount-service';
 
 export interface POSState {
   // Categories
@@ -23,8 +23,9 @@ export interface POSState {
   isLoadingCategories: boolean;
   isLoadingProducts: boolean;
   
-  // New discount states
-  appliedDiscounts: AppliedDiscount[];
+  // Discount states - tách riêng membership và regular discounts
+  appliedDiscounts: AppliedDiscount[]; // Regular discounts (gửi tới backend)
+  membershipDiscount: MembershipDiscount | null; // Membership discount (chỉ frontend)
   couponCode: string;
   isValidatingDiscount: boolean;
   
@@ -49,14 +50,18 @@ export interface POSState {
   getCartItemCount: () => number;
   getFilteredProducts: () => Product[];
   
-  // New discount actions
+  // Discount actions - cập nhật để tách riêng
   setCouponCode: (code: string) => void;
   applyDiscount: (discount: Discount, discountAmount: number, reason: string) => void;
   removeDiscount: (discountId: number) => void;
   clearDiscounts: () => void;
-  getTotalDiscount: () => number;
+  getTotalDiscount: () => number; // Tổng cả membership + regular discounts
+  getRegularDiscountTotal: () => number; // Chỉ regular discounts (để gửi backend)
+  getMembershipDiscountAmount: () => number; // Chỉ membership discount
   getFinalTotal: () => number;
   getProductCount: () => number;
+  recalculateMembershipDiscount: () => void;
+  clearMembershipDiscount: () => void;
 }
 
 export interface CategoryWithImage extends Category {
@@ -67,4 +72,12 @@ export interface AppliedDiscount {
   discount: Discount;
   discount_amount: number;
   reason: string;
+}
+
+// Interface mới cho membership discount
+export interface MembershipDiscount {
+  membershipType: string;
+  discountPercentage: number;
+  discountAmount: number;
+  customerName: string;
 } 

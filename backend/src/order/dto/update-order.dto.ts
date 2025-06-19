@@ -1,5 +1,5 @@
 import { PartialType } from '@nestjs/swagger';
-import { CreateOrderDto, OrderStatusEnum } from './create-order.dto';
+import { CreateOrderDto } from './create-order.dto';
 import {
   IsOptional,
   IsEnum,

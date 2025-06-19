@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import * as fs from 'fs';
 import * as path from 'path';
 import { VersioningType, ValidationPipe } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const httpsOptions = {
@@ -35,7 +36,6 @@ async function bootstrap() {
     prefix: 'v',
   });
 
-  // Cấu hình global validation pipe với transform
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
@@ -43,6 +43,10 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
+
+  const documentFactory = () =>
+    SwaggerModule.createDocument(app, new DocumentBuilder().setTitle('Cake Shop API').setDescription('API for Cake Shop').setVersion('1.0').build());
+  SwaggerModule.setup('api', app, documentFactory());
 
   await app.listen(process.env.PORT ?? 3000);
 }

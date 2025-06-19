@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search, ShoppingCart, User, Plus, Minus, Crown, Gift, Tag, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { usePOSStore } from "@/stores/pos";
 import { usePOSData } from "@/hooks/use-pos-data";
@@ -36,6 +35,7 @@ export default function POSPage() {
     cart,
     searchQuery,
     appliedDiscounts,
+    membershipDiscount,
     selectedCustomer,
     setSelectedCategoryId,
     setSearchQuery,
@@ -45,12 +45,13 @@ export default function POSPage() {
     removeDiscount,
     getCartTotal,
     getTotalDiscount,
-    getFinalTotal,
+    getRegularDiscountTotal,
+    getMembershipDiscountAmount,
     getFilteredProducts
   } = usePOSStore();
 
   // Use optimized data hook
-  const { categories, products, isLoadingCategories, isLoadingProducts } = usePOSData();
+  const { categories, isLoadingCategories, isLoadingProducts } = usePOSData();
 
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isProductDialogOpen, setIsProductDialogOpen] = useState(false);
@@ -85,6 +86,12 @@ export default function POSPage() {
 
   const closeCouponDialog = () => {
     setIsCouponDialogOpen(false);
+  };
+
+  // Debug function to clear localStorage and refresh
+  const handleDebugClear = () => {
+    localStorage.removeItem('pos-storage');
+    window.location.reload();
   };
 
   const subtotal = getCartTotal();
@@ -203,6 +210,11 @@ export default function POSPage() {
                 <User className="w-4 h-4 mr-2" />
                 Tài khoản
               </Button>
+              {process.env.NODE_ENV === 'development' && (
+                <Button variant="outline" size="sm" onClick={handleDebugClear}>
+                  🐛 Clear Cache
+                </Button>
+              )}
             </div>
           </div>
         </header>
@@ -332,6 +344,27 @@ export default function POSPage() {
 
         {/* Discount Section */}
         <div className="px-4 py-2 border-b">
+          {/* Membership Discount */}
+          {membershipDiscount && (
+            <div className="mb-3">
+              <h3 className="text-sm font-medium text-gray-700 mb-2">Ưu đãi thành viên</h3>
+              <div className="flex items-center justify-between bg-yellow-50 border border-yellow-200 rounded-lg p-2">
+                <div className="flex items-center space-x-2">
+                  <Crown className="w-4 h-4 text-yellow-500" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-yellow-700">
+                      {membershipDiscount.membershipType}
+                    </p>
+                    <p className="text-xs text-yellow-600">
+                      -{formatPrice(membershipDiscount.discountAmount)} ({membershipDiscount.discountPercentage}%)
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Regular Discounts */}
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-sm font-medium text-gray-700">Mã giảm giá</h3>
             <Button
@@ -437,10 +470,20 @@ export default function POSPage() {
                 <span>Tạm tính:</span>
                 <span>{formatPrice(subtotal)}</span>
               </div>
-              {discountAmount > 0 && (
+              
+              {/* Membership Discount */}
+              {getMembershipDiscountAmount() > 0 && (
+                <div className="flex justify-between text-sm text-yellow-600">
+                  <span>Ưu đãi thành viên:</span>
+                  <span>-{formatPrice(getMembershipDiscountAmount())}</span>
+                </div>
+              )}
+              
+              {/* Regular Discounts */}
+              {getRegularDiscountTotal() > 0 && (
                 <div className="flex justify-between text-sm text-green-600">
-                  <span>Giảm giá:</span>
-                  <span>-{formatPrice(discountAmount)}</span>
+                  <span>Mã giảm giá:</span>
+                  <span>-{formatPrice(getRegularDiscountTotal())}</span>
                 </div>
               )}
               

@@ -17,8 +17,9 @@ export const usePOSStore = create<POSState>()(
       isLoadingCategories: false,
       isLoadingProducts: false,
       
-      // New discount states
-      appliedDiscounts: [],
+      // Discount states - tách riêng membership và regular
+      appliedDiscounts: [], // Regular discounts
+      membershipDiscount: null, // Membership discount
       couponCode: '',
       isValidatingDiscount: false,
       
@@ -31,6 +32,7 @@ export const usePOSStore = create<POSState>()(
         cart: state.cart,
         selectedCategoryId: state.selectedCategoryId,
         appliedDiscounts: state.appliedDiscounts,
+        // Không persist membershipDiscount vì nó phụ thuộc vào customer
       }),
     }
   )

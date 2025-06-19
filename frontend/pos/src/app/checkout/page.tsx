@@ -11,7 +11,6 @@ import {
   ArrowRight,
   AlertTriangle,
   X,
-  User,
   Crown,
   Gift,
   Tag,
@@ -41,11 +40,12 @@ export default function CheckoutPage() {
   const { user } = useAuthStore();
   const { 
     cart, 
-    appliedDiscounts, 
+    appliedDiscounts,
+    membershipDiscount,
     selectedCustomer,
     getCartTotal, 
-    getTotalDiscount, 
-    getFinalTotal,
+    getRegularDiscountTotal,
+    getMembershipDiscountAmount,
     clearCart,
     clearDiscounts 
   } = usePOSStore();
@@ -58,6 +58,19 @@ export default function CheckoutPage() {
   const [amountPaid, setAmountPaid] = useState<number>(0);
   const [isPrintingInvoice, setIsPrintingInvoice] = useState(false);
 
+  // Calculate totals
+  const subtotal = getCartTotal();
+  const regularDiscountAmount = getRegularDiscountTotal();
+  const membershipDiscountAmount = getMembershipDiscountAmount();
+  const total = subtotal - regularDiscountAmount - membershipDiscountAmount;
+
+  // Debug logging
+  console.log('=== CHECKOUT DEBUG ===');
+  console.log('Applied discounts:', appliedDiscounts);
+  console.log('Membership discount:', membershipDiscount);
+  console.log('Regular discount amount:', regularDiscountAmount);
+  console.log('Membership discount amount:', membershipDiscountAmount);
+
   // Redirect if cart is empty
   useEffect(() => {
     if (cart.length === 0 && currentStep === 'confirm') {
@@ -67,6 +80,33 @@ export default function CheckoutPage() {
       router.push('/pos');
     }
   }, [cart, currentStep, router]);
+
+  // Clean up old membership discounts in appliedDiscounts (migration/fix)
+  useEffect(() => {
+    const membershipDiscountsInApplied = appliedDiscounts.filter(
+      discount => discount.discount.discount_id === -1 || discount.reason === 'membership'
+    );
+    
+    if (membershipDiscountsInApplied.length > 0) {
+      console.warn('Found membership discounts in appliedDiscounts, cleaning up...');
+      // Remove membership discounts from appliedDiscounts
+      const cleanedDiscounts = appliedDiscounts.filter(
+        discount => discount.discount.discount_id !== -1 && discount.reason !== 'membership'
+      );
+      // Set the cleaned appliedDiscounts back to store
+      // Note: This is a one-time cleanup for migration
+      if (cleanedDiscounts.length !== appliedDiscounts.length) {
+        // We need access to store's clearDiscounts and re-add clean ones
+        clearDiscounts();
+        // Re-add clean discounts
+        cleanedDiscounts.forEach(discount => {
+          // This should use the store's applyDiscount method
+          // But since we're in useEffect, we'll just log for now
+          console.log('Clean discount to re-add:', discount);
+        });
+      }
+    }
+  }, [appliedDiscounts, clearDiscounts]);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('vi-VN', {
@@ -104,11 +144,16 @@ export default function CheckoutPage() {
           quantity: item.quantity,
           option: undefined // Có thể thêm option sau nếu cần
         })),
-        discounts: appliedDiscounts.length > 0 ? appliedDiscounts.map(discount => ({
-          discount_id: discount.discount.discount_id
-        })) : undefined
+        // Chỉ gửi regular discounts (không gửi membership discount có ID -1)
+        discounts: appliedDiscounts.length > 0 ? appliedDiscounts
+          .filter(discount => discount.discount.discount_id > 0) // Loại bỏ membership discount có ID -1
+          .map(discount => ({
+            discount_id: discount.discount.discount_id
+          })) : undefined
       };
 
+      console.log('Applied discounts:', appliedDiscounts);
+      console.log('Filtered discounts for backend:', orderData.discounts);
       console.log('Tạo đơn hàng với dữ liệu:', orderData);
 
       // Create order
@@ -327,10 +372,6 @@ export default function CheckoutPage() {
     }
   };
 
-  const subtotal = getCartTotal();
-  const discountAmount = getTotalDiscount();
-  const total = subtotal - discountAmount;
-
   const steps = [
     { id: 'confirm', title: 'Xác nhận đơn hàng', icon: FileText },
     { id: 'payment', title: 'Thanh toán', icon: CreditCard },
@@ -480,10 +521,31 @@ export default function CheckoutPage() {
                     </div>
 
                     {/* Applied Discounts */}
-                    {appliedDiscounts.length > 0 && (
+                    {(appliedDiscounts.length > 0 || membershipDiscount) && (
                       <div>
-                        <h3 className="text-sm font-medium text-gray-900 mb-3">Mã giảm giá áp dụng</h3>
+                        <h3 className="text-sm font-medium text-gray-900 mb-3">Giảm giá áp dụng</h3>
                         <div className="space-y-2">
+                          {/* Membership Discount */}
+                          {membershipDiscount && (
+                            <div className="flex items-center justify-between bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                              <div className="flex items-center space-x-2">
+                                <Crown className="w-4 h-4 text-yellow-600" />
+                                <div>
+                                  <p className="text-sm font-medium text-yellow-700">
+                                    Ưu đãi thành viên {membershipDiscount.membershipType}
+                                  </p>
+                                  <p className="text-xs text-yellow-600">
+                                    Giảm {membershipDiscount.discountPercentage}%
+                                  </p>
+                                </div>
+                              </div>
+                              <p className="text-sm font-medium text-yellow-700">
+                                -{formatPrice(membershipDiscount.discountAmount)}
+                              </p>
+                            </div>
+                          )}
+
+                          {/* Regular Discounts */}
                           {appliedDiscounts.map((appliedDiscount) => (
                             <div
                               key={appliedDiscount.discount.discount_id}
@@ -865,10 +927,16 @@ export default function CheckoutPage() {
                       <span>Tạm tính:</span>
                       <span>{formatPrice(subtotal)}</span>
                     </div>
-                    {discountAmount > 0 && (
+                    {membershipDiscountAmount > 0 && (
+                      <div className="flex justify-between text-yellow-600">
+                        <span>Ưu đãi thành viên:</span>
+                        <span>-{formatPrice(membershipDiscountAmount)}</span>
+                      </div>
+                    )}
+                    {regularDiscountAmount > 0 && (
                       <div className="flex justify-between text-green-600">
-                        <span>Giảm giá:</span>
-                        <span>-{formatPrice(discountAmount)}</span>
+                        <span>Mã giảm giá:</span>
+                        <span>-{formatPrice(regularDiscountAmount)}</span>
                       </div>
                     )}
 

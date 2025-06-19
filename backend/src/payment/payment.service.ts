@@ -13,10 +13,7 @@ import {
   payment_method as PaymentMethodModel,
   payment_status_enum,
 } from '../generated/prisma/client';
-import {
-  CreatePaymentDto,
-  PaymentStatusEnum as PaymentStatusDtoEnum,
-} from './dto/create-payment.dto';
+import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
 import { PaginationDto, PaginatedResult } from '../common/dto/pagination.dto';
 import { VNPayService, VNPayPaymentRequest } from './vnpay.service';

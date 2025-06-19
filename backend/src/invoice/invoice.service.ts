@@ -119,8 +119,8 @@ export class InvoiceService {
         order_product: {
           include: {
             product_price: {
-              include: {
-                product: true,
+          include: {
+            product: true,
                 product_size: true,
               },
             },
@@ -258,6 +258,6 @@ export class InvoiceService {
       throw new NotFoundException(
         `Không thể đọc template hóa đơn: ${error.message}`,
       );
-    }
   }
+}
 } 

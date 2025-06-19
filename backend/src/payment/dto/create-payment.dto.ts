@@ -10,12 +10,6 @@ import {
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
-export enum PaymentStatusEnum {
-  PROCESSING = 'PROCESSING',
-  PAID = 'PAID',
-  CANCELLED = 'CANCELLED',
-}
-
 export class CreatePaymentDto {
   @ApiProperty({ description: 'ID của đơn hàng liên quan', example: 1 })
   @IsInt()
