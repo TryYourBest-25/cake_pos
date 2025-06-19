@@ -14,7 +14,10 @@ import {
   User,
   Crown,
   Gift,
-  Tag
+  Tag,
+  Download,
+  Printer,
+  ChevronDown
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -23,10 +26,12 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { usePOSStore } from "@/stores/pos";
 import { useAuthStore } from "@/stores/auth";
 import { orderService, CreateOrderDto, Order } from "@/lib/services/order-service";
 import { paymentService, Payment } from "@/lib/services/payment-service";
+import { invoiceService } from "@/lib/services/invoice-service";
 import { AuthGuard } from "@/components/auth/auth-guard";
 
 type CheckoutStep = 'confirm' | 'payment' | 'complete';
@@ -51,6 +56,7 @@ export default function CheckoutPage() {
   const [createdOrder, setCreatedOrder] = useState<Order | null>(null);
   const [createdPayment, setCreatedPayment] = useState<Payment | null>(null);
   const [amountPaid, setAmountPaid] = useState<number>(0);
+  const [isPrintingInvoice, setIsPrintingInvoice] = useState(false);
 
   // Redirect if cart is empty
   useEffect(() => {
@@ -226,6 +232,99 @@ export default function CheckoutPage() {
   // Back to POS
   const handleBackToPOS = () => {
     router.push('/pos');
+  };
+
+  // Print Invoice HTML
+  const handlePrintInvoice = async () => {
+    if (!createdOrder) {
+      toast.error("Lỗi", {
+        description: "Không tìm thấy thông tin đơn hàng"
+      });
+      return;
+    }
+
+    setIsPrintingInvoice(true);
+
+    try {
+      await invoiceService.printInvoiceHTML(createdOrder.order_id);
+      
+      toast.success("Đang in hóa đơn", {
+        description: "Hóa đơn đang được mở trong tab mới để in"
+      });
+
+    } catch (error: any) {
+      console.error('Lỗi khi in hóa đơn:', error);
+      
+      const errorMessage = error?.message || 'Có lỗi xảy ra khi in hóa đơn';
+      
+      toast.error("Lỗi in hóa đơn", {
+        description: errorMessage
+      });
+    } finally {
+      setIsPrintingInvoice(false);
+    }
+  };
+
+  // Download PDF Invoice
+  const handleDownloadPDF = async () => {
+    if (!createdOrder) {
+      toast.error("Lỗi", {
+        description: "Không tìm thấy thông tin đơn hàng"
+      });
+      return;
+    }
+
+    setIsPrintingInvoice(true);
+
+    try {
+      await invoiceService.downloadInvoicePDF(createdOrder.order_id);
+      
+      toast.success("Tải xuống thành công", {
+        description: "Hóa đơn PDF đã được tải xuống"
+      });
+
+    } catch (error: any) {
+      console.error('Lỗi khi tải hóa đơn PDF:', error);
+      
+      const errorMessage = error?.message || 'Có lỗi xảy ra khi tải hóa đơn PDF';
+      
+      toast.error("Lỗi tải hóa đơn", {
+        description: errorMessage
+      });
+    } finally {
+      setIsPrintingInvoice(false);
+    }
+  };
+
+  // View PDF Invoice
+  const handleViewPDF = async () => {
+    if (!createdOrder) {
+      toast.error("Lỗi", {
+        description: "Không tìm thấy thông tin đơn hàng"
+      });
+      return;
+    }
+
+    setIsPrintingInvoice(true);
+
+    try {
+      await invoiceService.viewInvoicePDF(createdOrder.order_id);
+      
+      toast.success("Đang mở hóa đơn", {
+        description: "Hóa đơn PDF đang được mở trong tab mới"
+      });
+
+    } catch (error: any) {
+      console.error('Lỗi khi xem hóa đơn PDF:', error);
+      
+      const errorMessage = error?.message || 'Có lỗi xảy ra khi xem hóa đơn PDF';
+      
+      toast.error("Lỗi xem hóa đơn", {
+        description: errorMessage
+      });
+    } finally {
+      setIsPrintingInvoice(false);
+    }
   };
 
   const subtotal = getCartTotal();
@@ -699,14 +798,48 @@ export default function CheckoutPage() {
 
                     {/* Action Buttons */}
                     <div className="flex space-x-3">
-                      <Button
-                        variant="outline"
-                        onClick={() => window.print()}
-                        className="flex-1"
-                      >
-                        <FileText className="w-4 h-4 mr-2" />
-                        In hóa đơn
-                      </Button>
+                      {/* Invoice Options */}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="outline"
+                            disabled={isPrintingInvoice}
+                            className="flex-1"
+                          >
+                            {isPrintingInvoice ? (
+                              <>
+                                <Clock className="w-4 h-4 mr-2 animate-spin" />
+                                Đang xử lý...
+                              </>
+                            ) : (
+                              <>
+                                <FileText className="w-4 h-4 mr-2" />
+                                Hóa đơn
+                                <ChevronDown className="w-4 h-4 ml-2" />
+                              </>
+                            )}
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48">
+                          <DropdownMenuItem onClick={handlePrintInvoice} disabled={isPrintingInvoice}>
+                            <Printer className="w-4 h-4 mr-2" />
+                            In hóa đơn (HTML)
+                          </DropdownMenuItem>
+                          {(user?.role_name === 'STAFF' || user?.role_name === 'MANAGER') && (
+                            <>
+                              <DropdownMenuItem onClick={handleViewPDF} disabled={isPrintingInvoice}>
+                                <FileText className="w-4 h-4 mr-2" />
+                                Xem PDF
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={handleDownloadPDF} disabled={isPrintingInvoice}>
+                                <Download className="w-4 h-4 mr-2" />
+                                Tải PDF
+                              </DropdownMenuItem>
+                            </>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+
                       <Button
                         onClick={handleComplete}
                         className="flex-1"

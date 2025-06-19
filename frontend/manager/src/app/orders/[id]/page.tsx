@@ -1,18 +1,25 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
-import { ArrowLeft, Package, User, CreditCard, Tag, Clock, Phone } from "lucide-react";
+import { ArrowLeft, Package, User, CreditCard, Tag, Clock, Phone, FileText, Download, Printer, Eye } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 import { useOrdersStore } from "@/stores/orders";
+import { invoiceService } from "@/lib/services";
 
 function formatDate(date: Date): string {
   return new Intl.DateTimeFormat("vi-VN", {
@@ -87,6 +94,7 @@ export default function OrderDetailPage() {
   const router = useRouter();
   const params = useParams();
   const orderId = parseInt(params.id as string);
+  const [isInvoiceLoading, setIsInvoiceLoading] = useState(false);
 
   const { currentOrder, isLoading, fetchOrderById } = useOrdersStore();
 
@@ -95,6 +103,44 @@ export default function OrderDetailPage() {
       fetchOrderById(orderId);
     }
   }, [orderId, fetchOrderById]);
+
+  // Invoice handlers
+  const handleViewInvoiceHTML = async () => {
+    try {
+      setIsInvoiceLoading(true);
+      await invoiceService.viewInvoiceHTML(orderId);
+    } catch (error) {
+      console.error('Lỗi xem hóa đơn HTML:', error);
+      toast.error('Không thể xem hóa đơn. Vui lòng thử lại.');
+    } finally {
+      setIsInvoiceLoading(false);
+    }
+  };
+
+  const handleDownloadPDF = async () => {
+    try {
+      setIsInvoiceLoading(true);
+      await invoiceService.downloadInvoicePDF(orderId);
+      toast.success('Đã tải hóa đơn PDF thành công!');
+    } catch (error) {
+      console.error('Lỗi tải hóa đơn PDF:', error);
+      toast.error('Không thể tải hóa đơn PDF. Vui lòng thử lại.');
+    } finally {
+      setIsInvoiceLoading(false);
+    }
+  };
+
+  const handlePrintInvoice = async () => {
+    try {
+      setIsInvoiceLoading(true);
+      await invoiceService.printInvoice(orderId);
+    } catch (error) {
+      console.error('Lỗi in hóa đơn:', error);
+      toast.error('Không thể in hóa đơn. Vui lòng thử lại.');
+    } finally {
+      setIsInvoiceLoading(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -122,6 +168,7 @@ export default function OrderDetailPage() {
   const order = currentOrder;
   const customerName = order.customerName || order.customer?.name || "Khách lẻ";
   const employeeName = order.employeeName || order.employee?.name || "N/A";
+  const canViewInvoice = order.paymentStatus === 'PAID';
 
   return (
     <div className="space-y-6">
@@ -146,6 +193,32 @@ export default function OrderDetailPage() {
           <Badge variant={getPaymentStatusBadgeVariant(order.paymentStatus)}>
             {getPaymentStatusDisplay(order.paymentStatus)}
           </Badge>
+          
+          {/* Invoice Actions */}
+          {canViewInvoice && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" disabled={isInvoiceLoading}>
+                  <FileText className="mr-2 h-4 w-4" />
+                  Hóa Đơn
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={handleViewInvoiceHTML}>
+                  <Eye className="mr-2 h-4 w-4" />
+                  Xem Hóa Đơn
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handlePrintInvoice}>
+                  <Printer className="mr-2 h-4 w-4" />
+                  In Hóa Đơn
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleDownloadPDF}>
+                  <Download className="mr-2 h-4 w-4" />
+                  Tải PDF
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
       </div>
 
@@ -376,7 +449,7 @@ export default function OrderDetailPage() {
                         <span>{formatDate(payment.paymentTime)}</span>
                       </div>
                     )}
-                    {index < order.payments.length - 1 && <Separator />}
+                    {index < (order.payments?.length ?? 0) - 1 && <Separator />}
                   </div>
                 ))}
               </CardContent>

@@ -6,39 +6,15 @@
   <component name="ChangeListManager">
     <list default="true" id="ef5dec76-6049-4938-8b0f-72cdaa7b5451" name="Changes" comment="Cập nhật và cải thiện cấu trúc mã nguồn, bao gồm việc loại bỏ các dòng trống thừa và cải thiện định dạng trong các file DTO và module">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/prisma/dbml/schema.dbml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/prisma/dbml/schema.dbml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/backend/prisma/schema.prisma" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/auth/auth.controller.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/auth/auth.controller.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/auth/auth.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/auth/auth.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/generated/prisma/client.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/generated/prisma/client.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/generated/prisma/commonInputTypes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/generated/prisma/commonInputTypes.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/generated/prisma/enums.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/generated/prisma/enums.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/generated/prisma/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/generated/prisma/index.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/generated/prisma/internal/class.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/generated/prisma/internal/class.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/generated/prisma/internal/prismaNamespace.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/generated/prisma/internal/prismaNamespace.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/generated/prisma/models.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/generated/prisma/models.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/generated/prisma/models/account.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/generated/prisma/models/account.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/generated/prisma/models/category.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/generated/prisma/models/category.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/generated/prisma/models/customer.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/generated/prisma/models/customer.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/generated/prisma/models/discount.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/generated/prisma/models/discount.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/generated/prisma/models/employee.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/generated/prisma/models/employee.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/generated/prisma/models/manager.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/generated/prisma/models/manager.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/generated/prisma/models/membership_type.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/generated/prisma/models/membership_type.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/generated/prisma/models/order.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/generated/prisma/models/order.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/generated/prisma/models/order_discount.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/generated/prisma/models/order_discount.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/generated/prisma/models/order_product.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/generated/prisma/models/order_product.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/generated/prisma/models/payment.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/generated/prisma/models/payment.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/generated/prisma/models/payment_method.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/generated/prisma/models/payment_method.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/generated/prisma/models/product.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/generated/prisma/models/product.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/generated/prisma/models/product_price.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/generated/prisma/models/product_price.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/generated/prisma/models/product_size.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/generated/prisma/models/product_size.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/generated/prisma/models/role.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/generated/prisma/models/role.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/generated/prisma/models/store.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/generated/prisma/models/store.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/pos/.cursor/rules/next-js.mdc" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/pos/.cursor/rules/next-js.mdc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/pos/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/pos/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/pos/src/app/pos/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/pos/src/app/pos/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/pos/src/stores/auth.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/pos/src/stores/auth.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/pos/src/types/auth.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/pos/src/types/auth.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/nest-cli.json" beforeDir="false" afterPath="$PROJECT_DIR$/backend/nest-cli.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/invoice/invoice.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/invoice/invoice.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/invoice/invoice.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/invoice/invoice.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/payment/payment.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/payment/payment.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/store/store.module.ts" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/store/store.module.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/src/app/orders/[id]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/app/orders/[id]/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/src/lib/services/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/lib/services/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/manager/src/types/api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/manager/src/types/api.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/pos/src/app/checkout/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/pos/src/app/checkout/page.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -136,8 +112,8 @@
       <method v="2" />
     </configuration>
     <list>
-      <item itemvalue="Docker.compose-dev.yml.cake_pos_db: Compose Deployment" />
       <item itemvalue="Docker.compose-dev.yml: Compose Deployment" />
+      <item itemvalue="Docker.compose-dev.yml.cake_pos_db: Compose Deployment" />
     </list>
     <recent_temporary>
       <list>

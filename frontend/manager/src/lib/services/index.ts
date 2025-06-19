@@ -17,6 +17,7 @@ export { authService } from './auth-service';
 export * from './reports-service';
 export { profileService } from './profile-service';
 export { storeService } from './store-service';
+export { invoiceService } from './invoice-service';
 
 // Service types
 export type { 
@@ -35,5 +36,6 @@ export type {
   UpdateMembershipTypeDto,
   CreateDiscountDto,
   UpdateDiscountDto,
-  PaginatedResponse
+  PaginatedResponse,
+  InvoiceData
 } from '@/types/api'; 

@@ -957,11 +957,46 @@ export interface BackendPaginatedResponse<T> {
   };
 }
 
-// Backend bulk delete response structure (for internal service use)
+// Bulk Delete Response
 export interface BulkDeleteResponse {
-  deleted: number[];
-  failed: { id: number; reason: string }[];
-  summary: { total: number; success: number; failed: number };
+  summary: {
+    success: number;
+    failed: number;
+  };
+  details: Array<{
+    id: number;
+    success: boolean;
+    error?: string;
+  }>;
+}
+
+// Invoice Data interface
+export interface InvoiceData {
+  order_id: number;
+  order_time: Date;
+  customer_name?: string;
+  customer_phone?: string;
+  employee_name: string;
+  store_name: string;
+  store_address: string;
+  store_phone: string;
+  store_email?: string;
+  store_tax_code?: string;
+  items: Array<{
+    product_name: string;
+    quantity: number;
+    unit_price: number;
+    total_price: number;
+  }>;
+  subtotal: number;
+  discount_amount: number;
+  final_amount: number;
+  payment_method: string;
+  amount_paid: number;
+  change_amount: number;
+  payment_time: Date;
+  payment_status: string;
+  print_time: string;
 }
 
 // Reports Related Types

@@ -43,12 +43,16 @@ export class OrderService {
         `Nhân viên với ID ${employee_id} không tồn tại.`,
       );
 
-    // 2. Validate Customer (if provided)
+    // 2. Validate Customer (if provided) and get membership info
+    let customerWithMembership: any = null;
     if (customer_id) {
-      const customer = await this.prisma.customer.findUnique({
+      customerWithMembership = await this.prisma.customer.findUnique({
         where: { customer_id },
+        include: {
+          membership_type: true,
+        },
       });
-      if (!customer)
+      if (!customerWithMembership)
         throw new NotFoundException(
           `Khách hàng với ID ${customer_id} không tồn tại.`,
         );
@@ -90,13 +94,32 @@ export class OrderService {
     }
 
     // 4. Process Discounts and Calculate final_amount
-    // Đây là phần phức tạp, cần logic chi tiết về cách áp dụng discount (thứ tự, loại, điều kiện)
-    // Tạm thời, giả sử discount_value là số tiền giảm trực tiếp trên total_amount
     let calculatedFinalAmount = new Decimal(calculatedTotalAmount);
     const orderDiscountCreateInputs: Prisma.order_discountCreateWithoutOrderInput[] =
       [];
     let totalDiscountApplied = new Decimal(0);
 
+    // 4.1. Apply Membership Discount first (if customer has membership)
+    if (customerWithMembership && customerWithMembership.membership_type) {
+      const membershipType = customerWithMembership.membership_type;
+      
+      // Check if membership is active and valid
+      if (membershipType.is_active && 
+          (!membershipType.valid_until || new Date() <= new Date(membershipType.valid_until))) {
+        
+        // Calculate membership discount (percentage-based)
+        const membershipDiscountAmount = calculatedTotalAmount
+          .times(new Decimal(membershipType.discount_value))
+          .dividedBy(100);
+        
+        calculatedFinalAmount = calculatedFinalAmount.minus(membershipDiscountAmount);
+        totalDiscountApplied = totalDiscountApplied.plus(membershipDiscountAmount);
+        
+        console.log(`Áp dụng giảm giá membership ${membershipType.type}: ${membershipDiscountAmount.toNumber()} VND (${membershipType.discount_value}%)`);
+      }
+    }
+
+    // 4.2. Apply Coupon/Discount codes (after membership discount)
     if (discounts && discounts.length > 0) {
       for (const discountDto of discounts) {
         const validationResult = await this.validateSingleDiscount(

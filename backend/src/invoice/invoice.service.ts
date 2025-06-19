@@ -75,6 +75,32 @@ export class InvoiceService {
     Handlebars.registerHelper('increment', (value: number) => {
       return value + 1;
     });
+
+    Handlebars.registerHelper('getPaymentStatusText', (status: string) => {
+      switch (status) {
+        case 'PAID':
+          return 'Đã thanh toán';
+        case 'PENDING':
+          return 'Chờ thanh toán';
+        case 'PROCESSING':
+          return 'Đang xử lý';
+        default:
+          return 'Không xác định';
+      }
+    });
+
+    Handlebars.registerHelper('getPaymentStatusClass', (status: string) => {
+      switch (status) {
+        case 'PAID':
+          return 'status-paid';
+        case 'PENDING':
+          return 'status-pending';
+        case 'PROCESSING':
+          return 'status-processing';
+        default:
+          return 'status-pending';
+      }
+    });
   }
 
   /**

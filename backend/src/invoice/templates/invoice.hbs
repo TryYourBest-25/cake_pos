@@ -339,10 +339,8 @@
         </div>
         <div>
           <p><strong>Trạng thái:</strong> 
-            <span class="payment-status {{#eq payment_status 'PAID'}}status-paid{{/eq}}{{#eq payment_status 'PENDING'}}status-pending{{/eq}}{{#eq payment_status 'PROCESSING'}}status-processing{{/eq}}">
-              {{#eq payment_status 'PAID'}}Đã thanh toán{{/eq}}
-              {{#eq payment_status 'PENDING'}}Chờ thanh toán{{/eq}}
-              {{#eq payment_status 'PROCESSING'}}Đang xử lý{{/eq}}
+            <span class="payment-status {{getPaymentStatusClass payment_status}}">
+              {{getPaymentStatusText payment_status}}
             </span>
           </p>
           {{#if change_amount}}
