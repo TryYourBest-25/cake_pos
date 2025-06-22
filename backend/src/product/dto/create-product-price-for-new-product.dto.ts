@@ -7,7 +7,7 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { CreateProductSizeDto } from './create-product-size.dto';
+import { CreateProductSizeForProductDto } from './create-product-size.dto';
 
 export class CreateProductPriceForNewProductDto {
   @ApiPropertyOptional({
@@ -21,12 +21,12 @@ export class CreateProductPriceForNewProductDto {
 
   @ApiPropertyOptional({
     description: 'Thông tin kích thước mới (nếu tạo kích thước mới)',
-    type: CreateProductSizeDto,
+    type: CreateProductSizeForProductDto,
   })
   @IsOptional()
   @ValidateNested()
-  @Type(() => CreateProductSizeDto)
-  size_data?: CreateProductSizeDto;
+  @Type(() => CreateProductSizeForProductDto)
+  size_data?: CreateProductSizeForProductDto;
 
   @ApiProperty({
     description: 'Giá sản phẩm (VND)',

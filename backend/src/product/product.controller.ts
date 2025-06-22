@@ -19,7 +19,7 @@ import { CreateProductPriceDto } from './dto/create-product-price.dto';
 import { UpdateProductPriceDto } from './dto/update-product-price.dto';
 import { BulkDeleteProductPriceDto } from './dto/bulk-delete-product-price.dto';
 import { BulkDeleteProductDto } from './dto/bulk-delete-product.dto';
-import { PaginationDto, PaginatedResult } from '../common/dto/pagination.dto';
+import { PaginationDto, PaginatedResult, PaginationMetadata } from '../common/dto/pagination.dto';
 import { product, product_price } from '../generated/prisma/client';
 import {
   ApiTags,
@@ -29,6 +29,7 @@ import {
   ApiQuery,
   ApiBearerAuth,
   ApiBody,
+  ApiExtraModels,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -38,6 +39,7 @@ import { ROLES } from '../auth/constants/roles.constant';
 @ApiTags('products')
 @Controller('products')
 @ApiBearerAuth()
+@ApiExtraModels(PaginationMetadata)
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
@@ -91,7 +93,22 @@ export class ProductController {
     type: Number,
     description: 'Items per page',
   })
-  @ApiResponse({ status: 200, description: 'Paginated list of products' })
+  @ApiResponse({ 
+    status: 200, 
+    description: 'Paginated list of products',
+    schema: {
+      type: 'object',
+      properties: {
+        data: {
+          type: 'array',
+          items: { type: 'object' },
+        },
+        pagination: {
+          $ref: '#/components/schemas/PaginationMetadata',
+        },
+      },
+    },
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async findAll(
     @Query() paginationDto: PaginationDto,
@@ -217,7 +234,22 @@ export class ProductController {
     summary: 'Lấy sản phẩm theo danh mục với pagination - TẤT CẢ ROLES',
   })
   @ApiParam({ name: 'categoryId', description: 'Category ID', type: Number })
-  @ApiResponse({ status: 200, description: 'Danh sách sản phẩm theo danh mục' })
+  @ApiResponse({ 
+    status: 200, 
+    description: 'Danh sách sản phẩm theo danh mục',
+    schema: {
+      type: 'object',
+      properties: {
+        data: {
+          type: 'array',
+          items: { type: 'object' },
+        },
+        pagination: {
+          $ref: '#/components/schemas/PaginationMetadata',
+        },
+      },
+    },
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({
     status: 403,

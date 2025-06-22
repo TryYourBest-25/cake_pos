@@ -56,6 +56,7 @@ import { FirebaseStorageModule } from './firebase-storage/firebase-storage.modul
         ),
         vnpayHost: configService.getOrThrow<string>('VNP_HOST'),
         testMode: configService.getOrThrow<boolean>('VNP_TEST_MODE'),
+        vnp_Version: '2.1.0'
       }),
       inject: [ConfigService],
     }),

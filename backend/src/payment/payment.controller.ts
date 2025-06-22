@@ -20,7 +20,7 @@ import { PaymentService } from './payment.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { CreateVNPayPaymentDto } from './dto/create-vnpay-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
-import { PaginationDto, PaginatedResult } from '../common/dto/pagination.dto';
+import { PaginationDto, PaginatedResult, PaginationMetadata } from '../common/dto/pagination.dto';
 import { payment } from '../generated/prisma/client';
 import {
   ApiTags,
@@ -30,6 +30,7 @@ import {
   ApiQuery,
   ApiBody,
   ApiBearerAuth,
+  ApiExtraModels,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -39,6 +40,7 @@ import { ROLES } from '../auth/constants/roles.constant';
 @ApiTags('payments')
 @Controller('payments')
 @ApiBearerAuth()
+@ApiExtraModels(PaginationMetadata)
 export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
 
@@ -98,7 +100,22 @@ export class PaymentController {
     type: Number,
     description: 'Filter payments by a specific order ID',
   })
-  @ApiResponse({ status: 200, description: 'Paginated list of payments' })
+  @ApiResponse({ 
+    status: 200, 
+    description: 'Paginated list of payments',
+    schema: {
+      type: 'object',
+      properties: {
+        data: {
+          type: 'array',
+          items: { type: 'object' },
+        },
+        pagination: {
+          $ref: '#/components/schemas/PaginationMetadata',
+        },
+      },
+    },
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({
     status: 403,
@@ -310,6 +327,18 @@ export class PaymentController {
   @ApiResponse({
     status: 200,
     description: 'Danh sách thanh toán theo phương thức',
+    schema: {
+      type: 'object',
+      properties: {
+        data: {
+          type: 'array',
+          items: { type: 'object' },
+        },
+        pagination: {
+          $ref: '#/components/schemas/PaginationMetadata',
+        },
+      },
+    },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({

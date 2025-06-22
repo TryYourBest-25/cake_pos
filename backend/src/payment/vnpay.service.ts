@@ -40,14 +40,12 @@ export class VNPayService {
     try {
       const { orderId, amount, orderInfo, returnUrl, ipAddr } = paymentRequest;
 
-      // Tạo mã giao dịch duy nhất
       const txnRef = `ORDER_${orderId}_${Date.now()}`;
 
-      // Thông tin thanh toán - sử dụng any để tránh lỗi type từ package
       const paymentData: any = {
         vnp_TxnRef: txnRef,
         vnp_OrderInfo: orderInfo || `Thanh toan don hang ${orderId}`,
-        vnp_Amount: amount * 100, // VNPay yêu cầu số tiền * 100
+        vnp_Amount: amount * 100, 
         vnp_ReturnUrl: returnUrl,
         vnp_IpAddr: ipAddr,
         vnp_CreateDate: this.formatDate(new Date()),

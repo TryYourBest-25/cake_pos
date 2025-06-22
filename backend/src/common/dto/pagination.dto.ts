@@ -32,6 +32,51 @@ export class PaginationDto {
   limit?: number = 10;
 }
 
+// Class cho Swagger documentation của pagination metadata
+export class PaginationMetadata {
+  @ApiProperty({
+    description: 'Số trang hiện tại',
+    example: 1,
+    minimum: 1,
+  })
+  page: number;
+
+  @ApiProperty({
+    description: 'Số lượng bản ghi trên mỗi trang',
+    example: 10,
+    minimum: 1,
+    maximum: 100,
+  })
+  limit: number;
+
+  @ApiProperty({
+    description: 'Tổng số bản ghi',
+    example: 50,
+    minimum: 0,
+  })
+  total: number;
+
+  @ApiProperty({
+    description: 'Tổng số trang',
+    example: 5,
+    minimum: 0,
+  })
+  totalPages: number;
+
+  @ApiProperty({
+    description: 'Có trang tiếp theo hay không',
+    example: true,
+  })
+  hasNext: boolean;
+
+  @ApiProperty({
+    description: 'Có trang trước hay không',
+    example: false,
+  })
+  hasPrev: boolean;
+}
+
+// Interface chính cho việc sử dụng trong code
 export interface PaginatedResult<T> {
   data: T[];
   pagination: {
@@ -41,5 +86,21 @@ export interface PaginatedResult<T> {
     totalPages: number;
     hasNext: boolean;
     hasPrev: boolean;
+  };
+}
+
+// Helper function để tạo Swagger schema cho PaginatedResult
+export function createPaginatedResponseSchema(dataType: any) {
+  return {
+    type: 'object',
+    properties: {
+      data: {
+        type: 'array',
+        items: { $ref: `#/components/schemas/${dataType.name}` },
+      },
+      pagination: {
+        $ref: '#/components/schemas/PaginationMetadata',
+      },
+    },
   };
 }

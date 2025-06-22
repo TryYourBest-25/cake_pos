@@ -15,7 +15,7 @@ import {
 import { PaymentMethodService } from './payment-method.service';
 import { CreatePaymentMethodDto } from './dto/create-payment-method.dto';
 import { UpdatePaymentMethodDto } from './dto/update-payment-method.dto';
-import { PaginationDto, PaginatedResult } from '../common/dto/pagination.dto';
+import { PaginationDto, PaginatedResult, PaginationMetadata } from '../common/dto/pagination.dto';
 import { payment_method } from '../generated/prisma/client';
 import {
   ApiTags,
@@ -24,6 +24,7 @@ import {
   ApiParam,
   ApiBody,
   ApiBearerAuth,
+  ApiExtraModels,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -33,6 +34,7 @@ import { ROLES } from '../auth/constants/roles.constant';
 @ApiTags('payment-methods')
 @Controller('payment-methods')
 @ApiBearerAuth()
+@ApiExtraModels(PaginationMetadata)
 export class PaymentMethodController {
   constructor(private readonly paymentMethodService: PaymentMethodService) {}
 
@@ -71,6 +73,18 @@ export class PaymentMethodController {
   @ApiResponse({
     status: 200,
     description: 'Paginated list of payment methods',
+    schema: {
+      type: 'object',
+      properties: {
+        data: {
+          type: 'array',
+          items: { type: 'object' },
+        },
+        pagination: {
+          $ref: '#/components/schemas/PaginationMetadata',
+        },
+      },
+    },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async findAll(

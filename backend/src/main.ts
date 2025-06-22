@@ -22,8 +22,7 @@ async function bootstrap() {
     origin: [
       `${process.env.VNP_IPN_URL}`,
       `${process.env.POS_URL}`,
-      `${process.env.MANAGER_URL}`,
-    ],
+      `${process.env.MANAGER_URL}`    ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     exposedHeaders: ['Set-Cookie'],
@@ -44,8 +43,34 @@ async function bootstrap() {
     }),
   );
 
-  const documentFactory = () =>
-    SwaggerModule.createDocument(app, new DocumentBuilder().setTitle('Cake Shop API').setDescription('API for Cake Shop').setVersion('1.0').build());
+  const config = new DocumentBuilder()
+    .setTitle('Cake POS API')
+    .setDescription('API documentation for Cake POS System - Hệ thống quản lý cửa hàng bánh ngọt')
+    .setVersion('1.0')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Enter JWT token',
+        in: 'header',
+      },
+      'JWT-auth', // This name here is important for matching up with @ApiBearerAuth() in your controller!
+    )
+    .addTag('auth', 'Authentication endpoints - Xác thực và ủy quyền')
+    .addTag('accounts', 'Account management - Quản lý tài khoản')
+    .addTag('customers', 'Customer management - Quản lý khách hàng')
+    .addTag('employees', 'Employee management - Quản lý nhân viên')
+    .addTag('categories', 'Category management - Quản lý danh mục sản phẩm')
+    .addTag('products', 'Product management - Quản lý sản phẩm')
+    .addTag('orders', 'Order management - Quản lý đơn hàng')
+    .addTag('payments', 'Payment processing - Xử lý thanh toán')
+    .addTag('invoices', 'Invoice management - Quản lý hóa đơn')
+    .addTag('reports', 'Reports and analytics - Báo cáo và thống kê')
+    .build();
+
+  const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory());
 
   await app.listen(process.env.PORT ?? 3000);

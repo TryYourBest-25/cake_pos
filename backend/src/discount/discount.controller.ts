@@ -16,7 +16,7 @@ import { DiscountService } from './discount.service';
 import { CreateDiscountDto } from './dto/create-discount.dto';
 import { UpdateDiscountDto } from './dto/update-discount.dto';
 import { BulkDeleteDiscountDto } from './dto/bulk-delete-discount.dto';
-import { PaginationDto, PaginatedResult } from '../common/dto/pagination.dto';
+import { PaginationDto, PaginatedResult, PaginationMetadata } from '../common/dto/pagination.dto';
 import { discount } from '../generated/prisma/client';
 import {
   ApiTags,
@@ -26,6 +26,7 @@ import {
   ApiQuery,
   ApiBody,
   ApiBearerAuth,
+  ApiExtraModels,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -35,6 +36,7 @@ import { ROLES } from '../auth/constants/roles.constant';
 @ApiTags('discounts')
 @Controller('discounts')
 @ApiBearerAuth()
+@ApiExtraModels(PaginationMetadata)
 export class DiscountController {
   constructor(private readonly discountService: DiscountService) {}
 
@@ -80,7 +82,22 @@ export class DiscountController {
     type: Number,
     description: 'Items per page',
   })
-  @ApiResponse({ status: 200, description: 'Paginated list of discounts' })
+  @ApiResponse({ 
+    status: 200, 
+    description: 'Paginated list of discounts',
+    schema: {
+      type: 'object',
+      properties: {
+        data: {
+          type: 'array',
+          items: { type: 'object' },
+        },
+        pagination: {
+          $ref: '#/components/schemas/PaginationMetadata',
+        },
+      },
+    },
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async findAll(
     @Query() paginationDto: PaginationDto,

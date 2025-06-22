@@ -32,6 +32,8 @@ import { orderService, CreateOrderDto, Order } from "@/lib/services/order-servic
 import { paymentService, Payment } from "@/lib/services/payment-service";
 import { invoiceService } from "@/lib/services/invoice-service";
 import { AuthGuard } from "@/components/auth/auth-guard";
+import { CashPaymentMethod } from "@/components/pos/cash-payment-method";
+import { VNPayPaymentMethod } from "@/components/pos/vnpay-payment-method";
 
 type CheckoutStep = 'confirm' | 'payment' | 'complete';
 
@@ -57,6 +59,7 @@ export default function CheckoutPage() {
   const [createdPayment, setCreatedPayment] = useState<Payment | null>(null);
   const [amountPaid, setAmountPaid] = useState<number>(0);
   const [isPrintingInvoice, setIsPrintingInvoice] = useState(false);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'cash' | 'vnpay'>('cash');
 
   // Calculate totals
   const subtotal = getCartTotal();
@@ -193,29 +196,47 @@ export default function CheckoutPage() {
       return;
     }
 
-    // Validate amount paid
-    if (amountPaid < total) {
-      toast.error("Số tiền không đủ", {
-        description: `Số tiền thanh toán phải ít nhất ${formatPrice(total)}`
-      });
-      return;
-    }
-
     setIsProcessing(true);
 
     try {
-      // Process cash payment
-      const payment = await paymentService.processCashPayment(
-        createdOrder.order_id,
-        amountPaid
-      );
+      if (selectedPaymentMethod === 'cash') {
+        // Validate amount paid for cash
+        if (amountPaid < total) {
+          toast.error("Số tiền không đủ", {
+            description: `Số tiền thanh toán phải ít nhất ${formatPrice(total)}`
+          });
+          setIsProcessing(false);
+          return;
+        }
 
-      setCreatedPayment(payment);
-      setCurrentStep('complete');
-      
-      toast.success("Thanh toán thành công!", {
-        description: `Đơn hàng #${createdOrder.order_id} đã được thanh toán hoàn tất`
-      });
+        // Process cash payment
+        const payment = await paymentService.processCashPayment(
+          createdOrder.order_id,
+          amountPaid
+        );
+
+        setCreatedPayment(payment);
+        setCurrentStep('complete');
+        
+        toast.success("Thanh toán thành công!", {
+          description: `Đơn hàng #${createdOrder.order_id} đã được thanh toán hoàn tất`
+        });
+
+      } else if (selectedPaymentMethod === 'vnpay') {
+        // Process VNPay payment
+        const vnpayResponse = await paymentService.processVNPayPayment(
+          createdOrder.order_id,
+          `Thanh toán đơn hàng #${createdOrder.order_id} - Cake POS`,
+          `${window.location.origin}/payment/vnpay/callback`
+        );
+
+        // Redirect to VNPay payment URL
+        window.location.href = vnpayResponse.paymentUrl;
+        
+        toast.success("Chuyển hướng đến VNPay", {
+          description: "Đang chuyển hướng đến trang thanh toán VNPay..."
+        });
+      }
 
     } catch (error: any) {
       console.error('Lỗi khi thanh toán:', error);
@@ -636,13 +657,13 @@ export default function CheckoutPage() {
                       </div>
                     )}
 
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                       <div className="flex items-start space-x-2">
-                        <AlertTriangle className="w-5 h-5 text-yellow-600 mt-0.5" />
+                        <CreditCard className="w-5 h-5 text-blue-600 mt-0.5" />
                         <div>
-                          <p className="font-medium text-yellow-800">Chọn phương thức thanh toán</p>
-                          <p className="text-sm text-yellow-600 mt-1">
-                            Tính năng thanh toán đang được phát triển. Hiện tại chỉ hỗ trợ thanh toán tiền mặt.
+                          <p className="font-medium text-blue-800">Chọn phương thức thanh toán</p>
+                          <p className="text-sm text-blue-600 mt-1">
+                            Hiện tại hỗ trợ thanh toán tiền mặt và VNPay (chuyển hướng).
                           </p>
                         </div>
                       </div>
@@ -650,127 +671,20 @@ export default function CheckoutPage() {
 
                     {/* Payment Methods */}
                     <div className="space-y-3">
-                      <div className="border rounded-lg p-4">
-                        <div className="flex items-center space-x-3">
-                          <input
-                            type="radio"
-                            id="cash"
-                            name="payment"
-                            defaultChecked
-                            className="w-4 h-4 text-blue-600"
-                          />
-                          <label htmlFor="cash" className="flex-1 cursor-pointer">
-                            <div className="flex items-center justify-between">
-                              <span className="font-medium">Tiền mặt</span>
-                              <Badge variant="default">Khả dụng</Badge>
-                            </div>
-                            <p className="text-sm text-gray-500 mt-1">Thanh toán bằng tiền mặt tại quầy</p>
-                          </label>
-                        </div>
-                        
-                        {/* Cash Payment Form */}
-                        <div className="mt-4 pt-4 border-t">
-                          <div className="space-y-4">
-                            <div>
-                              <Label htmlFor="amount-paid">Số tiền khách trả</Label>
-                              <div className="mt-1 relative">
-                                <Input
-                                  id="amount-paid"
-                                  type="number"
-                                  placeholder="Nhập số tiền khách trả..."
-                                  value={amountPaid || ''}
-                                  onChange={(e) => setAmountPaid(Number(e.target.value))}
-                                  className="pr-16"
-                                />
-                                <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                                  <span className="text-sm text-gray-500">VND</span>
-                                </div>
-                              </div>
-                              <p className="text-sm text-gray-500 mt-1">
-                                Tổng cần thanh toán: <span className="font-medium text-gray-900">{formatPrice(total)}</span>
-                              </p>
-                            </div>
-                            
-                            {amountPaid > 0 && (
-                              <div className="bg-gray-50 rounded-lg p-3">
-                                <div className="flex justify-between items-center text-sm">
-                                  <span>Tiền khách trả:</span>
-                                  <span className="font-medium">{formatPrice(amountPaid)}</span>
-                                </div>
-                                <div className="flex justify-between items-center text-sm">
-                                  <span>Tổng thanh toán:</span>
-                                  <span className="font-medium">{formatPrice(total)}</span>
-                                </div>
-                                <Separator className="my-2" />
-                                <div className="flex justify-between items-center">
-                                  <span className="font-medium">Tiền thừa:</span>
-                                  <span className={`font-bold ${amountPaid >= total ? 'text-green-600' : 'text-red-600'}`}>
-                                    {formatPrice(Math.max(0, amountPaid - total))}
-                                  </span>
-                                </div>
-                                {amountPaid < total && (
-                                  <p className="text-xs text-red-600 mt-1">
-                                    Còn thiếu: {formatPrice(total - amountPaid)}
-                                  </p>
-                                )}
-                              </div>
-                            )}
-
-                            {/* Quick Amount Buttons */}
-                            <div>
-                              <p className="text-sm font-medium text-gray-700 mb-2">Số tiền gợi ý:</p>
-                              <div className="grid grid-cols-3 gap-2">
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => setAmountPaid(total)}
-                                  className="text-xs"
-                                >
-                                  Vừa đủ
-                                </Button>
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => setAmountPaid(Math.ceil(total / 10000) * 10000)}
-                                  className="text-xs"
-                                >
-                                  Làm tròn
-                                </Button>
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => setAmountPaid(total + 50000)}
-                                  className="text-xs"
-                                >
-                                  +50k
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="border rounded-lg p-4 opacity-50">
-                        <div className="flex items-center space-x-3">
-                          <input
-                            type="radio"
-                            id="vnpay"
-                            name="payment"
-                            disabled
-                            className="w-4 h-4 text-blue-600"
-                          />
-                          <label htmlFor="vnpay" className="flex-1">
-                            <div className="flex items-center justify-between">
-                              <span className="font-medium">VNPay</span>
-                              <Badge variant="secondary">Sắp có</Badge>
-                            </div>
-                            <p className="text-sm text-gray-500 mt-1">Thanh toán qua VNPay</p>
-                          </label>
-                        </div>
-                      </div>
+                      <CashPaymentMethod
+                        isSelected={selectedPaymentMethod === 'cash'}
+                        onSelect={() => setSelectedPaymentMethod('cash')}
+                        total={total}
+                        amountPaid={amountPaid}
+                        onAmountPaidChange={setAmountPaid}
+                      />
+                      
+                      <VNPayPaymentMethod
+                        isSelected={selectedPaymentMethod === 'vnpay'}
+                        onSelect={() => setSelectedPaymentMethod('vnpay')}
+                        total={total}
+                        orderId={createdOrder?.order_id}
+                      />
                     </div>
 
                     {/* Action Buttons */}

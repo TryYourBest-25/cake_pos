@@ -32,6 +32,6 @@ export class CreateVNPayPaymentDto {
     required: false,
   })
   @IsOptional()
-  @IsUrl()
+  //@IsUrl()
   returnUrl?: string;
 }

@@ -15,7 +15,7 @@ import {
 import { MembershipTypeService } from './membership-type.service';
 import { CreateMembershipTypeDto } from './dto/create-membership-type.dto';
 import { UpdateMembershipTypeDto } from './dto/update-membership-type.dto';
-import { PaginationDto, PaginatedResult } from '../common/dto/pagination.dto';
+import { PaginationDto, PaginatedResult, PaginationMetadata } from '../common/dto/pagination.dto';
 import { membership_type } from '../generated/prisma/client';
 import {
   ApiTags,
@@ -25,6 +25,7 @@ import {
   ApiQuery,
   ApiBody,
   ApiBearerAuth,
+  ApiExtraModels,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -34,6 +35,7 @@ import { ROLES } from '../auth/constants/roles.constant';
 @ApiTags('membership-types')
 @Controller('membership-types')
 @ApiBearerAuth()
+@ApiExtraModels(PaginationMetadata)
 export class MembershipTypeController {
   constructor(private readonly membershipTypeService: MembershipTypeService) {}
 
@@ -90,6 +92,18 @@ export class MembershipTypeController {
   @ApiResponse({
     status: 200,
     description: 'Paginated list of membership types',
+    schema: {
+      type: 'object',
+      properties: {
+        data: {
+          type: 'array',
+          items: { type: 'object' },
+        },
+        pagination: {
+          $ref: '#/components/schemas/PaginationMetadata',
+        },
+      },
+    },
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   async findAll(

@@ -16,7 +16,7 @@ import { ManagerService } from './manager.service';
 import { CreateManagerDto } from './dto/create-manager.dto';
 import { UpdateManagerDto } from './dto/update-manager.dto';
 import { BulkDeleteManagerDto } from './dto/bulk-delete-manager.dto';
-import { PaginationDto, PaginatedResult } from '../common/dto/pagination.dto';
+import { PaginationDto, PaginatedResult, PaginationMetadata } from '../common/dto/pagination.dto';
 import { manager } from '../generated/prisma/client';
 import {
   ApiTags,
@@ -25,6 +25,7 @@ import {
   ApiParam,
   ApiBody,
   ApiBearerAuth,
+  ApiExtraModels,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -36,6 +37,7 @@ import { UpdateAccountDto } from '../account/dto/update-account.dto';
 @ApiTags('managers')
 @Controller('managers')
 @ApiBearerAuth()
+@ApiExtraModels(PaginationMetadata)
 export class ManagerController {
   constructor(private readonly managerService: ManagerService) {}
 
@@ -61,7 +63,22 @@ export class ManagerController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(ROLES.MANAGER)
   @ApiOperation({ summary: 'Get all managers with pagination - Chỉ MANAGER' })
-  @ApiResponse({ status: 200, description: 'Paginated list of managers' })
+  @ApiResponse({ 
+    status: 200, 
+    description: 'Paginated list of managers',
+    schema: {
+      type: 'object',
+      properties: {
+        data: {
+          type: 'array',
+          items: { type: 'object' },
+        },
+        pagination: {
+          $ref: '#/components/schemas/PaginationMetadata',
+        },
+      },
+    },
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({
     status: 403,

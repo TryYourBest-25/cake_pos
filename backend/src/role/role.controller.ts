@@ -15,7 +15,7 @@ import {
 import { RoleService } from './role.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
-import { PaginationDto, PaginatedResult } from '../common/dto/pagination.dto';
+import { PaginationDto, PaginatedResult, PaginationMetadata } from '../common/dto/pagination.dto';
 import { role } from '../generated/prisma/client';
 import {
   ApiTags,
@@ -24,6 +24,7 @@ import {
   ApiParam,
   ApiBody,
   ApiBearerAuth,
+  ApiExtraModels,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -33,6 +34,7 @@ import { ROLES } from '../auth/constants/roles.constant';
 @ApiTags('roles')
 @Controller('roles')
 @ApiBearerAuth()
+@ApiExtraModels(PaginationMetadata)
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}
 
@@ -61,7 +63,22 @@ export class RoleController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(ROLES.MANAGER, ROLES.STAFF)
   @ApiOperation({ summary: 'Get all roles with pagination - MANAGER và STAFF' })
-  @ApiResponse({ status: 200, description: 'Paginated list of roles' })
+  @ApiResponse({ 
+    status: 200, 
+    description: 'Paginated list of roles',
+    schema: {
+      type: 'object',
+      properties: {
+        data: {
+          type: 'array',
+          items: { type: 'object' },
+        },
+        pagination: {
+          $ref: '#/components/schemas/PaginationMetadata',
+        },
+      },
+    },
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({
     status: 403,

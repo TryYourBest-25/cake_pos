@@ -142,6 +142,19 @@ export class PaymentService {
   }
 
   /**
+   * Thanh toán VNPay cho đơn hàng
+   */
+  async processVNPayPayment(orderId: number, orderInfo?: string, returnUrl?: string): Promise<{ paymentUrl: string }> {
+    const vnpayData: CreateVNPayPaymentDto = {
+      orderId,
+      orderInfo: orderInfo || `Thanh toán đơn hàng #${orderId}`,
+      returnUrl: returnUrl || `${window.location.origin}/payment/vnpay/callback`,
+    };
+
+    return this.createVNPayPayment(vnpayData);
+  }
+
+  /**
    * Test endpoint
    */
   async test(): Promise<{ message: string }> {
