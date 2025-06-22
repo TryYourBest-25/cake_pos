@@ -5,6 +5,18 @@
   "compilerOptions": {
     "deleteOutDir": true,
     "builder": "swc",
-    "typecheck" : true
+    "typecheck" : true,
+    "assets": [
+      {
+        "include": "ssl/**",
+        "watchAssets": true
+      },
+      {
+        "include": "firebase-storage/key.json"
+      },
+      {
+        "include": "invoice/templates/**"
+      }
+    ]
   }
 }

@@ -1,15 +1,14 @@
-import { IsInt, IsNotEmpty, Min, IsOptional, IsEnum, IsNumber, IsDateString } from 'class-validator';
+import {
+  IsInt,
+  IsNotEmpty,
+  Min,
+  IsOptional,
+  IsEnum,
+  IsNumber,
+  IsDateString,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
-
-// Đồng bộ với payment_status_enum trong schema.prisma
-export enum PaymentStatusEnum {
-  PROCESSING = 'PROCESSING',
-  PAID = 'PAID',
-  CANCELLED = 'CANCELLED',
-  // FAILED = 'FAILED', // Loại bỏ nếu không có trong Prisma enum
-  // REFUNDED = 'REFUNDED', // Loại bỏ nếu không có trong Prisma enum
-}
 
 export class CreatePaymentDto {
   @ApiProperty({ description: 'ID của đơn hàng liên quan', example: 1 })
@@ -31,18 +30,15 @@ export class CreatePaymentDto {
   @IsNotEmpty()
   @Min(0)
   @Type(() => Number)
-  amount_paid: number; // Sẽ được chuyển thành Decimal trong service
+  amount_paid: number;
 
-  @ApiProperty({ description: 'Trạng thái thanh toán', enum: PaymentStatusEnum, example: PaymentStatusEnum.PAID, required: false, default: PaymentStatusEnum.PROCESSING })
-  @IsOptional()
-  @IsEnum(PaymentStatusEnum)
-  status?: PaymentStatusEnum = PaymentStatusEnum.PROCESSING;
-
-  @ApiProperty({ description: 'Thời gian thanh toán (ISO 8601 string), mặc định là thời điểm hiện tại nếu không cung cấp', example: '2024-07-26T10:30:00.000Z', required: false })
+  @ApiProperty({
+    description:
+      'Thời gian thanh toán (ISO 8601 string), mặc định là thời điểm hiện tại nếu không cung cấp',
+    example: '2024-07-26T10:30:00.000Z',
+    required: false,
+  })
   @IsOptional()
   @IsDateString()
-  payment_time?: string; // Sẽ được chuyển thành Date object
-
-  // change_amount sẽ được tính toán và lưu bởi service, không phải là input trực tiếp từ client khi tạo mới.
-  // created_at và updated_at sẽ được Prisma quản lý.
-} 
+  payment_time?: string;
+}

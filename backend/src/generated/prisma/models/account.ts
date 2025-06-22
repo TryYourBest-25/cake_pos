@@ -43,7 +43,6 @@ export type AccountMinAggregateOutputType = {
   is_active: boolean | null
   is_locked: boolean | null
   last_login: Date | null
-  refresh_token: string | null
   created_at: Date | null
   updated_at: Date | null
 }
@@ -56,7 +55,6 @@ export type AccountMaxAggregateOutputType = {
   is_active: boolean | null
   is_locked: boolean | null
   last_login: Date | null
-  refresh_token: string | null
   created_at: Date | null
   updated_at: Date | null
 }
@@ -69,7 +67,6 @@ export type AccountCountAggregateOutputType = {
   is_active: number
   is_locked: number
   last_login: number
-  refresh_token: number
   created_at: number
   updated_at: number
   _all: number
@@ -94,7 +91,6 @@ export type AccountMinAggregateInputType = {
   is_active?: true
   is_locked?: true
   last_login?: true
-  refresh_token?: true
   created_at?: true
   updated_at?: true
 }
@@ -107,7 +103,6 @@ export type AccountMaxAggregateInputType = {
   is_active?: true
   is_locked?: true
   last_login?: true
-  refresh_token?: true
   created_at?: true
   updated_at?: true
 }
@@ -120,7 +115,6 @@ export type AccountCountAggregateInputType = {
   is_active?: true
   is_locked?: true
   last_login?: true
-  refresh_token?: true
   created_at?: true
   updated_at?: true
   _all?: true
@@ -220,7 +214,6 @@ export type AccountGroupByOutputType = {
   is_active: boolean | null
   is_locked: boolean
   last_login: Date | null
-  refresh_token: string | null
   created_at: Date | null
   updated_at: Date | null
   _count: AccountCountAggregateOutputType | null
@@ -256,11 +249,10 @@ export type accountWhereInput = {
   is_active?: Prisma.BoolNullableFilter<"account"> | boolean | null
   is_locked?: Prisma.BoolFilter<"account"> | boolean
   last_login?: Prisma.DateTimeNullableFilter<"account"> | Date | string | null
-  refresh_token?: Prisma.StringNullableFilter<"account"> | string | null
   created_at?: Prisma.DateTimeNullableFilter<"account"> | Date | string | null
   updated_at?: Prisma.DateTimeNullableFilter<"account"> | Date | string | null
   role?: Prisma.XOR<Prisma.RoleScalarRelationFilter, Prisma.roleWhereInput>
-  customer?: Prisma.CustomerListRelationFilter
+  customer?: Prisma.XOR<Prisma.CustomerNullableScalarRelationFilter, Prisma.customerWhereInput> | null
   employee?: Prisma.XOR<Prisma.EmployeeNullableScalarRelationFilter, Prisma.employeeWhereInput> | null
   manager?: Prisma.XOR<Prisma.ManagerNullableScalarRelationFilter, Prisma.managerWhereInput> | null
 }
@@ -273,11 +265,10 @@ export type accountOrderByWithRelationInput = {
   is_active?: Prisma.SortOrderInput | Prisma.SortOrder
   is_locked?: Prisma.SortOrder
   last_login?: Prisma.SortOrderInput | Prisma.SortOrder
-  refresh_token?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrderInput | Prisma.SortOrder
   updated_at?: Prisma.SortOrderInput | Prisma.SortOrder
   role?: Prisma.roleOrderByWithRelationInput
-  customer?: Prisma.customerOrderByRelationAggregateInput
+  customer?: Prisma.customerOrderByWithRelationInput
   employee?: Prisma.employeeOrderByWithRelationInput
   manager?: Prisma.managerOrderByWithRelationInput
 }
@@ -293,11 +284,10 @@ export type accountWhereUniqueInput = Prisma.AtLeast<{
   is_active?: Prisma.BoolNullableFilter<"account"> | boolean | null
   is_locked?: Prisma.BoolFilter<"account"> | boolean
   last_login?: Prisma.DateTimeNullableFilter<"account"> | Date | string | null
-  refresh_token?: Prisma.StringNullableFilter<"account"> | string | null
   created_at?: Prisma.DateTimeNullableFilter<"account"> | Date | string | null
   updated_at?: Prisma.DateTimeNullableFilter<"account"> | Date | string | null
   role?: Prisma.XOR<Prisma.RoleScalarRelationFilter, Prisma.roleWhereInput>
-  customer?: Prisma.CustomerListRelationFilter
+  customer?: Prisma.XOR<Prisma.CustomerNullableScalarRelationFilter, Prisma.customerWhereInput> | null
   employee?: Prisma.XOR<Prisma.EmployeeNullableScalarRelationFilter, Prisma.employeeWhereInput> | null
   manager?: Prisma.XOR<Prisma.ManagerNullableScalarRelationFilter, Prisma.managerWhereInput> | null
 }, "account_id" | "username">
@@ -310,7 +300,6 @@ export type accountOrderByWithAggregationInput = {
   is_active?: Prisma.SortOrderInput | Prisma.SortOrder
   is_locked?: Prisma.SortOrder
   last_login?: Prisma.SortOrderInput | Prisma.SortOrder
-  refresh_token?: Prisma.SortOrderInput | Prisma.SortOrder
   created_at?: Prisma.SortOrderInput | Prisma.SortOrder
   updated_at?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.accountCountOrderByAggregateInput
@@ -331,7 +320,6 @@ export type accountScalarWhereWithAggregatesInput = {
   is_active?: Prisma.BoolNullableWithAggregatesFilter<"account"> | boolean | null
   is_locked?: Prisma.BoolWithAggregatesFilter<"account"> | boolean
   last_login?: Prisma.DateTimeNullableWithAggregatesFilter<"account"> | Date | string | null
-  refresh_token?: Prisma.StringNullableWithAggregatesFilter<"account"> | string | null
   created_at?: Prisma.DateTimeNullableWithAggregatesFilter<"account"> | Date | string | null
   updated_at?: Prisma.DateTimeNullableWithAggregatesFilter<"account"> | Date | string | null
 }
@@ -342,11 +330,10 @@ export type accountCreateInput = {
   is_active?: boolean | null
   is_locked?: boolean
   last_login?: Date | string | null
-  refresh_token?: string | null
   created_at?: Date | string | null
   updated_at?: Date | string | null
   role: Prisma.roleCreateNestedOneWithoutAccountInput
-  customer?: Prisma.customerCreateNestedManyWithoutAccountInput
+  customer?: Prisma.customerCreateNestedOneWithoutAccountInput
   employee?: Prisma.employeeCreateNestedOneWithoutAccountInput
   manager?: Prisma.managerCreateNestedOneWithoutAccountInput
 }
@@ -359,10 +346,9 @@ export type accountUncheckedCreateInput = {
   is_active?: boolean | null
   is_locked?: boolean
   last_login?: Date | string | null
-  refresh_token?: string | null
   created_at?: Date | string | null
   updated_at?: Date | string | null
-  customer?: Prisma.customerUncheckedCreateNestedManyWithoutAccountInput
+  customer?: Prisma.customerUncheckedCreateNestedOneWithoutAccountInput
   employee?: Prisma.employeeUncheckedCreateNestedOneWithoutAccountInput
   manager?: Prisma.managerUncheckedCreateNestedOneWithoutAccountInput
 }
@@ -373,11 +359,10 @@ export type accountUpdateInput = {
   is_active?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   is_locked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   last_login?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  refresh_token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.roleUpdateOneRequiredWithoutAccountNestedInput
-  customer?: Prisma.customerUpdateManyWithoutAccountNestedInput
+  customer?: Prisma.customerUpdateOneWithoutAccountNestedInput
   employee?: Prisma.employeeUpdateOneWithoutAccountNestedInput
   manager?: Prisma.managerUpdateOneWithoutAccountNestedInput
 }
@@ -390,10 +375,9 @@ export type accountUncheckedUpdateInput = {
   is_active?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   is_locked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   last_login?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  refresh_token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  customer?: Prisma.customerUncheckedUpdateManyWithoutAccountNestedInput
+  customer?: Prisma.customerUncheckedUpdateOneWithoutAccountNestedInput
   employee?: Prisma.employeeUncheckedUpdateOneWithoutAccountNestedInput
   manager?: Prisma.managerUncheckedUpdateOneWithoutAccountNestedInput
 }
@@ -406,7 +390,6 @@ export type accountCreateManyInput = {
   is_active?: boolean | null
   is_locked?: boolean
   last_login?: Date | string | null
-  refresh_token?: string | null
   created_at?: Date | string | null
   updated_at?: Date | string | null
 }
@@ -417,7 +400,6 @@ export type accountUpdateManyMutationInput = {
   is_active?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   is_locked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   last_login?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  refresh_token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
@@ -430,7 +412,6 @@ export type accountUncheckedUpdateManyInput = {
   is_active?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   is_locked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   last_login?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  refresh_token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
@@ -443,7 +424,6 @@ export type accountCountOrderByAggregateInput = {
   is_active?: Prisma.SortOrder
   is_locked?: Prisma.SortOrder
   last_login?: Prisma.SortOrder
-  refresh_token?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
 }
@@ -461,7 +441,6 @@ export type accountMaxOrderByAggregateInput = {
   is_active?: Prisma.SortOrder
   is_locked?: Prisma.SortOrder
   last_login?: Prisma.SortOrder
-  refresh_token?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
 }
@@ -474,7 +453,6 @@ export type accountMinOrderByAggregateInput = {
   is_active?: Prisma.SortOrder
   is_locked?: Prisma.SortOrder
   last_login?: Prisma.SortOrder
-  refresh_token?: Prisma.SortOrder
   created_at?: Prisma.SortOrder
   updated_at?: Prisma.SortOrder
 }
@@ -518,10 +496,6 @@ export type BoolFieldUpdateOperationsInput = {
 
 export type NullableDateTimeFieldUpdateOperationsInput = {
   set?: Date | string | null
-}
-
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
 }
 
 export type IntFieldUpdateOperationsInput = {
@@ -624,7 +598,6 @@ export type accountCreateWithoutCustomerInput = {
   is_active?: boolean | null
   is_locked?: boolean
   last_login?: Date | string | null
-  refresh_token?: string | null
   created_at?: Date | string | null
   updated_at?: Date | string | null
   role: Prisma.roleCreateNestedOneWithoutAccountInput
@@ -640,7 +613,6 @@ export type accountUncheckedCreateWithoutCustomerInput = {
   is_active?: boolean | null
   is_locked?: boolean
   last_login?: Date | string | null
-  refresh_token?: string | null
   created_at?: Date | string | null
   updated_at?: Date | string | null
   employee?: Prisma.employeeUncheckedCreateNestedOneWithoutAccountInput
@@ -669,7 +641,6 @@ export type accountUpdateWithoutCustomerInput = {
   is_active?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   is_locked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   last_login?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  refresh_token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.roleUpdateOneRequiredWithoutAccountNestedInput
@@ -685,7 +656,6 @@ export type accountUncheckedUpdateWithoutCustomerInput = {
   is_active?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   is_locked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   last_login?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  refresh_token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   employee?: Prisma.employeeUncheckedUpdateOneWithoutAccountNestedInput
@@ -698,11 +668,10 @@ export type accountCreateWithoutEmployeeInput = {
   is_active?: boolean | null
   is_locked?: boolean
   last_login?: Date | string | null
-  refresh_token?: string | null
   created_at?: Date | string | null
   updated_at?: Date | string | null
   role: Prisma.roleCreateNestedOneWithoutAccountInput
-  customer?: Prisma.customerCreateNestedManyWithoutAccountInput
+  customer?: Prisma.customerCreateNestedOneWithoutAccountInput
   manager?: Prisma.managerCreateNestedOneWithoutAccountInput
 }
 
@@ -714,10 +683,9 @@ export type accountUncheckedCreateWithoutEmployeeInput = {
   is_active?: boolean | null
   is_locked?: boolean
   last_login?: Date | string | null
-  refresh_token?: string | null
   created_at?: Date | string | null
   updated_at?: Date | string | null
-  customer?: Prisma.customerUncheckedCreateNestedManyWithoutAccountInput
+  customer?: Prisma.customerUncheckedCreateNestedOneWithoutAccountInput
   manager?: Prisma.managerUncheckedCreateNestedOneWithoutAccountInput
 }
 
@@ -743,11 +711,10 @@ export type accountUpdateWithoutEmployeeInput = {
   is_active?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   is_locked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   last_login?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  refresh_token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.roleUpdateOneRequiredWithoutAccountNestedInput
-  customer?: Prisma.customerUpdateManyWithoutAccountNestedInput
+  customer?: Prisma.customerUpdateOneWithoutAccountNestedInput
   manager?: Prisma.managerUpdateOneWithoutAccountNestedInput
 }
 
@@ -759,10 +726,9 @@ export type accountUncheckedUpdateWithoutEmployeeInput = {
   is_active?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   is_locked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   last_login?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  refresh_token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  customer?: Prisma.customerUncheckedUpdateManyWithoutAccountNestedInput
+  customer?: Prisma.customerUncheckedUpdateOneWithoutAccountNestedInput
   manager?: Prisma.managerUncheckedUpdateOneWithoutAccountNestedInput
 }
 
@@ -772,11 +738,10 @@ export type accountCreateWithoutManagerInput = {
   is_active?: boolean | null
   is_locked?: boolean
   last_login?: Date | string | null
-  refresh_token?: string | null
   created_at?: Date | string | null
   updated_at?: Date | string | null
   role: Prisma.roleCreateNestedOneWithoutAccountInput
-  customer?: Prisma.customerCreateNestedManyWithoutAccountInput
+  customer?: Prisma.customerCreateNestedOneWithoutAccountInput
   employee?: Prisma.employeeCreateNestedOneWithoutAccountInput
 }
 
@@ -788,10 +753,9 @@ export type accountUncheckedCreateWithoutManagerInput = {
   is_active?: boolean | null
   is_locked?: boolean
   last_login?: Date | string | null
-  refresh_token?: string | null
   created_at?: Date | string | null
   updated_at?: Date | string | null
-  customer?: Prisma.customerUncheckedCreateNestedManyWithoutAccountInput
+  customer?: Prisma.customerUncheckedCreateNestedOneWithoutAccountInput
   employee?: Prisma.employeeUncheckedCreateNestedOneWithoutAccountInput
 }
 
@@ -817,11 +781,10 @@ export type accountUpdateWithoutManagerInput = {
   is_active?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   is_locked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   last_login?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  refresh_token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   role?: Prisma.roleUpdateOneRequiredWithoutAccountNestedInput
-  customer?: Prisma.customerUpdateManyWithoutAccountNestedInput
+  customer?: Prisma.customerUpdateOneWithoutAccountNestedInput
   employee?: Prisma.employeeUpdateOneWithoutAccountNestedInput
 }
 
@@ -833,10 +796,9 @@ export type accountUncheckedUpdateWithoutManagerInput = {
   is_active?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   is_locked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   last_login?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  refresh_token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  customer?: Prisma.customerUncheckedUpdateManyWithoutAccountNestedInput
+  customer?: Prisma.customerUncheckedUpdateOneWithoutAccountNestedInput
   employee?: Prisma.employeeUncheckedUpdateOneWithoutAccountNestedInput
 }
 
@@ -846,10 +808,9 @@ export type accountCreateWithoutRoleInput = {
   is_active?: boolean | null
   is_locked?: boolean
   last_login?: Date | string | null
-  refresh_token?: string | null
   created_at?: Date | string | null
   updated_at?: Date | string | null
-  customer?: Prisma.customerCreateNestedManyWithoutAccountInput
+  customer?: Prisma.customerCreateNestedOneWithoutAccountInput
   employee?: Prisma.employeeCreateNestedOneWithoutAccountInput
   manager?: Prisma.managerCreateNestedOneWithoutAccountInput
 }
@@ -861,10 +822,9 @@ export type accountUncheckedCreateWithoutRoleInput = {
   is_active?: boolean | null
   is_locked?: boolean
   last_login?: Date | string | null
-  refresh_token?: string | null
   created_at?: Date | string | null
   updated_at?: Date | string | null
-  customer?: Prisma.customerUncheckedCreateNestedManyWithoutAccountInput
+  customer?: Prisma.customerUncheckedCreateNestedOneWithoutAccountInput
   employee?: Prisma.employeeUncheckedCreateNestedOneWithoutAccountInput
   manager?: Prisma.managerUncheckedCreateNestedOneWithoutAccountInput
 }
@@ -906,7 +866,6 @@ export type accountScalarWhereInput = {
   is_active?: Prisma.BoolNullableFilter<"account"> | boolean | null
   is_locked?: Prisma.BoolFilter<"account"> | boolean
   last_login?: Prisma.DateTimeNullableFilter<"account"> | Date | string | null
-  refresh_token?: Prisma.StringNullableFilter<"account"> | string | null
   created_at?: Prisma.DateTimeNullableFilter<"account"> | Date | string | null
   updated_at?: Prisma.DateTimeNullableFilter<"account"> | Date | string | null
 }
@@ -918,7 +877,6 @@ export type accountCreateManyRoleInput = {
   is_active?: boolean | null
   is_locked?: boolean
   last_login?: Date | string | null
-  refresh_token?: string | null
   created_at?: Date | string | null
   updated_at?: Date | string | null
 }
@@ -929,10 +887,9 @@ export type accountUpdateWithoutRoleInput = {
   is_active?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   is_locked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   last_login?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  refresh_token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  customer?: Prisma.customerUpdateManyWithoutAccountNestedInput
+  customer?: Prisma.customerUpdateOneWithoutAccountNestedInput
   employee?: Prisma.employeeUpdateOneWithoutAccountNestedInput
   manager?: Prisma.managerUpdateOneWithoutAccountNestedInput
 }
@@ -944,10 +901,9 @@ export type accountUncheckedUpdateWithoutRoleInput = {
   is_active?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   is_locked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   last_login?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  refresh_token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  customer?: Prisma.customerUncheckedUpdateManyWithoutAccountNestedInput
+  customer?: Prisma.customerUncheckedUpdateOneWithoutAccountNestedInput
   employee?: Prisma.employeeUncheckedUpdateOneWithoutAccountNestedInput
   manager?: Prisma.managerUncheckedUpdateOneWithoutAccountNestedInput
 }
@@ -959,40 +915,10 @@ export type accountUncheckedUpdateManyWithoutRoleInput = {
   is_active?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   is_locked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   last_login?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  refresh_token?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
-
-/**
- * Count Type AccountCountOutputType
- */
-
-export type AccountCountOutputType = {
-  customer: number
-}
-
-export type AccountCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  customer?: boolean | AccountCountOutputTypeCountCustomerArgs
-}
-
-/**
- * AccountCountOutputType without action
- */
-export type AccountCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the AccountCountOutputType
-   */
-  select?: Prisma.AccountCountOutputTypeSelect<ExtArgs> | null
-}
-
-/**
- * AccountCountOutputType without action
- */
-export type AccountCountOutputTypeCountCustomerArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.customerWhereInput
-}
 
 
 export type accountSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1003,14 +929,12 @@ export type accountSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   is_active?: boolean
   is_locked?: boolean
   last_login?: boolean
-  refresh_token?: boolean
   created_at?: boolean
   updated_at?: boolean
   role?: boolean | Prisma.roleDefaultArgs<ExtArgs>
   customer?: boolean | Prisma.account$customerArgs<ExtArgs>
   employee?: boolean | Prisma.account$employeeArgs<ExtArgs>
   manager?: boolean | Prisma.account$managerArgs<ExtArgs>
-  _count?: boolean | Prisma.AccountCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["account"]>
 
 export type accountSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1021,7 +945,6 @@ export type accountSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   is_active?: boolean
   is_locked?: boolean
   last_login?: boolean
-  refresh_token?: boolean
   created_at?: boolean
   updated_at?: boolean
   role?: boolean | Prisma.roleDefaultArgs<ExtArgs>
@@ -1035,7 +958,6 @@ export type accountSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   is_active?: boolean
   is_locked?: boolean
   last_login?: boolean
-  refresh_token?: boolean
   created_at?: boolean
   updated_at?: boolean
   role?: boolean | Prisma.roleDefaultArgs<ExtArgs>
@@ -1049,18 +971,16 @@ export type accountSelectScalar = {
   is_active?: boolean
   is_locked?: boolean
   last_login?: boolean
-  refresh_token?: boolean
   created_at?: boolean
   updated_at?: boolean
 }
 
-export type accountOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"account_id" | "role_id" | "username" | "password_hash" | "is_active" | "is_locked" | "last_login" | "refresh_token" | "created_at" | "updated_at", ExtArgs["result"]["account"]>
+export type accountOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"account_id" | "role_id" | "username" | "password_hash" | "is_active" | "is_locked" | "last_login" | "created_at" | "updated_at", ExtArgs["result"]["account"]>
 export type accountInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   role?: boolean | Prisma.roleDefaultArgs<ExtArgs>
   customer?: boolean | Prisma.account$customerArgs<ExtArgs>
   employee?: boolean | Prisma.account$employeeArgs<ExtArgs>
   manager?: boolean | Prisma.account$managerArgs<ExtArgs>
-  _count?: boolean | Prisma.AccountCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type accountIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   role?: boolean | Prisma.roleDefaultArgs<ExtArgs>
@@ -1073,7 +993,7 @@ export type $accountPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   name: "account"
   objects: {
     role: Prisma.$rolePayload<ExtArgs>
-    customer: Prisma.$customerPayload<ExtArgs>[]
+    customer: Prisma.$customerPayload<ExtArgs> | null
     employee: Prisma.$employeePayload<ExtArgs> | null
     manager: Prisma.$managerPayload<ExtArgs> | null
   }
@@ -1085,7 +1005,6 @@ export type $accountPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     is_active: boolean | null
     is_locked: boolean
     last_login: Date | null
-    refresh_token: string | null
     created_at: Date | null
     updated_at: Date | null
   }, ExtArgs["result"]["account"]>
@@ -1483,7 +1402,7 @@ readonly fields: accountFieldRefs;
 export interface Prisma__accountClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   role<T extends Prisma.roleDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.roleDefaultArgs<ExtArgs>>): Prisma.Prisma__roleClient<runtime.Types.Result.GetResult<Prisma.$rolePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  customer<T extends Prisma.account$customerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.account$customerArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$customerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  customer<T extends Prisma.account$customerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.account$customerArgs<ExtArgs>>): Prisma.Prisma__customerClient<runtime.Types.Result.GetResult<Prisma.$customerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   employee<T extends Prisma.account$employeeArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.account$employeeArgs<ExtArgs>>): Prisma.Prisma__employeeClient<runtime.Types.Result.GetResult<Prisma.$employeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   manager<T extends Prisma.account$managerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.account$managerArgs<ExtArgs>>): Prisma.Prisma__managerClient<runtime.Types.Result.GetResult<Prisma.$managerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
@@ -1522,7 +1441,6 @@ export interface accountFieldRefs {
   readonly is_active: Prisma.FieldRef<"account", 'Boolean'>
   readonly is_locked: Prisma.FieldRef<"account", 'Boolean'>
   readonly last_login: Prisma.FieldRef<"account", 'DateTime'>
-  readonly refresh_token: Prisma.FieldRef<"account", 'String'>
   readonly created_at: Prisma.FieldRef<"account", 'DateTime'>
   readonly updated_at: Prisma.FieldRef<"account", 'DateTime'>
 }
@@ -1937,11 +1855,6 @@ export type account$customerArgs<ExtArgs extends runtime.Types.Extensions.Intern
    */
   include?: Prisma.customerInclude<ExtArgs> | null
   where?: Prisma.customerWhereInput
-  orderBy?: Prisma.customerOrderByWithRelationInput | Prisma.customerOrderByWithRelationInput[]
-  cursor?: Prisma.customerWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.CustomerScalarFieldEnum | Prisma.CustomerScalarFieldEnum[]
 }
 
 /**

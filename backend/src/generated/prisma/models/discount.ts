@@ -28,7 +28,6 @@ export type AggregateDiscount = {
 
 export type DiscountAvgAggregateOutputType = {
   discount_id: number | null
-  coupon_id: number | null
   discount_value: runtime.Decimal | null
   min_required_order_value: number | null
   max_discount_amount: number | null
@@ -40,7 +39,6 @@ export type DiscountAvgAggregateOutputType = {
 
 export type DiscountSumAggregateOutputType = {
   discount_id: number | null
-  coupon_id: number | null
   discount_value: runtime.Decimal | null
   min_required_order_value: number | null
   max_discount_amount: number | null
@@ -54,7 +52,7 @@ export type DiscountMinAggregateOutputType = {
   discount_id: number | null
   name: string | null
   description: string | null
-  coupon_id: number | null
+  coupon_code: string | null
   discount_value: runtime.Decimal | null
   min_required_order_value: number | null
   max_discount_amount: number | null
@@ -73,7 +71,7 @@ export type DiscountMaxAggregateOutputType = {
   discount_id: number | null
   name: string | null
   description: string | null
-  coupon_id: number | null
+  coupon_code: string | null
   discount_value: runtime.Decimal | null
   min_required_order_value: number | null
   max_discount_amount: number | null
@@ -92,7 +90,7 @@ export type DiscountCountAggregateOutputType = {
   discount_id: number
   name: number
   description: number
-  coupon_id: number
+  coupon_code: number
   discount_value: number
   min_required_order_value: number
   max_discount_amount: number
@@ -111,7 +109,6 @@ export type DiscountCountAggregateOutputType = {
 
 export type DiscountAvgAggregateInputType = {
   discount_id?: true
-  coupon_id?: true
   discount_value?: true
   min_required_order_value?: true
   max_discount_amount?: true
@@ -123,7 +120,6 @@ export type DiscountAvgAggregateInputType = {
 
 export type DiscountSumAggregateInputType = {
   discount_id?: true
-  coupon_id?: true
   discount_value?: true
   min_required_order_value?: true
   max_discount_amount?: true
@@ -137,7 +133,7 @@ export type DiscountMinAggregateInputType = {
   discount_id?: true
   name?: true
   description?: true
-  coupon_id?: true
+  coupon_code?: true
   discount_value?: true
   min_required_order_value?: true
   max_discount_amount?: true
@@ -156,7 +152,7 @@ export type DiscountMaxAggregateInputType = {
   discount_id?: true
   name?: true
   description?: true
-  coupon_id?: true
+  coupon_code?: true
   discount_value?: true
   min_required_order_value?: true
   max_discount_amount?: true
@@ -175,7 +171,7 @@ export type DiscountCountAggregateInputType = {
   discount_id?: true
   name?: true
   description?: true
-  coupon_id?: true
+  coupon_code?: true
   discount_value?: true
   min_required_order_value?: true
   max_discount_amount?: true
@@ -281,7 +277,7 @@ export type DiscountGroupByOutputType = {
   discount_id: number
   name: string
   description: string | null
-  coupon_id: number
+  coupon_code: string
   discount_value: runtime.Decimal
   min_required_order_value: number
   max_discount_amount: number
@@ -323,7 +319,7 @@ export type discountWhereInput = {
   discount_id?: Prisma.IntFilter<"discount"> | number
   name?: Prisma.StringFilter<"discount"> | string
   description?: Prisma.StringNullableFilter<"discount"> | string | null
-  coupon_id?: Prisma.IntFilter<"discount"> | number
+  coupon_code?: Prisma.StringFilter<"discount"> | string
   discount_value?: Prisma.DecimalFilter<"discount"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   min_required_order_value?: Prisma.IntFilter<"discount"> | number
   max_discount_amount?: Prisma.IntFilter<"discount"> | number
@@ -336,7 +332,6 @@ export type discountWhereInput = {
   is_active?: Prisma.BoolFilter<"discount"> | boolean
   created_at?: Prisma.DateTimeNullableFilter<"discount"> | Date | string | null
   updated_at?: Prisma.DateTimeNullableFilter<"discount"> | Date | string | null
-  coupon?: Prisma.XOR<Prisma.CouponScalarRelationFilter, Prisma.couponWhereInput>
   order_discount?: Prisma.Order_discountListRelationFilter
 }
 
@@ -344,7 +339,7 @@ export type discountOrderByWithRelationInput = {
   discount_id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
-  coupon_id?: Prisma.SortOrder
+  coupon_code?: Prisma.SortOrder
   discount_value?: Prisma.SortOrder
   min_required_order_value?: Prisma.SortOrder
   max_discount_amount?: Prisma.SortOrder
@@ -357,14 +352,13 @@ export type discountOrderByWithRelationInput = {
   is_active?: Prisma.SortOrder
   created_at?: Prisma.SortOrderInput | Prisma.SortOrder
   updated_at?: Prisma.SortOrderInput | Prisma.SortOrder
-  coupon?: Prisma.couponOrderByWithRelationInput
   order_discount?: Prisma.order_discountOrderByRelationAggregateInput
 }
 
 export type discountWhereUniqueInput = Prisma.AtLeast<{
   discount_id?: number
   name?: string
-  coupon_id?: number
+  coupon_code?: string
   AND?: Prisma.discountWhereInput | Prisma.discountWhereInput[]
   OR?: Prisma.discountWhereInput[]
   NOT?: Prisma.discountWhereInput | Prisma.discountWhereInput[]
@@ -381,15 +375,14 @@ export type discountWhereUniqueInput = Prisma.AtLeast<{
   is_active?: Prisma.BoolFilter<"discount"> | boolean
   created_at?: Prisma.DateTimeNullableFilter<"discount"> | Date | string | null
   updated_at?: Prisma.DateTimeNullableFilter<"discount"> | Date | string | null
-  coupon?: Prisma.XOR<Prisma.CouponScalarRelationFilter, Prisma.couponWhereInput>
   order_discount?: Prisma.Order_discountListRelationFilter
-}, "discount_id" | "name" | "coupon_id">
+}, "discount_id" | "name" | "coupon_code">
 
 export type discountOrderByWithAggregationInput = {
   discount_id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
-  coupon_id?: Prisma.SortOrder
+  coupon_code?: Prisma.SortOrder
   discount_value?: Prisma.SortOrder
   min_required_order_value?: Prisma.SortOrder
   max_discount_amount?: Prisma.SortOrder
@@ -416,7 +409,7 @@ export type discountScalarWhereWithAggregatesInput = {
   discount_id?: Prisma.IntWithAggregatesFilter<"discount"> | number
   name?: Prisma.StringWithAggregatesFilter<"discount"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"discount"> | string | null
-  coupon_id?: Prisma.IntWithAggregatesFilter<"discount"> | number
+  coupon_code?: Prisma.StringWithAggregatesFilter<"discount"> | string
   discount_value?: Prisma.DecimalWithAggregatesFilter<"discount"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   min_required_order_value?: Prisma.IntWithAggregatesFilter<"discount"> | number
   max_discount_amount?: Prisma.IntWithAggregatesFilter<"discount"> | number
@@ -434,6 +427,7 @@ export type discountScalarWhereWithAggregatesInput = {
 export type discountCreateInput = {
   name: string
   description?: string | null
+  coupon_code: string
   discount_value: runtime.Decimal | runtime.DecimalJsLike | number | string
   min_required_order_value: number
   max_discount_amount: number
@@ -446,7 +440,6 @@ export type discountCreateInput = {
   is_active?: boolean
   created_at?: Date | string | null
   updated_at?: Date | string | null
-  coupon: Prisma.couponCreateNestedOneWithoutDiscountInput
   order_discount?: Prisma.order_discountCreateNestedManyWithoutDiscountInput
 }
 
@@ -454,7 +447,7 @@ export type discountUncheckedCreateInput = {
   discount_id?: number
   name: string
   description?: string | null
-  coupon_id: number
+  coupon_code: string
   discount_value: runtime.Decimal | runtime.DecimalJsLike | number | string
   min_required_order_value: number
   max_discount_amount: number
@@ -473,6 +466,7 @@ export type discountUncheckedCreateInput = {
 export type discountUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coupon_code?: Prisma.StringFieldUpdateOperationsInput | string
   discount_value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   min_required_order_value?: Prisma.IntFieldUpdateOperationsInput | number
   max_discount_amount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -485,7 +479,6 @@ export type discountUpdateInput = {
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  coupon?: Prisma.couponUpdateOneRequiredWithoutDiscountNestedInput
   order_discount?: Prisma.order_discountUpdateManyWithoutDiscountNestedInput
 }
 
@@ -493,7 +486,7 @@ export type discountUncheckedUpdateInput = {
   discount_id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  coupon_id?: Prisma.IntFieldUpdateOperationsInput | number
+  coupon_code?: Prisma.StringFieldUpdateOperationsInput | string
   discount_value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   min_required_order_value?: Prisma.IntFieldUpdateOperationsInput | number
   max_discount_amount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -513,7 +506,7 @@ export type discountCreateManyInput = {
   discount_id?: number
   name: string
   description?: string | null
-  coupon_id: number
+  coupon_code: string
   discount_value: runtime.Decimal | runtime.DecimalJsLike | number | string
   min_required_order_value: number
   max_discount_amount: number
@@ -531,6 +524,7 @@ export type discountCreateManyInput = {
 export type discountUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coupon_code?: Prisma.StringFieldUpdateOperationsInput | string
   discount_value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   min_required_order_value?: Prisma.IntFieldUpdateOperationsInput | number
   max_discount_amount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -549,7 +543,7 @@ export type discountUncheckedUpdateManyInput = {
   discount_id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  coupon_id?: Prisma.IntFieldUpdateOperationsInput | number
+  coupon_code?: Prisma.StringFieldUpdateOperationsInput | string
   discount_value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   min_required_order_value?: Prisma.IntFieldUpdateOperationsInput | number
   max_discount_amount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -564,16 +558,11 @@ export type discountUncheckedUpdateManyInput = {
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
-export type DiscountNullableScalarRelationFilter = {
-  is?: Prisma.discountWhereInput | null
-  isNot?: Prisma.discountWhereInput | null
-}
-
 export type discountCountOrderByAggregateInput = {
   discount_id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
-  coupon_id?: Prisma.SortOrder
+  coupon_code?: Prisma.SortOrder
   discount_value?: Prisma.SortOrder
   min_required_order_value?: Prisma.SortOrder
   max_discount_amount?: Prisma.SortOrder
@@ -590,7 +579,6 @@ export type discountCountOrderByAggregateInput = {
 
 export type discountAvgOrderByAggregateInput = {
   discount_id?: Prisma.SortOrder
-  coupon_id?: Prisma.SortOrder
   discount_value?: Prisma.SortOrder
   min_required_order_value?: Prisma.SortOrder
   max_discount_amount?: Prisma.SortOrder
@@ -604,7 +592,7 @@ export type discountMaxOrderByAggregateInput = {
   discount_id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
-  coupon_id?: Prisma.SortOrder
+  coupon_code?: Prisma.SortOrder
   discount_value?: Prisma.SortOrder
   min_required_order_value?: Prisma.SortOrder
   max_discount_amount?: Prisma.SortOrder
@@ -623,7 +611,7 @@ export type discountMinOrderByAggregateInput = {
   discount_id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
-  coupon_id?: Prisma.SortOrder
+  coupon_code?: Prisma.SortOrder
   discount_value?: Prisma.SortOrder
   min_required_order_value?: Prisma.SortOrder
   max_discount_amount?: Prisma.SortOrder
@@ -640,7 +628,6 @@ export type discountMinOrderByAggregateInput = {
 
 export type discountSumOrderByAggregateInput = {
   discount_id?: Prisma.SortOrder
-  coupon_id?: Prisma.SortOrder
   discount_value?: Prisma.SortOrder
   min_required_order_value?: Prisma.SortOrder
   max_discount_amount?: Prisma.SortOrder
@@ -653,38 +640,6 @@ export type discountSumOrderByAggregateInput = {
 export type DiscountScalarRelationFilter = {
   is?: Prisma.discountWhereInput
   isNot?: Prisma.discountWhereInput
-}
-
-export type discountCreateNestedOneWithoutCouponInput = {
-  create?: Prisma.XOR<Prisma.discountCreateWithoutCouponInput, Prisma.discountUncheckedCreateWithoutCouponInput>
-  connectOrCreate?: Prisma.discountCreateOrConnectWithoutCouponInput
-  connect?: Prisma.discountWhereUniqueInput
-}
-
-export type discountUncheckedCreateNestedOneWithoutCouponInput = {
-  create?: Prisma.XOR<Prisma.discountCreateWithoutCouponInput, Prisma.discountUncheckedCreateWithoutCouponInput>
-  connectOrCreate?: Prisma.discountCreateOrConnectWithoutCouponInput
-  connect?: Prisma.discountWhereUniqueInput
-}
-
-export type discountUpdateOneWithoutCouponNestedInput = {
-  create?: Prisma.XOR<Prisma.discountCreateWithoutCouponInput, Prisma.discountUncheckedCreateWithoutCouponInput>
-  connectOrCreate?: Prisma.discountCreateOrConnectWithoutCouponInput
-  upsert?: Prisma.discountUpsertWithoutCouponInput
-  disconnect?: Prisma.discountWhereInput | boolean
-  delete?: Prisma.discountWhereInput | boolean
-  connect?: Prisma.discountWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.discountUpdateToOneWithWhereWithoutCouponInput, Prisma.discountUpdateWithoutCouponInput>, Prisma.discountUncheckedUpdateWithoutCouponInput>
-}
-
-export type discountUncheckedUpdateOneWithoutCouponNestedInput = {
-  create?: Prisma.XOR<Prisma.discountCreateWithoutCouponInput, Prisma.discountUncheckedCreateWithoutCouponInput>
-  connectOrCreate?: Prisma.discountCreateOrConnectWithoutCouponInput
-  upsert?: Prisma.discountUpsertWithoutCouponInput
-  disconnect?: Prisma.discountWhereInput | boolean
-  delete?: Prisma.discountWhereInput | boolean
-  connect?: Prisma.discountWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.discountUpdateToOneWithWhereWithoutCouponInput, Prisma.discountUpdateWithoutCouponInput>, Prisma.discountUncheckedUpdateWithoutCouponInput>
 }
 
 export type DecimalFieldUpdateOperationsInput = {
@@ -713,99 +668,10 @@ export type discountUpdateOneRequiredWithoutOrder_discountNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.discountUpdateToOneWithWhereWithoutOrder_discountInput, Prisma.discountUpdateWithoutOrder_discountInput>, Prisma.discountUncheckedUpdateWithoutOrder_discountInput>
 }
 
-export type discountCreateWithoutCouponInput = {
-  name: string
-  description?: string | null
-  discount_value: runtime.Decimal | runtime.DecimalJsLike | number | string
-  min_required_order_value: number
-  max_discount_amount: number
-  min_required_product?: number | null
-  valid_from?: Date | string | null
-  valid_until: Date | string
-  current_uses?: number | null
-  max_uses?: number | null
-  max_uses_per_customer?: number | null
-  is_active?: boolean
-  created_at?: Date | string | null
-  updated_at?: Date | string | null
-  order_discount?: Prisma.order_discountCreateNestedManyWithoutDiscountInput
-}
-
-export type discountUncheckedCreateWithoutCouponInput = {
-  discount_id?: number
-  name: string
-  description?: string | null
-  discount_value: runtime.Decimal | runtime.DecimalJsLike | number | string
-  min_required_order_value: number
-  max_discount_amount: number
-  min_required_product?: number | null
-  valid_from?: Date | string | null
-  valid_until: Date | string
-  current_uses?: number | null
-  max_uses?: number | null
-  max_uses_per_customer?: number | null
-  is_active?: boolean
-  created_at?: Date | string | null
-  updated_at?: Date | string | null
-  order_discount?: Prisma.order_discountUncheckedCreateNestedManyWithoutDiscountInput
-}
-
-export type discountCreateOrConnectWithoutCouponInput = {
-  where: Prisma.discountWhereUniqueInput
-  create: Prisma.XOR<Prisma.discountCreateWithoutCouponInput, Prisma.discountUncheckedCreateWithoutCouponInput>
-}
-
-export type discountUpsertWithoutCouponInput = {
-  update: Prisma.XOR<Prisma.discountUpdateWithoutCouponInput, Prisma.discountUncheckedUpdateWithoutCouponInput>
-  create: Prisma.XOR<Prisma.discountCreateWithoutCouponInput, Prisma.discountUncheckedCreateWithoutCouponInput>
-  where?: Prisma.discountWhereInput
-}
-
-export type discountUpdateToOneWithWhereWithoutCouponInput = {
-  where?: Prisma.discountWhereInput
-  data: Prisma.XOR<Prisma.discountUpdateWithoutCouponInput, Prisma.discountUncheckedUpdateWithoutCouponInput>
-}
-
-export type discountUpdateWithoutCouponInput = {
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  discount_value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  min_required_order_value?: Prisma.IntFieldUpdateOperationsInput | number
-  max_discount_amount?: Prisma.IntFieldUpdateOperationsInput | number
-  min_required_product?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  valid_from?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  valid_until?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  current_uses?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  max_uses?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  max_uses_per_customer?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  order_discount?: Prisma.order_discountUpdateManyWithoutDiscountNestedInput
-}
-
-export type discountUncheckedUpdateWithoutCouponInput = {
-  discount_id?: Prisma.IntFieldUpdateOperationsInput | number
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  discount_value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  min_required_order_value?: Prisma.IntFieldUpdateOperationsInput | number
-  max_discount_amount?: Prisma.IntFieldUpdateOperationsInput | number
-  min_required_product?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  valid_from?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  valid_until?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  current_uses?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  max_uses?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  max_uses_per_customer?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  order_discount?: Prisma.order_discountUncheckedUpdateManyWithoutDiscountNestedInput
-}
-
 export type discountCreateWithoutOrder_discountInput = {
   name: string
   description?: string | null
+  coupon_code: string
   discount_value: runtime.Decimal | runtime.DecimalJsLike | number | string
   min_required_order_value: number
   max_discount_amount: number
@@ -818,14 +684,13 @@ export type discountCreateWithoutOrder_discountInput = {
   is_active?: boolean
   created_at?: Date | string | null
   updated_at?: Date | string | null
-  coupon: Prisma.couponCreateNestedOneWithoutDiscountInput
 }
 
 export type discountUncheckedCreateWithoutOrder_discountInput = {
   discount_id?: number
   name: string
   description?: string | null
-  coupon_id: number
+  coupon_code: string
   discount_value: runtime.Decimal | runtime.DecimalJsLike | number | string
   min_required_order_value: number
   max_discount_amount: number
@@ -859,6 +724,7 @@ export type discountUpdateToOneWithWhereWithoutOrder_discountInput = {
 export type discountUpdateWithoutOrder_discountInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  coupon_code?: Prisma.StringFieldUpdateOperationsInput | string
   discount_value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   min_required_order_value?: Prisma.IntFieldUpdateOperationsInput | number
   max_discount_amount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -871,14 +737,13 @@ export type discountUpdateWithoutOrder_discountInput = {
   is_active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  coupon?: Prisma.couponUpdateOneRequiredWithoutDiscountNestedInput
 }
 
 export type discountUncheckedUpdateWithoutOrder_discountInput = {
   discount_id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  coupon_id?: Prisma.IntFieldUpdateOperationsInput | number
+  coupon_code?: Prisma.StringFieldUpdateOperationsInput | string
   discount_value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   min_required_order_value?: Prisma.IntFieldUpdateOperationsInput | number
   max_discount_amount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -928,7 +793,7 @@ export type discountSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   discount_id?: boolean
   name?: boolean
   description?: boolean
-  coupon_id?: boolean
+  coupon_code?: boolean
   discount_value?: boolean
   min_required_order_value?: boolean
   max_discount_amount?: boolean
@@ -941,7 +806,6 @@ export type discountSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   is_active?: boolean
   created_at?: boolean
   updated_at?: boolean
-  coupon?: boolean | Prisma.couponDefaultArgs<ExtArgs>
   order_discount?: boolean | Prisma.discount$order_discountArgs<ExtArgs>
   _count?: boolean | Prisma.DiscountCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["discount"]>
@@ -950,7 +814,7 @@ export type discountSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   discount_id?: boolean
   name?: boolean
   description?: boolean
-  coupon_id?: boolean
+  coupon_code?: boolean
   discount_value?: boolean
   min_required_order_value?: boolean
   max_discount_amount?: boolean
@@ -963,14 +827,13 @@ export type discountSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   is_active?: boolean
   created_at?: boolean
   updated_at?: boolean
-  coupon?: boolean | Prisma.couponDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["discount"]>
 
 export type discountSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   discount_id?: boolean
   name?: boolean
   description?: boolean
-  coupon_id?: boolean
+  coupon_code?: boolean
   discount_value?: boolean
   min_required_order_value?: boolean
   max_discount_amount?: boolean
@@ -983,14 +846,13 @@ export type discountSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   is_active?: boolean
   created_at?: boolean
   updated_at?: boolean
-  coupon?: boolean | Prisma.couponDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["discount"]>
 
 export type discountSelectScalar = {
   discount_id?: boolean
   name?: boolean
   description?: boolean
-  coupon_id?: boolean
+  coupon_code?: boolean
   discount_value?: boolean
   min_required_order_value?: boolean
   max_discount_amount?: boolean
@@ -1005,30 +867,24 @@ export type discountSelectScalar = {
   updated_at?: boolean
 }
 
-export type discountOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"discount_id" | "name" | "description" | "coupon_id" | "discount_value" | "min_required_order_value" | "max_discount_amount" | "min_required_product" | "valid_from" | "valid_until" | "current_uses" | "max_uses" | "max_uses_per_customer" | "is_active" | "created_at" | "updated_at", ExtArgs["result"]["discount"]>
+export type discountOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"discount_id" | "name" | "description" | "coupon_code" | "discount_value" | "min_required_order_value" | "max_discount_amount" | "min_required_product" | "valid_from" | "valid_until" | "current_uses" | "max_uses" | "max_uses_per_customer" | "is_active" | "created_at" | "updated_at", ExtArgs["result"]["discount"]>
 export type discountInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  coupon?: boolean | Prisma.couponDefaultArgs<ExtArgs>
   order_discount?: boolean | Prisma.discount$order_discountArgs<ExtArgs>
   _count?: boolean | Prisma.DiscountCountOutputTypeDefaultArgs<ExtArgs>
 }
-export type discountIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  coupon?: boolean | Prisma.couponDefaultArgs<ExtArgs>
-}
-export type discountIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  coupon?: boolean | Prisma.couponDefaultArgs<ExtArgs>
-}
+export type discountIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type discountIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
 
 export type $discountPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "discount"
   objects: {
-    coupon: Prisma.$couponPayload<ExtArgs>
     order_discount: Prisma.$order_discountPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     discount_id: number
     name: string
     description: string | null
-    coupon_id: number
+    coupon_code: string
     discount_value: runtime.Decimal
     min_required_order_value: number
     max_discount_amount: number
@@ -1435,7 +1291,6 @@ readonly fields: discountFieldRefs;
  */
 export interface Prisma__discountClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  coupon<T extends Prisma.couponDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.couponDefaultArgs<ExtArgs>>): Prisma.Prisma__couponClient<runtime.Types.Result.GetResult<Prisma.$couponPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   order_discount<T extends Prisma.discount$order_discountArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.discount$order_discountArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$order_discountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1469,7 +1324,7 @@ export interface discountFieldRefs {
   readonly discount_id: Prisma.FieldRef<"discount", 'Int'>
   readonly name: Prisma.FieldRef<"discount", 'String'>
   readonly description: Prisma.FieldRef<"discount", 'String'>
-  readonly coupon_id: Prisma.FieldRef<"discount", 'Int'>
+  readonly coupon_code: Prisma.FieldRef<"discount", 'String'>
   readonly discount_value: Prisma.FieldRef<"discount", 'Decimal'>
   readonly min_required_order_value: Prisma.FieldRef<"discount", 'Int'>
   readonly max_discount_amount: Prisma.FieldRef<"discount", 'Int'>
@@ -1731,10 +1586,6 @@ export type discountCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extens
    */
   data: Prisma.discountCreateManyInput | Prisma.discountCreateManyInput[]
   skipDuplicates?: boolean
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.discountIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1805,10 +1656,6 @@ export type discountUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Extens
    * Limit how many discounts to update.
    */
   limit?: number
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.discountIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**

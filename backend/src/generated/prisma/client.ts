@@ -50,11 +50,6 @@ export type account = Prisma.accountModel
  */
 export type category = Prisma.categoryModel
 /**
- * Model coupon
- * This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
- */
-export type coupon = Prisma.couponModel
-/**
  * Model customer
  * This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
  */

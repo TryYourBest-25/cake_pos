@@ -5,4 +5,4 @@ export interface JwtPayload {
   role_name: string;
   iat?: number;
   exp?: number;
-} 
+}

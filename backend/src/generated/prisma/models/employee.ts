@@ -475,11 +475,6 @@ export type employeeSumOrderByAggregateInput = {
   account_id?: Prisma.SortOrder
 }
 
-export type EmployeeScalarRelationFilter = {
-  is?: Prisma.employeeWhereInput
-  isNot?: Prisma.employeeWhereInput
-}
-
 export type employeeCreateNestedOneWithoutAccountInput = {
   create?: Prisma.XOR<Prisma.employeeCreateWithoutAccountInput, Prisma.employeeUncheckedCreateWithoutAccountInput>
   connectOrCreate?: Prisma.employeeCreateOrConnectWithoutAccountInput
@@ -518,10 +513,12 @@ export type employeeCreateNestedOneWithoutOrderInput = {
   connect?: Prisma.employeeWhereUniqueInput
 }
 
-export type employeeUpdateOneRequiredWithoutOrderNestedInput = {
+export type employeeUpdateOneWithoutOrderNestedInput = {
   create?: Prisma.XOR<Prisma.employeeCreateWithoutOrderInput, Prisma.employeeUncheckedCreateWithoutOrderInput>
   connectOrCreate?: Prisma.employeeCreateOrConnectWithoutOrderInput
   upsert?: Prisma.employeeUpsertWithoutOrderInput
+  disconnect?: Prisma.employeeWhereInput | boolean
+  delete?: Prisma.employeeWhereInput | boolean
   connect?: Prisma.employeeWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.employeeUpdateToOneWithWhereWithoutOrderInput, Prisma.employeeUpdateWithoutOrderInput>, Prisma.employeeUncheckedUpdateWithoutOrderInput>
 }

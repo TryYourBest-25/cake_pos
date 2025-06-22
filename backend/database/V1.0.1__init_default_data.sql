@@ -7,11 +7,6 @@ VALUES ('cái', 'S', 1, 'Đơn vị (cái/phần)'),
        ('cái', 'L', 1, 'Đơn vị (cái/phần)'),
        ('cái', 'NA', 1, 'Đơn vị (cái/phần)');
 
--- Dữ liệu cho bảng category
-INSERT INTO category (name, description)
-VALUES ('BÁNH NGỌT', 'Các loại bánh ngọt'),   
-       ('BÁNH TRUNG THU', 'Các loại bánh trung thu');
-
 -- Dữ liệu cho bảng membership_type
 INSERT INTO membership_type (type, discount_value, required_point, description, is_active, valid_until)
 VALUES ('NEWMEM', 0, 0, 'Thành viên mới', true, null),
@@ -63,7 +58,7 @@ CREATE TRIGGER protect_default_membership_update_trigger
 CREATE OR REPLACE FUNCTION protect_default_membership_on_delete()
 RETURNS TRIGGER AS $$
 BEGIN
-    IF OLD.type IN ('NEWMEM', 'BRONZE', 'SILVER', 'GOLD', 'PLATINUM') THEN
+    IF OLD.type IN ('NEWMEM') THEN
         RAISE EXCEPTION 'Không thể xóa loại thành viên mặc định' USING ERRCODE = '45000';
     END IF;
     RETURN OLD;
@@ -181,3 +176,53 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER before_store_update_trigger
     BEFORE UPDATE ON store
     FOR EACH ROW EXECUTE FUNCTION before_store_update_func();
+
+-- ================================================================================================================
+-- Dữ liệu cho tài khoản và người dùng
+-- ================================================================================================================
+
+-- Tạo tài khoản cho Manager (3 người) - Mật khẩu: "123456"
+INSERT INTO account (role_id, username, password_hash, is_active, is_locked) VALUES
+((SELECT role_id FROM role WHERE name = 'MANAGER'), 'manager1', '$2a$10$rYD76DWER/iVAIcEjnGBwek.yhkoEvpgQDismgQve4jntr4UzHhWW', true, false),
+((SELECT role_id FROM role WHERE name = 'MANAGER'), 'manager2', '$2a$10$rYD76DWER/iVAIcEjnGBwek.yhkoEvpgQDismgQve4jntr4UzHhWW', true, false),
+((SELECT role_id FROM role WHERE name = 'MANAGER'), 'manager3', '$2a$10$rYD76DWER/iVAIcEjnGBwek.yhkoEvpgQDismgQve4jntr4UzHhWW', true, false);
+
+-- Tạo tài khoản cho Staff (3 người) - Mật khẩu: "123456"
+INSERT INTO account (role_id, username, password_hash, is_active, is_locked) VALUES
+((SELECT role_id FROM role WHERE name = 'STAFF'), 'staff1', '$2a$10$rYD76DWER/iVAIcEjnGBwek.yhkoEvpgQDismgQve4jntr4UzHhWW', true, false),
+((SELECT role_id FROM role WHERE name = 'STAFF'), 'staff2', '$2a$10$rYD76DWER/iVAIcEjnGBwek.yhkoEvpgQDismgQve4jntr4UzHhWW', true, false),
+((SELECT role_id FROM role WHERE name = 'STAFF'), 'staff3', '$2a$10$rYD76DWER/iVAIcEjnGBwek.yhkoEvpgQDismgQve4jntr4UzHhWW', true, false);
+
+-- Tạo tài khoản cho Customer (5 người) - Mật khẩu: "123456"
+INSERT INTO account (role_id, username, password_hash, is_active, is_locked) VALUES
+((SELECT role_id FROM role WHERE name = 'CUSTOMER'), 'customer1', '$2a$10$rYD76DWER/iVAIcEjnGBwek.yhkoEvpgQDismgQve4jntr4UzHhWW', true, false),
+((SELECT role_id FROM role WHERE name = 'CUSTOMER'), 'customer2', '$2a$10$rYD76DWER/iVAIcEjnGBwek.yhkoEvpgQDismgQve4jntr4UzHhWW', true, false),
+((SELECT role_id FROM role WHERE name = 'CUSTOMER'), 'customer3', '$2a$10$rYD76DWER/iVAIcEjnGBwek.yhkoEvpgQDismgQve4jntr4UzHhWW', true, false),
+((SELECT role_id FROM role WHERE name = 'CUSTOMER'), 'customer4', '$2a$10$rYD76DWER/iVAIcEjnGBwek.yhkoEvpgQDismgQve4jntr4UzHhWW', true, false),
+((SELECT role_id FROM role WHERE name = 'CUSTOMER'), 'customer5', '$2a$10$rYD76DWER/iVAIcEjnGBwek.yhkoEvpgQDismgQve4jntr4UzHhWW', true, false);
+
+-- Tạo thông tin Manager
+INSERT INTO manager (account_id, last_name, first_name, gender, phone, email) VALUES
+((SELECT account_id FROM account WHERE username = 'manager1'), 'Nguyễn', 'Văn Minh', 'MALE', '0901234567', 'nguyenvanminh@banhngotnhalam.com'),
+((SELECT account_id FROM account WHERE username = 'manager2'), 'Trần', 'Thị Lan', 'FEMALE', '0901234568', 'tranthilan@banhngotnhalam.com'),
+((SELECT account_id FROM account WHERE username = 'manager3'), 'Lê', 'Văn Hùng', 'MALE', '0901234569', 'levanhung@banhngotnhalam.com');
+
+-- Tạo thông tin Employee
+INSERT INTO employee (account_id, position, last_name, first_name, gender, phone, email) VALUES
+((SELECT account_id FROM account WHERE username = 'staff1'), 'Nhân viên phục vụ', 'Phạm', 'Thị Mai', 'FEMALE', '0902345678', 'phamthimai@banhngotnhalam.com'),
+((SELECT account_id FROM account WHERE username = 'staff2'), 'Nhân viên pha chế', 'Hoàng', 'Văn Nam', 'MALE', '0902345679', 'hoangvannam@banhngotnhalam.com'),
+((SELECT account_id FROM account WHERE username = 'staff3'), 'Nhân viên thu ngân', 'Võ', 'Thị Hoa', 'FEMALE', '0902345680', 'vothihoa@banhngotnhalam.com');
+
+-- Tạo thông tin Customer
+INSERT INTO customer (membership_type_id, account_id, last_name, first_name, phone, current_points, gender) VALUES
+((SELECT membership_type_id FROM membership_type WHERE type = 'NEWMEM'), (SELECT account_id FROM account WHERE username = 'customer1'), 'Đinh', 'Văn An', '0903456789', 0, 'MALE'),
+((SELECT membership_type_id FROM membership_type WHERE type = 'BRONZE'), (SELECT account_id FROM account WHERE username = 'customer2'), 'Bùi', 'Thị Bình', '0903456790', 25, 'FEMALE'),
+((SELECT membership_type_id FROM membership_type WHERE type = 'SILVER'), (SELECT account_id FROM account WHERE username = 'customer3'), 'Đặng', 'Văn Cường', '0903456791', 65, 'MALE'),
+((SELECT membership_type_id FROM membership_type WHERE type = 'GOLD'), (SELECT account_id FROM account WHERE username = 'customer4'), 'Lý', 'Thị Dung', '0903456792', 120, 'FEMALE'),
+((SELECT membership_type_id FROM membership_type WHERE type = 'PLATINUM'), (SELECT account_id FROM account WHERE username = 'customer5'), 'Vương', 'Văn Em', '0903456793', 250, 'MALE');
+
+-- Thêm một số khách hàng không có tài khoản (khách vãng lai)
+INSERT INTO customer (membership_type_id, account_id, last_name, first_name, phone, current_points, gender) VALUES
+((SELECT membership_type_id FROM membership_type WHERE type = 'NEWMEM'), NULL, 'Ngô', 'Thị Phượng', '0904567890', 0, 'FEMALE'),
+((SELECT membership_type_id FROM membership_type WHERE type = 'NEWMEM'), NULL, 'Trịnh', 'Văn Quang', '0904567891', 0, 'MALE'),
+((SELECT membership_type_id FROM membership_type WHERE type = 'BRONZE'), NULL, 'Phan', 'Thị Hương', '0904567892', 22, 'FEMALE');

@@ -9,7 +9,6 @@
  */
 export type * from './models/account'
 export type * from './models/category'
-export type * from './models/coupon'
 export type * from './models/customer'
 export type * from './models/discount'
 export type * from './models/employee'

@@ -18,27 +18,12 @@ COMMENT ON COLUMN category.category_id IS 'Mã danh mục';
 COMMENT ON COLUMN category.name IS 'Tên danh mục';
 COMMENT ON COLUMN category.description IS 'Mô tả danh mục';
 
-create table coupon
-(
-    coupon_id   SERIAL primary key,
-    coupon      varchar(15)                         not null,
-    description varchar(1000)                       null,
-    created_at  TIMESTAMP default CURRENT_TIMESTAMP null,
-    updated_at  TIMESTAMP default CURRENT_TIMESTAMP null,
-    constraint uk_coupon_coupon unique (coupon)
-);
-
-COMMENT ON COLUMN coupon.coupon_id IS 'Mã coupon';
-COMMENT ON COLUMN coupon.coupon IS 'Mã giảm giá';
-COMMENT ON COLUMN coupon.description IS 'Mô tả';
-COMMENT ON COLUMN coupon.created_at IS 'Ngày tạo';
-
 create table discount
 (
     discount_id              SERIAL primary key,
     name                     varchar(500)                        not null,
     description              varchar(1000)                       null,
-    coupon_id                integer                             not null,
+    coupon_code              varchar(15)                         not null,
     discount_value           decimal(4, 1)                       not null,
     min_required_order_value integer                             not null,
     max_discount_amount      integer                             not null,
@@ -51,16 +36,13 @@ create table discount
     is_active                BOOLEAN   default true              not null,
     created_at               TIMESTAMP default CURRENT_TIMESTAMP null,
     updated_at               TIMESTAMP default CURRENT_TIMESTAMP null,
-    constraint uk_discount_coupon_id unique (coupon_id),
+    constraint uk_discount_coupon_code unique (coupon_code),
     constraint uk_discount_name unique (name),
-    constraint chk_discount_value_positive check (discount_value >= 0 and discount_value <= 100),
-    constraint fk_discount_coupon foreign key (coupon_id) references coupon (coupon_id)
-        ON UPDATE CASCADE
-        ON DELETE RESTRICT
+    constraint chk_discount_value_positive check (discount_value >= 0 and discount_value <= 100)
 );
 
 COMMENT ON COLUMN discount.discount_id IS 'Mã định danh duy nhất cho chương trình giảm giá';
-COMMENT ON COLUMN discount.coupon_id IS 'Liên kết với mã giảm giá (coupon), NULL nếu không yêu cầu mã giảm giá';
+COMMENT ON COLUMN discount.coupon_code IS 'Mã giảm giá';
 COMMENT ON COLUMN discount.discount_value IS 'Giá trị giảm giá (phần trăm hoặc số tiền cố định)';
 COMMENT ON COLUMN discount.min_required_order_value IS 'Gái trị đơn hàng tối thiểu có thể áp dụng';
 COMMENT ON COLUMN discount.max_discount_amount IS 'Giới hạn số tiền giảm giá tối đa, NULL nếu không giới hạn';
@@ -115,7 +97,7 @@ COMMENT ON COLUMN payment_method.description IS 'Mô tả phương thức thanh 
 create table product
 (
     product_id   SERIAL primary key,
-    category_id  smallint                            null,
+    category_id  smallint                            not null,
     name         varchar(100)                        not null,
     description  varchar(1000)                       null,
     is_signature BOOLEAN   default false             null,
@@ -125,7 +107,7 @@ create table product
     constraint uk_product_name unique (name),
     constraint fk_product_category foreign key (category_id) references category (category_id)
         ON UPDATE CASCADE
-        ON DELETE SET NULL
+        ON DELETE RESTRICT
 );
 
 COMMENT ON COLUMN product.product_id IS 'Mã sản phẩm';
@@ -161,7 +143,6 @@ create table account
     is_active     BOOLEAN   default false             null,
     is_locked     BOOLEAN   default false             not null,
     last_login    TIMESTAMP                           null,
-    refresh_token varchar(255)                        null,
     created_at    TIMESTAMP default CURRENT_TIMESTAMP null,
     updated_at    TIMESTAMP default CURRENT_TIMESTAMP null,
     constraint uk_account_username unique (username),
@@ -177,7 +158,6 @@ COMMENT ON COLUMN account.password_hash IS 'Mật khẩu đã mã hóa';
 COMMENT ON COLUMN account.is_active IS 'Tài khoản hoạt động (TRUE: Có, FALSE: Không)';
 COMMENT ON COLUMN account.is_locked IS 'Tài khoản có bị khóa hay không (Có: TRUE, Không:FALSE)';
 COMMENT ON COLUMN account.last_login IS 'Lần đăng nhập cuối';
-COMMENT ON COLUMN account.refresh_token IS 'Refresh token';
 COMMENT ON COLUMN account.created_at IS 'Thời gian tạo';
 COMMENT ON COLUMN account.updated_at IS 'Thời gian cập nhật';
 
@@ -276,7 +256,7 @@ create table "order"
 (
     order_id       SERIAL primary key,
     customer_id    integer                             null,
-    employee_id    integer                             not null,
+    employee_id    integer                             null,
     order_time     TIMESTAMP default CURRENT_TIMESTAMP null,
     total_amount   integer                             null,
     final_amount   integer                             null,
@@ -289,7 +269,7 @@ create table "order"
         ON DELETE SET NULL,
     constraint fk_order_employee foreign key (employee_id) references employee (employee_id)
         ON UPDATE CASCADE
-        ON DELETE CASCADE
+        ON DELETE SET NULL
 );
 
 COMMENT ON COLUMN "order".order_id IS 'Mã đơn hàng';
@@ -318,7 +298,7 @@ create table order_discount
         ON DELETE CASCADE,
     constraint fk_order_discount_discount foreign key (discount_id) references discount (discount_id)
         ON UPDATE CASCADE
-        ON DELETE CASCADE
+        ON DELETE RESTRICT
 );
 
 COMMENT ON COLUMN order_discount.order_discount_id IS 'Mã giảm giá đơn hàng';
@@ -339,7 +319,7 @@ create table payment
     updated_at        TIMESTAMP      default CURRENT_TIMESTAMP null,
     constraint fk_payment_order foreign key (order_id) references "order" (order_id)
         ON UPDATE CASCADE
-        ON DELETE CASCADE,
+        ON DELETE RESTRICT,
     constraint fk_payment_payment_method foreign key (payment_method_id) references payment_method (payment_method_id)
         ON UPDATE CASCADE
         ON DELETE RESTRICT
@@ -411,10 +391,10 @@ create table product_price
     constraint uk_product_price_product_size unique (product_id, size_id),
     constraint fk_product_price_product foreign key (product_id) references product (product_id)
         ON UPDATE CASCADE
-        ON DELETE CASCADE,
+        ON DELETE RESTRICT,
     constraint fk_product_price_product_size foreign key (size_id) references product_size (size_id)
         ON UPDATE CASCADE
-        ON DELETE CASCADE
+        ON DELETE RESTRICT
 );
 
 COMMENT ON COLUMN product_price.product_price_id IS 'Mã giá sản phẩm';
@@ -443,7 +423,7 @@ create table order_product
         ON DELETE CASCADE,
     constraint fk_order_product_product_price foreign key (product_price_id) references product_price (product_price_id)
         ON UPDATE CASCADE
-        ON DELETE CASCADE
+        ON DELETE RESTRICT
 );
 
 COMMENT ON COLUMN order_product.order_product_id IS 'Mã chi tiết đơn hàng';

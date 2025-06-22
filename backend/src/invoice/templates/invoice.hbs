@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hóa đơn #{{order_id}}</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Arial', sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #333;
+      background-color: #fff;
+    }
+    
+    .invoice-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background: white;
+    }
+    
+    .invoice-header {
+      text-align: center;
+      margin-bottom: 30px;
+      border-bottom: 2px solid #4A5568;
+      padding-bottom: 20px;
+    }
+    
+    .store-logo {
+      font-size: 28px;
+      font-weight: bold;
+      color: #2D3748;
+      margin-bottom: 10px;
+    }
+    
+    .store-info {
+      color: #666;
+      font-size: 14px;
+    }
+    
+    .invoice-title {
+      font-size: 24px;
+      font-weight: bold;
+      color: #2D3748;
+      margin: 20px 0 10px;
+    }
+    
+    .invoice-meta {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+    
+    .meta-group {
+      flex: 1;
+      min-width: 250px;
+      margin-bottom: 20px;
+    }
+    
+    .meta-group h3 {
+      font-size: 16px;
+      font-weight: bold;
+      color: #2D3748;
+      margin-bottom: 8px;
+      border-bottom: 1px solid #E2E8F0;
+      padding-bottom: 5px;
+    }
+    
+    .meta-group p {
+      margin: 4px 0;
+      color: #4A5568;
+    }
+    
+    .items-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 30px 0;
+      border: 1px solid #E2E8F0;
+    }
+    
+    .items-table th {
+      background-color: #F7FAFC;
+      color: #2D3748;
+      font-weight: bold;
+      padding: 12px 8px;
+      text-align: left;
+      border: 1px solid #E2E8F0;
+    }
+    
+    .items-table td {
+      padding: 10px 8px;
+      border: 1px solid #E2E8F0;
+      color: #4A5568;
+    }
+    
+    .items-table tbody tr:nth-child(even) {
+      background-color: #F7FAFC;
+    }
+    
+    .text-right {
+      text-align: right;
+    }
+    
+    .text-center {
+      text-align: center;
+    }
+    
+    .summary-section {
+      margin-top: 30px;
+      display: flex;
+      justify-content: flex-end;
+    }
+    
+    .summary-table {
+      min-width: 300px;
+      border-collapse: collapse;
+    }
+    
+    .summary-table td {
+      padding: 8px 15px;
+      border: none;
+    }
+    
+    .summary-table tr.summary-subtotal td {
+      border-top: 1px solid #E2E8F0;
+      font-weight: normal;
+    }
+    
+    .summary-table tr.summary-discount td {
+      color: #E53E3E;
+      font-weight: normal;
+    }
+    
+    .summary-table tr.summary-total td {
+      border-top: 2px solid #2D3748;
+      font-weight: bold;
+      font-size: 16px;
+      color: #2D3748;
+    }
+    
+    .payment-info {
+      margin-top: 30px;
+      padding: 20px;
+      background-color: #F7FAFC;
+      border-radius: 8px;
+      border-left: 4px solid #4299E1;
+    }
+    
+    .payment-info h3 {
+      color: #2D3748;
+      margin-bottom: 15px;
+      font-size: 16px;
+    }
+    
+    .payment-details {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+    
+    .payment-details p {
+      margin: 5px 0;
+      color: #4A5568;
+    }
+    
+    .payment-status {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+    
+    .status-paid {
+      background-color: #C6F6D5;
+      color: #22543D;
+    }
+    
+    .status-pending {
+      background-color: #FED7D7;
+      color: #742A2A;
+    }
+    
+    .status-processing {
+      background-color: #FEEBC8;
+      color: #7B341E;
+    }
+    
+    .footer {
+      margin-top: 40px;
+      text-align: center;
+      color: #718096;
+      font-size: 12px;
+      border-top: 1px solid #E2E8F0;
+      padding-top: 20px;
+    }
+    
+    .thank-you {
+      margin-top: 30px;
+      text-align: center;
+      font-style: italic;
+      color: #4A5568;
+      font-size: 16px;
+    }
+    
+    @media print {
+      body {
+        font-size: 12px;
+      }
+      
+      .invoice-container {
+        box-shadow: none;
+        margin: 0;
+        padding: 10px;
+      }
+      
+      .no-print {
+        display: none;
+      }
+    }
+    
+    @media (max-width: 600px) {
+      .invoice-meta {
+        flex-direction: column;
+      }
+      
+      .meta-group {
+        min-width: 100%;
+      }
+      
+      .items-table {
+        font-size: 12px;
+      }
+      
+      .items-table th,
+      .items-table td {
+        padding: 6px 4px;
+      }
+      
+      .payment-details {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="invoice-container">
+    <!-- Header -->
+    <div class="invoice-header">
+      <div class="store-logo">{{store_name}}</div>
+      <div class="store-info">
+        <p>{{store_address}}</p>
+        <p>Điện thoại: {{store_phone}}</p>
+        <p>Email: {{store_email}}</p>
+        <p>Mã số thuế: {{store_tax_code}}</p>
+      </div>
+      <div class="invoice-title">HÓA ĐƠN BÁN HÀNG</div>
+      <p><strong>Số hóa đơn:</strong> #{{order_id}}</p>
+    </div>
+
+    <!-- Invoice Meta Information -->
+    <div class="invoice-meta">
+      <div class="meta-group">
+        <h3>Thông tin khách hàng</h3>
+        <p><strong>Họ tên:</strong> {{customer_name}}</p>
+        {{#if customer_phone}}
+        <p><strong>Điện thoại:</strong> {{customer_phone}}</p>
+        {{/if}}
+      </div>
+      
+      <div class="meta-group">
+        <h3>Thông tin đơn hàng</h3>
+        <p><strong>Ngày đặt:</strong> {{formatDate order_time}}</p>
+        <p><strong>Nhân viên:</strong> {{employee_name}}</p>
+        <p><strong>Thời gian thanh toán:</strong> {{formatDate payment_time}}</p>
+      </div>
+    </div>
+
+    <!-- Items Table -->
+    <table class="items-table">
+      <thead>
+        <tr>
+          <th style="width: 50px;">STT</th>
+          <th>Tên sản phẩm</th>
+          <th style="width: 80px;" class="text-center">Số lượng</th>
+          <th style="width: 120px;" class="text-right">Đơn giá</th>
+          <th style="width: 120px;" class="text-right">Thành tiền</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each items}}
+        <tr>
+          <td class="text-center">{{increment @index}}</td>
+          <td>{{product_name}}</td>
+          <td class="text-center">{{quantity}}</td>
+          <td class="text-right">{{formatCurrency unit_price}}</td>
+          <td class="text-right">{{formatCurrency total_price}}</td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+
+    <!-- Summary Section -->
+    <div class="summary-section">
+      <table class="summary-table">
+        <tr class="summary-subtotal">
+          <td><strong>Tạm tính:</strong></td>
+          <td class="text-right">{{formatCurrency subtotal}}</td>
+        </tr>
+        {{#if discount_amount}}
+        <tr class="summary-discount">
+          <td><strong>Giảm giá:</strong></td>
+          <td class="text-right">-{{formatCurrency discount_amount}}</td>
+        </tr>
+        {{/if}}
+        <tr class="summary-total">
+          <td><strong>TỔNG CỘNG:</strong></td>
+          <td class="text-right">{{formatCurrency final_amount}}</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Payment Information -->
+    <div class="payment-info">
+      <h3>Thông tin thanh toán</h3>
+      <div class="payment-details">
+        <div>
+          <p><strong>Phương thức:</strong> {{payment_method}}</p>
+          <p><strong>Số tiền thanh toán:</strong> {{formatCurrency amount_paid}}</p>
+        </div>
+        <div>
+          <p><strong>Trạng thái:</strong> 
+            <span class="payment-status {{getPaymentStatusClass payment_status}}">
+              {{getPaymentStatusText payment_status}}
+            </span>
+          </p>
+          {{#if change_amount}}
+          <p><strong>Tiền thối:</strong> {{formatCurrency change_amount}}</p>
+          {{/if}}
+        </div>
+      </div>
+    </div>
+
+    <!-- Thank You Message -->
+    <div class="thank-you">
+      <p>Cảm ơn quý khách đã mua hàng!</p>
+      <p>Hẹn gặp lại quý khách lần sau.</p>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p>Hóa đơn được tạo tự động bởi hệ thống Cake POS</p>
+      <p>Thời gian in: {{print_time}}</p>
+    </div>
+  </div>
+</body>
+</html> 

@@ -5,11 +5,13 @@ services:
     image: postgres:16-alpine
     container_name: cake_pos_db_container
     restart: unless-stopped
-    env_file: [.dev.env]
+    env_file: [.env.dev]
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-cake_pos}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cake_pos}
+      POSTGRES_USER: ${POSTGRES_USER:-user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-user}
       POSTGRES_DB: ${POSTGRES_DB:-cake_pos_db}
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
     ports:
       - "${POSTGRES_PORT}:5432"
     volumes:

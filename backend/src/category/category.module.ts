@@ -9,6 +9,6 @@ import { CategoryController } from './category.controller';
   // imports: [PrismaModule], // Uncomment if PrismaModule is not global
   controllers: [CategoryController],
   providers: [CategoryService],
-  exports: [CategoryService]
+  exports: [CategoryService],
 })
-export class CategoryModule {} 
+export class CategoryModule {}

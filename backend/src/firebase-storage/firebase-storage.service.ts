@@ -1,7 +1,12 @@
-import { Injectable, BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as admin from 'firebase-admin';
 import { v4 as uuidv4 } from 'uuid';
+import * as path from 'path';
 
 @Injectable()
 export class FirebaseStorageService {
@@ -15,11 +20,15 @@ export class FirebaseStorageService {
     try {
       // Kiểm tra xem Firebase đã được khởi tạo chưa
       if (!admin.apps.length) {
-        const serviceAccount = require('./key.json');
+        const serviceAccount = require(path.join(__dirname, 'key.json'));
 
         admin.initializeApp({
-          credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
-          storageBucket: this.configService.get<string>('FIREBASE_STORAGE_BUCKET'),
+          credential: admin.credential.cert(
+            serviceAccount as admin.ServiceAccount,
+          ),
+          storageBucket: this.configService.get<string>(
+            'FIREBASE_STORAGE_BUCKET',
+          ),
         });
       }
 
@@ -40,19 +49,28 @@ export class FirebaseStorageService {
   async uploadProductImage(
     file: Express.Multer.File,
     fileName?: string,
-    folder: string = 'products'
+    folder: string = 'products',
   ): Promise<string> {
     try {
       // Validate file type
-      const allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+      const allowedMimeTypes = [
+        'image/jpeg',
+        'image/jpg',
+        'image/png',
+        'image/webp',
+      ];
       if (!allowedMimeTypes.includes(file.mimetype)) {
-        throw new BadRequestException('Chỉ chấp nhận file ảnh định dạng JPEG, PNG, hoặc WebP');
+        throw new BadRequestException(
+          'Chỉ chấp nhận file ảnh định dạng JPEG, PNG, hoặc WebP',
+        );
       }
 
       // Validate file size (max 5MB)
       const maxSize = 5 * 1024 * 1024; // 5MB
       if (file.size > maxSize) {
-        throw new BadRequestException('Kích thước file không được vượt quá 5MB');
+        throw new BadRequestException(
+          'Kích thước file không được vượt quá 5MB',
+        );
       }
 
       // Generate unique filename if not provided
@@ -79,9 +97,8 @@ export class FirebaseStorageService {
       await fileRef.makePublic();
 
       // Return public URL
-      const publicUrl = `https://storage.googleapis.com/${bucketRef.name}/${filePath}`;
+      const publicUrl = fileRef.publicUrl();
       return publicUrl;
-
     } catch (error) {
       console.error('Upload error:', error);
       if (error instanceof BadRequestException) {
@@ -99,15 +116,17 @@ export class FirebaseStorageService {
   async deleteProductImage(imageUrl: string): Promise<boolean> {
     try {
       // Extract file path from URL
-      const bucketName = this.configService.get<string>('FIREBASE_STORAGE_BUCKET');
+      const bucketName = this.configService.get<string>(
+        'FIREBASE_STORAGE_BUCKET',
+      );
       const baseUrl = `https://storage.googleapis.com/${bucketName}/`;
-      
+
       if (!imageUrl.startsWith(baseUrl)) {
         throw new BadRequestException('URL ảnh không hợp lệ');
       }
 
       const filePath = imageUrl.replace(baseUrl, '');
-      
+
       // Get bucket reference
       const bucketRef = this.bucket.bucket();
       const fileRef = bucketRef.file(filePath);
@@ -121,7 +140,6 @@ export class FirebaseStorageService {
       // Delete file
       await fileRef.delete();
       return true;
-
     } catch (error) {
       console.error('Delete error:', error);
       if (error instanceof BadRequestException) {
@@ -143,13 +161,14 @@ export class FirebaseStorageService {
         prefix: `${folder}/`,
       });
 
-      const bucketName = this.configService.get<string>('FIREBASE_STORAGE_BUCKET');
-      const imageUrls = files.map(file => 
-        `https://storage.googleapis.com/${bucketName}/${file.name}`
+      const bucketName = this.configService.get<string>(
+        'FIREBASE_STORAGE_BUCKET',
+      );
+      const imageUrls = files.map(
+        (file) => `https://storage.googleapis.com/${bucketName}/${file.name}`,
       );
 
       return imageUrls;
-
     } catch (error) {
       console.error('List images error:', error);
       throw new InternalServerErrorException('Lỗi khi lấy danh sách ảnh');
@@ -168,11 +187,15 @@ export class FirebaseStorageService {
     oldImageUrl: string,
     newFile: Express.Multer.File,
     fileName?: string,
-    folder: string = 'products'
+    folder: string = 'products',
   ): Promise<string> {
     try {
       // Upload ảnh mới trước
-      const newImageUrl = await this.uploadProductImage(newFile, fileName, folder);
+      const newImageUrl = await this.uploadProductImage(
+        newFile,
+        fileName,
+        folder,
+      );
 
       // Xóa ảnh cũ (nếu có)
       if (oldImageUrl) {
@@ -185,10 +208,9 @@ export class FirebaseStorageService {
       }
 
       return newImageUrl;
-
     } catch (error) {
       console.error('Update image error:', error);
       throw error; // Re-throw để controller xử lý
     }
   }
-} 
+}

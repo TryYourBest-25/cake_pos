@@ -12,6 +12,17 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import Joi from 'joi';
 import { VnpayModule } from 'nestjs-vnpay';
+import { ReportsModule } from './reports/reports.module';
+import { InvoiceModule } from './invoice/invoice.module';
+import { ProductSizeModule } from './product-size/product-size.module';
+import { CategoryModule } from './category/category.module';
+import { MembershipTypeModule } from './membership-type/membership-type.module';
+import { OrderModule } from './order/order.module';
+import { PaymentModule } from './payment/payment.module';
+import { PaymentMethodModule } from './payment-method/payment-method.module';
+import { ProductModule } from './product/product.module';
+import { StoreModule } from './store/store.module';
+import { FirebaseStorageModule } from './firebase-storage/firebase-storage.module';
 
 @Module({
   imports: [
@@ -45,17 +56,29 @@ import { VnpayModule } from 'nestjs-vnpay';
         ),
         vnpayHost: configService.getOrThrow<string>('VNP_HOST'),
         testMode: configService.getOrThrow<boolean>('VNP_TEST_MODE'),
+        vnp_Version: '2.1.0'
       }),
       inject: [ConfigService],
     }),
     PrismaModule,
+    AuthModule,
+    AccountModule,
+    CategoryModule,
     CustomerModule,
+    DiscountModule,
     EmployeeModule,
     ManagerModule,
-    DiscountModule,
-    AccountModule,
+    MembershipTypeModule,
+    OrderModule,
+    PaymentModule,
+    PaymentMethodModule,
+    ProductModule,
+    ProductSizeModule,
     RoleModule,
-    AuthModule,
+    StoreModule,
+    ReportsModule,
+    InvoiceModule,
+    FirebaseStorageModule,
   ],
   controllers: [AppController],
   providers: [AppService],

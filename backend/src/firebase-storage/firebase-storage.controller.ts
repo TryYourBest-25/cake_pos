@@ -14,12 +14,20 @@ import {
   Query,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiTags, ApiOperation, ApiResponse, ApiConsumes, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiConsumes,
+  ApiBody,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { FirebaseStorageService } from './firebase-storage.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { ROLES } from '../auth/constants/roles.constant';
 import { UploadImageDto } from './dto/upload-image.dto';
 import { DeleteImageDto } from './dto/delete-image.dto';
 import { UpdateImageDto } from './dto/update-image.dto';
@@ -29,7 +37,9 @@ import { UpdateImageDto } from './dto/update-image.dto';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth()
 export class FirebaseStorageController {
-  constructor(private readonly firebaseStorageService: FirebaseStorageService) {}
+  constructor(
+    private readonly firebaseStorageService: FirebaseStorageService,
+  ) {}
 
   @Post('upload')
   @HttpCode(HttpStatus.CREATED)
@@ -46,14 +56,14 @@ export class FirebaseStorageController {
           format: 'binary',
           description: 'File ảnh (JPEG, PNG, WebP, tối đa 5MB)',
         },
-                 fileName: {
-           type: 'string',
-           description: 'Tên file tùy chọn (sẽ tự generate nếu không có)',
-         },
-         folder: {
-           type: 'string',
-           description: 'Thư mục lưu trữ (mặc định: products)',
-         },
+        fileName: {
+          type: 'string',
+          description: 'Tên file tùy chọn (sẽ tự generate nếu không có)',
+        },
+        folder: {
+          type: 'string',
+          description: 'Thư mục lưu trữ (mặc định: products)',
+        },
       },
     },
   })
@@ -71,7 +81,7 @@ export class FirebaseStorageController {
   @ApiResponse({ status: 400, description: 'File không hợp lệ hoặc quá lớn' })
   @ApiResponse({ status: 401, description: 'Chưa xác thực' })
   @ApiResponse({ status: 403, description: 'Không có quyền truy cập' })
-  @Roles('admin', 'manager', 'employee')
+  @Roles(ROLES.MANAGER, ROLES.STAFF)
   async uploadImage(
     @UploadedFile() file: Express.Multer.File,
     @Body('fileName') fileName?: string,
@@ -105,7 +115,8 @@ export class FirebaseStorageController {
         imageUrl: {
           type: 'string',
           description: 'URL đầy đủ của ảnh cần xóa',
-          example: 'https://storage.googleapis.com/your-bucket/products/image.jpg',
+          example:
+            'https://storage.googleapis.com/your-bucket/products/image.jpg',
         },
       },
       required: ['imageUrl'],
@@ -122,10 +133,13 @@ export class FirebaseStorageController {
       },
     },
   })
-  @ApiResponse({ status: 400, description: 'URL ảnh không hợp lệ hoặc file không tồn tại' })
+  @ApiResponse({
+    status: 400,
+    description: 'URL ảnh không hợp lệ hoặc file không tồn tại',
+  })
   @ApiResponse({ status: 401, description: 'Chưa xác thực' })
   @ApiResponse({ status: 403, description: 'Không có quyền truy cập' })
-  @Roles('admin', 'manager', 'employee')
+  @Roles(ROLES.MANAGER, ROLES.STAFF)
   async deleteImage(
     @Body('imageUrl') imageUrl: string,
     @CurrentUser() user?: any,
@@ -134,7 +148,8 @@ export class FirebaseStorageController {
       throw new BadRequestException('Vui lòng cung cấp URL ảnh cần xóa');
     }
 
-    const success = await this.firebaseStorageService.deleteProductImage(imageUrl);
+    const success =
+      await this.firebaseStorageService.deleteProductImage(imageUrl);
 
     return {
       message: 'Xóa ảnh thành công',
@@ -162,7 +177,7 @@ export class FirebaseStorageController {
   })
   @ApiResponse({ status: 401, description: 'Chưa xác thực' })
   @ApiResponse({ status: 403, description: 'Không có quyền truy cập' })
-  @Roles('admin', 'manager', 'employee')
+  @Roles(ROLES.MANAGER, ROLES.STAFF)
   async listImages(
     @Query('folder') folder: string = 'products',
     @CurrentUser() user?: any,
@@ -179,7 +194,9 @@ export class FirebaseStorageController {
   @Post('update')
   @HttpCode(HttpStatus.OK)
   @UseInterceptors(FileInterceptor('file'))
-  @ApiOperation({ summary: 'Cập nhật ảnh sản phẩm (xóa ảnh cũ và upload ảnh mới)' })
+  @ApiOperation({
+    summary: 'Cập nhật ảnh sản phẩm (xóa ảnh cũ và upload ảnh mới)',
+  })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     description: 'File ảnh mới và URL ảnh cũ',
@@ -191,18 +208,18 @@ export class FirebaseStorageController {
           format: 'binary',
           description: 'File ảnh mới (JPEG, PNG, WebP, tối đa 5MB)',
         },
-                 oldImageUrl: {
-           type: 'string',
-           description: 'URL ảnh cũ cần xóa',
-         },
-         fileName: {
-           type: 'string',
-           description: 'Tên file mới tùy chọn',
-         },
-         folder: {
-           type: 'string',
-           description: 'Thư mục lưu trữ (mặc định: products)',
-         },
+        oldImageUrl: {
+          type: 'string',
+          description: 'URL ảnh cũ cần xóa',
+        },
+        fileName: {
+          type: 'string',
+          description: 'Tên file mới tùy chọn',
+        },
+        folder: {
+          type: 'string',
+          description: 'Thư mục lưu trữ (mặc định: products)',
+        },
       },
     },
   })
@@ -218,10 +235,13 @@ export class FirebaseStorageController {
       },
     },
   })
-  @ApiResponse({ status: 400, description: 'File không hợp lệ hoặc thiếu thông tin' })
+  @ApiResponse({
+    status: 400,
+    description: 'File không hợp lệ hoặc thiếu thông tin',
+  })
   @ApiResponse({ status: 401, description: 'Chưa xác thực' })
   @ApiResponse({ status: 403, description: 'Không có quyền truy cập' })
-  @Roles('admin', 'manager', 'employee')
+  @Roles(ROLES.MANAGER, ROLES.STAFF)
   async updateImage(
     @UploadedFile() file: Express.Multer.File,
     @Body('oldImageUrl') oldImageUrl: string,
@@ -234,7 +254,9 @@ export class FirebaseStorageController {
     }
 
     if (!oldImageUrl) {
-      throw new BadRequestException('Vui lòng cung cấp URL ảnh cũ cần thay thế');
+      throw new BadRequestException(
+        'Vui lòng cung cấp URL ảnh cũ cần thay thế',
+      );
     }
 
     const newImageUrl = await this.firebaseStorageService.updateProductImage(
@@ -271,4 +293,4 @@ export class FirebaseStorageController {
       status: 'OK',
     };
   }
-} 
+}

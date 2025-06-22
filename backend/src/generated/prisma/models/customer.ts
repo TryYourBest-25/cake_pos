@@ -290,12 +290,12 @@ export type customerOrderByWithRelationInput = {
 
 export type customerWhereUniqueInput = Prisma.AtLeast<{
   customer_id?: number
+  account_id?: number
   phone?: string
   AND?: Prisma.customerWhereInput | Prisma.customerWhereInput[]
   OR?: Prisma.customerWhereInput[]
   NOT?: Prisma.customerWhereInput | Prisma.customerWhereInput[]
   membership_type_id?: Prisma.IntFilter<"customer"> | number
-  account_id?: Prisma.IntNullableFilter<"customer"> | number | null
   last_name?: Prisma.StringNullableFilter<"customer"> | string | null
   first_name?: Prisma.StringNullableFilter<"customer"> | string | null
   current_points?: Prisma.IntNullableFilter<"customer"> | number | null
@@ -305,7 +305,7 @@ export type customerWhereUniqueInput = Prisma.AtLeast<{
   account?: Prisma.XOR<Prisma.AccountNullableScalarRelationFilter, Prisma.accountWhereInput> | null
   membership_type?: Prisma.XOR<Prisma.Membership_typeScalarRelationFilter, Prisma.membership_typeWhereInput>
   order?: Prisma.OrderListRelationFilter
-}, "customer_id" | "phone">
+}, "customer_id" | "account_id" | "phone">
 
 export type customerOrderByWithAggregationInput = {
   customer_id?: Prisma.SortOrder
@@ -431,14 +431,9 @@ export type customerUncheckedUpdateManyInput = {
   updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
-export type CustomerListRelationFilter = {
-  every?: Prisma.customerWhereInput
-  some?: Prisma.customerWhereInput
-  none?: Prisma.customerWhereInput
-}
-
-export type customerOrderByRelationAggregateInput = {
-  _count?: Prisma.SortOrder
+export type CustomerNullableScalarRelationFilter = {
+  is?: Prisma.customerWhereInput | null
+  isNot?: Prisma.customerWhereInput | null
 }
 
 export type customerCountOrderByAggregateInput = {
@@ -494,51 +489,46 @@ export type customerSumOrderByAggregateInput = {
   current_points?: Prisma.SortOrder
 }
 
-export type CustomerNullableScalarRelationFilter = {
-  is?: Prisma.customerWhereInput | null
-  isNot?: Prisma.customerWhereInput | null
+export type CustomerListRelationFilter = {
+  every?: Prisma.customerWhereInput
+  some?: Prisma.customerWhereInput
+  none?: Prisma.customerWhereInput
 }
 
-export type customerCreateNestedManyWithoutAccountInput = {
-  create?: Prisma.XOR<Prisma.customerCreateWithoutAccountInput, Prisma.customerUncheckedCreateWithoutAccountInput> | Prisma.customerCreateWithoutAccountInput[] | Prisma.customerUncheckedCreateWithoutAccountInput[]
-  connectOrCreate?: Prisma.customerCreateOrConnectWithoutAccountInput | Prisma.customerCreateOrConnectWithoutAccountInput[]
-  createMany?: Prisma.customerCreateManyAccountInputEnvelope
-  connect?: Prisma.customerWhereUniqueInput | Prisma.customerWhereUniqueInput[]
+export type customerOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
-export type customerUncheckedCreateNestedManyWithoutAccountInput = {
-  create?: Prisma.XOR<Prisma.customerCreateWithoutAccountInput, Prisma.customerUncheckedCreateWithoutAccountInput> | Prisma.customerCreateWithoutAccountInput[] | Prisma.customerUncheckedCreateWithoutAccountInput[]
-  connectOrCreate?: Prisma.customerCreateOrConnectWithoutAccountInput | Prisma.customerCreateOrConnectWithoutAccountInput[]
-  createMany?: Prisma.customerCreateManyAccountInputEnvelope
-  connect?: Prisma.customerWhereUniqueInput | Prisma.customerWhereUniqueInput[]
+export type customerCreateNestedOneWithoutAccountInput = {
+  create?: Prisma.XOR<Prisma.customerCreateWithoutAccountInput, Prisma.customerUncheckedCreateWithoutAccountInput>
+  connectOrCreate?: Prisma.customerCreateOrConnectWithoutAccountInput
+  connect?: Prisma.customerWhereUniqueInput
 }
 
-export type customerUpdateManyWithoutAccountNestedInput = {
-  create?: Prisma.XOR<Prisma.customerCreateWithoutAccountInput, Prisma.customerUncheckedCreateWithoutAccountInput> | Prisma.customerCreateWithoutAccountInput[] | Prisma.customerUncheckedCreateWithoutAccountInput[]
-  connectOrCreate?: Prisma.customerCreateOrConnectWithoutAccountInput | Prisma.customerCreateOrConnectWithoutAccountInput[]
-  upsert?: Prisma.customerUpsertWithWhereUniqueWithoutAccountInput | Prisma.customerUpsertWithWhereUniqueWithoutAccountInput[]
-  createMany?: Prisma.customerCreateManyAccountInputEnvelope
-  set?: Prisma.customerWhereUniqueInput | Prisma.customerWhereUniqueInput[]
-  disconnect?: Prisma.customerWhereUniqueInput | Prisma.customerWhereUniqueInput[]
-  delete?: Prisma.customerWhereUniqueInput | Prisma.customerWhereUniqueInput[]
-  connect?: Prisma.customerWhereUniqueInput | Prisma.customerWhereUniqueInput[]
-  update?: Prisma.customerUpdateWithWhereUniqueWithoutAccountInput | Prisma.customerUpdateWithWhereUniqueWithoutAccountInput[]
-  updateMany?: Prisma.customerUpdateManyWithWhereWithoutAccountInput | Prisma.customerUpdateManyWithWhereWithoutAccountInput[]
-  deleteMany?: Prisma.customerScalarWhereInput | Prisma.customerScalarWhereInput[]
+export type customerUncheckedCreateNestedOneWithoutAccountInput = {
+  create?: Prisma.XOR<Prisma.customerCreateWithoutAccountInput, Prisma.customerUncheckedCreateWithoutAccountInput>
+  connectOrCreate?: Prisma.customerCreateOrConnectWithoutAccountInput
+  connect?: Prisma.customerWhereUniqueInput
 }
 
-export type customerUncheckedUpdateManyWithoutAccountNestedInput = {
-  create?: Prisma.XOR<Prisma.customerCreateWithoutAccountInput, Prisma.customerUncheckedCreateWithoutAccountInput> | Prisma.customerCreateWithoutAccountInput[] | Prisma.customerUncheckedCreateWithoutAccountInput[]
-  connectOrCreate?: Prisma.customerCreateOrConnectWithoutAccountInput | Prisma.customerCreateOrConnectWithoutAccountInput[]
-  upsert?: Prisma.customerUpsertWithWhereUniqueWithoutAccountInput | Prisma.customerUpsertWithWhereUniqueWithoutAccountInput[]
-  createMany?: Prisma.customerCreateManyAccountInputEnvelope
-  set?: Prisma.customerWhereUniqueInput | Prisma.customerWhereUniqueInput[]
-  disconnect?: Prisma.customerWhereUniqueInput | Prisma.customerWhereUniqueInput[]
-  delete?: Prisma.customerWhereUniqueInput | Prisma.customerWhereUniqueInput[]
-  connect?: Prisma.customerWhereUniqueInput | Prisma.customerWhereUniqueInput[]
-  update?: Prisma.customerUpdateWithWhereUniqueWithoutAccountInput | Prisma.customerUpdateWithWhereUniqueWithoutAccountInput[]
-  updateMany?: Prisma.customerUpdateManyWithWhereWithoutAccountInput | Prisma.customerUpdateManyWithWhereWithoutAccountInput[]
-  deleteMany?: Prisma.customerScalarWhereInput | Prisma.customerScalarWhereInput[]
+export type customerUpdateOneWithoutAccountNestedInput = {
+  create?: Prisma.XOR<Prisma.customerCreateWithoutAccountInput, Prisma.customerUncheckedCreateWithoutAccountInput>
+  connectOrCreate?: Prisma.customerCreateOrConnectWithoutAccountInput
+  upsert?: Prisma.customerUpsertWithoutAccountInput
+  disconnect?: Prisma.customerWhereInput | boolean
+  delete?: Prisma.customerWhereInput | boolean
+  connect?: Prisma.customerWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.customerUpdateToOneWithWhereWithoutAccountInput, Prisma.customerUpdateWithoutAccountInput>, Prisma.customerUncheckedUpdateWithoutAccountInput>
+}
+
+export type customerUncheckedUpdateOneWithoutAccountNestedInput = {
+  create?: Prisma.XOR<Prisma.customerCreateWithoutAccountInput, Prisma.customerUncheckedCreateWithoutAccountInput>
+  connectOrCreate?: Prisma.customerCreateOrConnectWithoutAccountInput
+  upsert?: Prisma.customerUpsertWithoutAccountInput
+  disconnect?: Prisma.customerWhereInput | boolean
+  delete?: Prisma.customerWhereInput | boolean
+  connect?: Prisma.customerWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.customerUpdateToOneWithWhereWithoutAccountInput, Prisma.customerUpdateWithoutAccountInput>, Prisma.customerUncheckedUpdateWithoutAccountInput>
 }
 
 export type NullableIntFieldUpdateOperationsInput = {
@@ -641,41 +631,40 @@ export type customerCreateOrConnectWithoutAccountInput = {
   create: Prisma.XOR<Prisma.customerCreateWithoutAccountInput, Prisma.customerUncheckedCreateWithoutAccountInput>
 }
 
-export type customerCreateManyAccountInputEnvelope = {
-  data: Prisma.customerCreateManyAccountInput | Prisma.customerCreateManyAccountInput[]
-  skipDuplicates?: boolean
-}
-
-export type customerUpsertWithWhereUniqueWithoutAccountInput = {
-  where: Prisma.customerWhereUniqueInput
+export type customerUpsertWithoutAccountInput = {
   update: Prisma.XOR<Prisma.customerUpdateWithoutAccountInput, Prisma.customerUncheckedUpdateWithoutAccountInput>
   create: Prisma.XOR<Prisma.customerCreateWithoutAccountInput, Prisma.customerUncheckedCreateWithoutAccountInput>
+  where?: Prisma.customerWhereInput
 }
 
-export type customerUpdateWithWhereUniqueWithoutAccountInput = {
-  where: Prisma.customerWhereUniqueInput
+export type customerUpdateToOneWithWhereWithoutAccountInput = {
+  where?: Prisma.customerWhereInput
   data: Prisma.XOR<Prisma.customerUpdateWithoutAccountInput, Prisma.customerUncheckedUpdateWithoutAccountInput>
 }
 
-export type customerUpdateManyWithWhereWithoutAccountInput = {
-  where: Prisma.customerScalarWhereInput
-  data: Prisma.XOR<Prisma.customerUpdateManyMutationInput, Prisma.customerUncheckedUpdateManyWithoutAccountInput>
+export type customerUpdateWithoutAccountInput = {
+  last_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  first_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  current_points?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gender?: Prisma.NullableEnumgender_enumFieldUpdateOperationsInput | $Enums.gender_enum | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  membership_type?: Prisma.membership_typeUpdateOneRequiredWithoutCustomerNestedInput
+  order?: Prisma.orderUpdateManyWithoutCustomerNestedInput
 }
 
-export type customerScalarWhereInput = {
-  AND?: Prisma.customerScalarWhereInput | Prisma.customerScalarWhereInput[]
-  OR?: Prisma.customerScalarWhereInput[]
-  NOT?: Prisma.customerScalarWhereInput | Prisma.customerScalarWhereInput[]
-  customer_id?: Prisma.IntFilter<"customer"> | number
-  membership_type_id?: Prisma.IntFilter<"customer"> | number
-  account_id?: Prisma.IntNullableFilter<"customer"> | number | null
-  last_name?: Prisma.StringNullableFilter<"customer"> | string | null
-  first_name?: Prisma.StringNullableFilter<"customer"> | string | null
-  phone?: Prisma.StringFilter<"customer"> | string
-  current_points?: Prisma.IntNullableFilter<"customer"> | number | null
-  gender?: Prisma.Enumgender_enumNullableFilter<"customer"> | $Enums.gender_enum | null
-  created_at?: Prisma.DateTimeNullableFilter<"customer"> | Date | string | null
-  updated_at?: Prisma.DateTimeNullableFilter<"customer"> | Date | string | null
+export type customerUncheckedUpdateWithoutAccountInput = {
+  customer_id?: Prisma.IntFieldUpdateOperationsInput | number
+  membership_type_id?: Prisma.IntFieldUpdateOperationsInput | number
+  last_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  first_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.StringFieldUpdateOperationsInput | string
+  current_points?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gender?: Prisma.NullableEnumgender_enumFieldUpdateOperationsInput | $Enums.gender_enum | null
+  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  order?: Prisma.orderUncheckedUpdateManyWithoutCustomerNestedInput
 }
 
 export type customerCreateWithoutMembership_typeInput = {
@@ -727,6 +716,22 @@ export type customerUpdateWithWhereUniqueWithoutMembership_typeInput = {
 export type customerUpdateManyWithWhereWithoutMembership_typeInput = {
   where: Prisma.customerScalarWhereInput
   data: Prisma.XOR<Prisma.customerUpdateManyMutationInput, Prisma.customerUncheckedUpdateManyWithoutMembership_typeInput>
+}
+
+export type customerScalarWhereInput = {
+  AND?: Prisma.customerScalarWhereInput | Prisma.customerScalarWhereInput[]
+  OR?: Prisma.customerScalarWhereInput[]
+  NOT?: Prisma.customerScalarWhereInput | Prisma.customerScalarWhereInput[]
+  customer_id?: Prisma.IntFilter<"customer"> | number
+  membership_type_id?: Prisma.IntFilter<"customer"> | number
+  account_id?: Prisma.IntNullableFilter<"customer"> | number | null
+  last_name?: Prisma.StringNullableFilter<"customer"> | string | null
+  first_name?: Prisma.StringNullableFilter<"customer"> | string | null
+  phone?: Prisma.StringFilter<"customer"> | string
+  current_points?: Prisma.IntNullableFilter<"customer"> | number | null
+  gender?: Prisma.Enumgender_enumNullableFilter<"customer"> | $Enums.gender_enum | null
+  created_at?: Prisma.DateTimeNullableFilter<"customer"> | Date | string | null
+  updated_at?: Prisma.DateTimeNullableFilter<"customer"> | Date | string | null
 }
 
 export type customerCreateWithoutOrderInput = {
@@ -786,55 +791,6 @@ export type customerUncheckedUpdateWithoutOrderInput = {
   customer_id?: Prisma.IntFieldUpdateOperationsInput | number
   membership_type_id?: Prisma.IntFieldUpdateOperationsInput | number
   account_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  last_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  first_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  phone?: Prisma.StringFieldUpdateOperationsInput | string
-  current_points?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  gender?: Prisma.NullableEnumgender_enumFieldUpdateOperationsInput | $Enums.gender_enum | null
-  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-}
-
-export type customerCreateManyAccountInput = {
-  customer_id?: number
-  membership_type_id: number
-  last_name?: string | null
-  first_name?: string | null
-  phone: string
-  current_points?: number | null
-  gender?: $Enums.gender_enum | null
-  created_at?: Date | string | null
-  updated_at?: Date | string | null
-}
-
-export type customerUpdateWithoutAccountInput = {
-  last_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  first_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  phone?: Prisma.StringFieldUpdateOperationsInput | string
-  current_points?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  gender?: Prisma.NullableEnumgender_enumFieldUpdateOperationsInput | $Enums.gender_enum | null
-  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  membership_type?: Prisma.membership_typeUpdateOneRequiredWithoutCustomerNestedInput
-  order?: Prisma.orderUpdateManyWithoutCustomerNestedInput
-}
-
-export type customerUncheckedUpdateWithoutAccountInput = {
-  customer_id?: Prisma.IntFieldUpdateOperationsInput | number
-  membership_type_id?: Prisma.IntFieldUpdateOperationsInput | number
-  last_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  first_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  phone?: Prisma.StringFieldUpdateOperationsInput | string
-  current_points?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  gender?: Prisma.NullableEnumgender_enumFieldUpdateOperationsInput | $Enums.gender_enum | null
-  created_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  updated_at?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  order?: Prisma.orderUncheckedUpdateManyWithoutCustomerNestedInput
-}
-
-export type customerUncheckedUpdateManyWithoutAccountInput = {
-  customer_id?: Prisma.IntFieldUpdateOperationsInput | number
-  membership_type_id?: Prisma.IntFieldUpdateOperationsInput | number
   last_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   first_name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.StringFieldUpdateOperationsInput | string

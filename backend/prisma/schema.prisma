@@ -5,6 +5,10 @@ generator client {
   binaryTargets   = ["native"]
 }
 
+generator dbml {
+  provider = "prisma-dbml-generator"
+}
+
 datasource cake_pos_db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -19,11 +23,10 @@ model account {
   is_active     Boolean?   @default(false)
   is_locked     Boolean    @default(false)
   last_login    DateTime?  @cake_pos_db.Timestamp(6)
-  refresh_token String?    @cake_pos_db.VarChar(255)
   created_at    DateTime?  @default(now()) @cake_pos_db.Timestamp(6)
   updated_at    DateTime?  @default(now()) @cake_pos_db.Timestamp(6)
   role          role       @relation(fields: [role_id], references: [role_id], map: "fk_account_role")
-  customer      customer[]
+  customer      customer?
   employee      employee?
   manager       manager?
 }
@@ -39,20 +42,10 @@ model category {
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model coupon {
-  coupon_id   Int       @id @default(autoincrement())
-  coupon      String    @unique(map: "uk_coupon_coupon") @cake_pos_db.VarChar(15)
-  description String?   @cake_pos_db.VarChar(1000)
-  created_at  DateTime? @default(now()) @cake_pos_db.Timestamp(6)
-  updated_at  DateTime? @default(now()) @cake_pos_db.Timestamp(6)
-  discount    discount?
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model customer {
   customer_id        Int             @id @default(autoincrement())
   membership_type_id Int             @cake_pos_db.SmallInt
-  account_id         Int?
+  account_id         Int?            @unique(map: "uk_customer_account_id")
   last_name          String?         @cake_pos_db.VarChar(70)
   first_name         String?         @cake_pos_db.VarChar(70)
   phone              String          @unique(map: "uk_customer_phone") @cake_pos_db.VarChar(15)
@@ -74,7 +67,7 @@ model discount {
   discount_id              Int              @id @default(autoincrement())
   name                     String           @unique(map: "uk_discount_name") @cake_pos_db.VarChar(500)
   description              String?          @cake_pos_db.VarChar(1000)
-  coupon_id                Int              @unique(map: "uk_discount_coupon_id")
+  coupon_code              String           @unique(map: "uk_discount_coupon_code")
   discount_value           Decimal          @cake_pos_db.Decimal(4, 1)
   min_required_order_value Int
   max_discount_amount      Int
@@ -87,7 +80,6 @@ model discount {
   is_active                Boolean          @default(true)
   created_at               DateTime?        @default(now()) @cake_pos_db.Timestamp(6)
   updated_at               DateTime?        @default(now()) @cake_pos_db.Timestamp(6)
-  coupon                   coupon           @relation(fields: [coupon_id], references: [coupon_id], map: "fk_discount_coupon")
   order_discount           order_discount[]
 }
 
@@ -140,7 +132,7 @@ model membership_type {
 model order {
   order_id       Int                @id @default(autoincrement())
   customer_id    Int?
-  employee_id    Int
+  employee_id    Int?
   order_time     DateTime?          @default(now()) @cake_pos_db.Timestamp(6)
   total_amount   Int?
   final_amount   Int?
@@ -149,7 +141,7 @@ model order {
   created_at     DateTime?          @default(now()) @cake_pos_db.Timestamp(6)
   updated_at     DateTime?          @default(now()) @cake_pos_db.Timestamp(6)
   customer       customer?          @relation(fields: [customer_id], references: [customer_id], map: "fk_order_customer")
-  employee       employee           @relation(fields: [employee_id], references: [employee_id], onDelete: Cascade, map: "fk_order_employee")
+  employee       employee?           @relation(fields: [employee_id], references: [employee_id], map: "fk_order_employee")
   order_discount order_discount[]
   order_product  order_product[]
   payment        payment[]
@@ -220,14 +212,14 @@ model payment_method {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model product {
   product_id    Int             @id @default(autoincrement())
-  category_id   Int?            @cake_pos_db.SmallInt
+  category_id   Int            @cake_pos_db.SmallInt
   name          String          @unique(map: "uk_product_name") @cake_pos_db.VarChar(100)
   description   String?         @cake_pos_db.VarChar(1000)
   is_signature  Boolean?        @default(false)
   image_path    String?         @cake_pos_db.VarChar(1000)
   created_at    DateTime?       @default(now()) @cake_pos_db.Timestamp(6)
   updated_at    DateTime?       @default(now()) @cake_pos_db.Timestamp(6)
-  category      category?       @relation(fields: [category_id], references: [category_id], map: "fk_product_category")
+  category      category       @relation(fields: [category_id], references: [category_id], map: "fk_product_category")
   product_price product_price[]
 }
 
